@@ -81,7 +81,6 @@ int main() {
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
-	pos_atual = eventos[0].pos;
 
 	for (evento = 1; evento < len(eventos); evento++)
 		eventos[evento].executa();
@@ -123,8 +122,7 @@ void Evento::executa() {
 	        }
 		motor(motor_l, motor_r);
 
-		// if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
-		if (1) {
+		if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
 			cout << "Cone proximo\n";
 			if (find_cone()) {
 				motor(-50, -50);
@@ -141,19 +139,18 @@ bool Evento::find_cone() {
 	LedsI2C led;
 
 	for (;;) {
-		// if (pos_atual.update() && (pos_atual.distance_to(this->pos) > this->margemObjetivo + 1./1000.))
-		// 	return false;
+		if (pos_atual.update() && (pos_atual.distance_to(this->pos) > this->margemObjetivo + 1./1000.))
+			return false;
 
 		if (bumper_1 || bumper_2) {
 			led.red((evento == 1) * 255);
 			led.green((evento == 2) * 255);
 			led.blue((evento == 3) * 255);
-			led.setMode(BLINK);
+			led.setMode(MANUAL);
 			return true;
 		}
 
 		camera.showBiggest();
 		camera.followContour(camera.getBiggest());
 	}
-	return false;
 }

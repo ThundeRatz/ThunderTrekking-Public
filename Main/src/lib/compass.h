@@ -27,7 +27,7 @@
 
 #include <cstdint>
 
-double compass_orientation(int16_t x, int16_t y);
+double compass_orientation(double x, double y);
 double compass_diff(double target, double now);
 
 #endif

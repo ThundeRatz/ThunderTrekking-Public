@@ -30,7 +30,6 @@
 
 #include "camera.hh"
 #include "errno_string.hh"
-#include "LedsI2C.hh"
 #include "GPIOButton.hh"
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
@@ -41,12 +40,13 @@
 #include "Leds.hh"
 #include "GPS.hh"
 #include "PID.hh"
+#include "GPIO.hh"
 
 #include "compass.h"
 
 #define len(array)     ((&array)[1] - array)
 
-#define VELOCIDADE_MAX 40
+#define VELOCIDADE_MAX 70
 #define ERRO_MAX       M_PI/10
 #define MS	           1000000
 
@@ -63,10 +63,10 @@ struct Evento {
 };
 
 static Evento eventos[] = {
-	{.pos = GPS(-0.3705668648, -0.7852454517), .margemGPS = 0, .margemObjetivo = 0, .tem_cone = false, .desvio = 0},
-	{.pos = GPS(-0.3705604265, -0.7852494734), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
-	{.pos = GPS(-0.3705623516, -0.7852462484), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
-	{.pos = GPS(-0.3705657466, -0.7852490736), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
+	{.pos = GPS(-0.3705659257, -0.7852466401), .margemGPS = 0, .margemObjetivo = 0, .tem_cone = false, .desvio = 0},
+	{.pos = GPS(-0.3705603142, -0.7852490276), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
+	{.pos = GPS(-0.3705621740, -0.7852463187), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
+	{.pos = GPS(-0.3705656184, -0.7852493467), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
 };
 
 static GPSMonitor *gps_monitor;
@@ -77,7 +77,7 @@ static int evento;
 int main() {
 	try {
 		GPIOButton reset(164);
-		BNO055 bno055_instance;-0.3705658102, -0.785249658
+		BNO055 bno055_instance;
 		bno055 = &bno055_instance;
 		thread_spawn(motors_thread);
 
@@ -86,6 +86,7 @@ int main() {
 
 		GPSMonitor gps_monitor_initial_position(eventos[0].pos);
 		while (!gps_monitor_initial_position.update()) {
+			motor(50, 50);
 			cout << "gps_monitor.update() inicial\n";
 			sleep_ms(2000);
 		}
@@ -94,15 +95,8 @@ int main() {
 
 		for (;;) {
 			while (reset) {
-				LedsI2C led;
-				try {
-					led.setMode(MANUAL);
-					led.red(0);
-					led.green(0);
-					led.blue(0);
-				} catch (runtime_error& e) {
-					cerr << e.what() << endl;
-				}
+				GPIO led(163);
+				led = 0;
 				sleep_ms(200);
 			}
 			for (evento = 1; evento < len(eventos); evento++)
@@ -139,34 +133,35 @@ void Evento::executa() {
 
 		bno055->heading(heading);
 
-		correcao = compass_diff(pos_atual.azimuth_to_2d(this->pos) + 1.74975108, heading.angle() + 1.23920821);
+		correcao = compass_diff(pos_atual.azimuth_to(this->pos) + 1.74975108 - 0.36247002, heading.angle() + 1.23920821);
 		cout << pos_atual.point << " -> " << this->pos.point << endl
-			<< "Azimuth: " << pos_atual.azimuth_to_2d(this->pos) << endl
+			<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
 			<< "Direcao Atual: " << heading.angle() << endl
 			<< "Diff: " << correcao << endl
-			<< "Dist: " << pos_atual.distance_to_2d(this->pos) << endl;
+			<< "Dist: " << pos_atual.distance_to(this->pos) << endl;
 
 		if (correcao > ERRO_MAX) {
-	                cout << "Girando para a direita\n";
-	                motor_l = VELOCIDADE_MAX;
-	                motor_r = 0;//-VELOCIDADE_MAX;
+	        cout << "Girando para a direita\n";
+	        motor_l = VELOCIDADE_MAX;
+	        motor_r = VELOCIDADE_MAX / 2;//-VELOCIDADE_MAX;
 		} else if (correcao < -ERRO_MAX) {
-	                cout << "Girando para a esquerda\n";
-	                motor_l = 0;//-VELOCIDADE_MAX;
-	                motor_r = VELOCIDADE_MAX;
-	        } else {
-	                cout << "Seguindo reto\n";
-	                motor_l = VELOCIDADE_MAX + 10 + 50 * correcao;
-	                motor_r = VELOCIDADE_MAX + 10 - 50 * correcao;
+	        cout << "Girando para a esquerda\n";
+	        motor_l = VELOCIDADE_MAX / 2;//-VELOCIDADE_MAX;
+	        motor_r = VELOCIDADE_MAX;
+        } else {
+            cout << "Seguindo reto\n";
+            motor_l = VELOCIDADE_MAX + 10 + 50 * correcao;
+            motor_r = VELOCIDADE_MAX + 10 - 50 * correcao;
 		}
 		motor(motor_l, motor_r);
 
-		if (this->tem_cone && pos_atual.distance_to_2d(this->pos) < this->margemObjetivo) {
+		if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
 			cout << "Cone proximo\n";
 			motor(0, 0);
 			if (find_cone()) {
+				GPIO led(163);
 				motor(-100, -100);
-				sleep_ms(800);
+				sleep_ms(1000);
 				return;
 			}
 		}
@@ -176,17 +171,16 @@ void Evento::executa() {
 bool Evento::find_cone() {
 	Trekking::GPIOButton bumper_1(165), bumper_2(166);
 	Camera camera;
-	LedsI2C led;
+	GPIO led(163);
+	led = 0;
 
 	for (;;) {
-		if (gps_monitor->update() && (gps_monitor->distance_to_2d(this->pos) > this->margemObjetivo + 1./1000.))
+		if (gps_monitor->update() && (gps_monitor->distance_to(this->pos) > this->margemObjetivo + 1./1000.))
 			return false;
 
 		if (bumper_1 || bumper_2) {
-			led.red((evento == 1) * 255);
-			led.green((evento == 2) * 255);
-			led.blue((evento == 3) * 255);
-			led.setMode(MANUAL);
+			GPIO led(163);
+			led = 1;
 			return true;
 		}
 

@@ -75,7 +75,7 @@ int Camera::getXContour(int j) {
 	return sum/(contours[j]).size();
 }
 
-#define VELOCIDADE_MAX 50
+#define VELOCIDADE_MAX 70
 
 void Camera::followContour(int j) {
 	int i = getXContour(j);

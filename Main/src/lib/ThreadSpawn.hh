@@ -24,4 +24,6 @@
 
 #pragma once
 
+extern int running;
+
 void thread_spawn(void new_thread());

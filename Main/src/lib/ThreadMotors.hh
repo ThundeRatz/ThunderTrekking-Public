@@ -24,7 +24,7 @@
 
 #pragma once
 
-void __attribute__((noreturn)) motors_thread();
+void motors_thread();
 void motor(int left, int right);
 void set_max_speed(int new_max_speed);
 void reset_max_speed();

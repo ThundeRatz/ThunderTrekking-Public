@@ -55,12 +55,11 @@ namespace Trekking {
 
 	I2CRegister::operator int () const {
 		int status;
-		for (;;) {
-			status = i2c_smbus_read_byte_data(i2c.fd, i2c_register);
-			if (status >= 0)
-				return status;
-			perror("i2c_smbus_read_byte_data");
-		}
+		status = i2c_smbus_read_byte_data(i2c.fd, i2c_register);
+		if (status >= 0)
+			return status;
+		perror("i2c_smbus_read_byte_data");
+		throw runtime_error("i2c_smbus_read_byte_data");
 	}
 
 	I2C::I2C(int dev_n, const std::string& name) {

@@ -29,6 +29,7 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "compass.h"
 #include "GPS.hh"
 
 #define EARTH_R			6371
@@ -62,9 +63,9 @@ namespace Trekking {
 		return EARTH_R * dist_angular;
 	}
 
-	// double GPS::distance_to(const GPS& to) {
-	// 	return sqrt(point[0] * to.point[0] + point[1] * to.point[1]);
-	// }
+	double GPS::distance_to_2d(const GPS& to) {
+		return sqrt(point[0] * to.point[0] + point[1] * to.point[1]);
+	}
 
 	/**
 	 * Forward Azimuth (initial angle)
@@ -78,17 +79,17 @@ namespace Trekking {
 		return atan2(y, x);
 	}
 
-	// double GPS::azimuth_to(const GPS& to) {
-	// 	double x = to.point[0] - point[0],
-	// 		   y = to.point[1] - point[1];
-	// 	if (x >= 0 && y >= 0)
-	// 		return atan2(x, y);
-	// 	if (x < 0 && y >= 0)
-	// 		return 2*M_PI - atan2(fabs(x), y);
-	// 	if (x < 0 && y < 0)
-	// 		return M_PI + atan2(fabs(x), fabs(y));
-	// 	return M_PI - atan2(x, fabs(y));
-	// }
+	double GPS::azimuth_to_2d(const GPS& to) {
+		// return compass_orientation((to.point - point)[0], (to.point - point)[1]);
+		double x = to.point[0] - point[0], y = to.point[1] - point[1];
+		if (x >= 0 && y >= 0)
+			return atan2(x, y);
+		if (x < 0 && y >= 0)
+			return 2*M_PI - atan2(fabs(x), y);
+		if (x < 0 && y < 0)
+			return M_PI + atan2(fabs(x), fabs(y));
+		return M_PI - atan2(x, fabs(y));
+	}
 
 	void GPS::to_2d(Eigen::Vector2d& point, GPS& origin) {
 		double distance, azimuth;

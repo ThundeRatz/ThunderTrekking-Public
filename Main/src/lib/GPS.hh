@@ -37,7 +37,9 @@ namespace Trekking {
 		GPS();
 		GPS(double latitude, double longitude);
 		double distance_to(const GPS& to);
+		double distance_to_2d(const GPS& to);
 		double azimuth_to(const GPS& to);
+		double azimuth_to_2d(const GPS& to);
 		void to_2d(Eigen::Vector2d& point, GPS& origin);
 
 	private:

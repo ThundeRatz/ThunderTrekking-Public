@@ -22,9 +22,13 @@
  * SOFTWARE.
 */
 
+#include "ThreadSpawn.hh"
+
 #include <system_error>
 #include <iostream>
 #include <thread>
+
+int running = 1;
 
 void thread_spawn(void new_thread()) {
 	try {

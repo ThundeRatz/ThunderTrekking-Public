@@ -63,13 +63,13 @@ struct Evento {
 };
 
 static Evento eventos[] = {
-	{.pos = GPS(-0.3705665059, -0.7852447993), .margemGPS = 0, .margemObjetivo = 0, .tem_cone = false, .desvio = 0},
-	{.pos = GPS(-0.3705602194, -0.7852497849), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
-	{.pos = GPS(-0.3705618575, -0.7852466957), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
-	{.pos = GPS(-0.3705658102, -0.785249658), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
+	{.pos = GPS(-0.3705668648, -0.7852454517), .margemGPS = 0, .margemObjetivo = 0, .tem_cone = false, .desvio = 0},
+	{.pos = GPS(-0.3705604265, -0.7852494734), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
+	{.pos = GPS(-0.3705623516, -0.7852462484), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
+	{.pos = GPS(-0.3705657466, -0.7852490736), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
 };
 
-static GPSMonitor gps_monitor(eventos[0].pos);
+static GPSMonitor *gps_monitor;
 static BNO055 *bno055;
 static Eigen::Rotation2D<double> heading;
 static int evento;
@@ -77,17 +77,20 @@ static int evento;
 int main() {
 	try {
 		GPIOButton reset(164);
-		BNO055 bno055_instance;
+		BNO055 bno055_instance;-0.3705658102, -0.785249658
 		bno055 = &bno055_instance;
 		thread_spawn(motors_thread);
 
 		for (int i = 0; i < len(eventos); i++)
 			eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
 
-		// while (!gps_monitor.update()) {
-		// 	cout << "gps_monitor.update() inicial\n";
-		// 	sleep_ms(2000);
-		// }
+		GPSMonitor gps_monitor_initial_position(eventos[0].pos);
+		while (!gps_monitor_initial_position.update()) {
+			cout << "gps_monitor.update() inicial\n";
+			sleep_ms(2000);
+		}
+		GPSMonitor gps_monitor_instance(gps_monitor_initial_position);
+		gps_monitor = &gps_monitor_instance;
 
 		for (;;) {
 			while (reset) {
@@ -112,7 +115,7 @@ int main() {
 		}
 	} catch (runtime_error& e) {
 		cerr << e.what() << '\n';
-		abort();
+		running = 0;
 	}
 	return 0;
 }
@@ -128,20 +131,20 @@ void Evento::executa() {
 	cout << "Executando evento\n";
 
 	while (!reset) {
-		if (gps_monitor.update()) {
-			pos_atual.latitude = gps_monitor.latitude;
-			pos_atual.longitude = gps_monitor.longitude;
+		if (gps_monitor->update()) {
+			pos_atual.latitude = gps_monitor->latitude;
+			pos_atual.longitude = gps_monitor->longitude;
 			pos_atual.to_2d(pos_atual.point, eventos[0].pos);
 		}
 
 		bno055->heading(heading);
 
-		correcao = compass_diff(0.40594833 - 0.014 + pos_atual.azimuth_to(this->pos), heading.angle());
+		correcao = compass_diff(pos_atual.azimuth_to_2d(this->pos) + 1.74975108, heading.angle() + 1.23920821);
 		cout << pos_atual.point << " -> " << this->pos.point << endl
-			<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
+			<< "Azimuth: " << pos_atual.azimuth_to_2d(this->pos) << endl
 			<< "Direcao Atual: " << heading.angle() << endl
 			<< "Diff: " << correcao << endl
-			<< "Dist: " << pos_atual.distance_to(this->pos) << endl;
+			<< "Dist: " << pos_atual.distance_to_2d(this->pos) << endl;
 
 		if (correcao > ERRO_MAX) {
 	                cout << "Girando para a direita\n";
@@ -153,12 +156,12 @@ void Evento::executa() {
 	                motor_r = VELOCIDADE_MAX;
 	        } else {
 	                cout << "Seguindo reto\n";
-	                motor_l = VELOCIDADE_MAX + 10 + 8 * correcao;
-	                motor_r = VELOCIDADE_MAX + 10 - 8 * correcao;
+	                motor_l = VELOCIDADE_MAX + 10 + 50 * correcao;
+	                motor_r = VELOCIDADE_MAX + 10 - 50 * correcao;
 		}
 		motor(motor_l, motor_r);
 
-		if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
+		if (this->tem_cone && pos_atual.distance_to_2d(this->pos) < this->margemObjetivo) {
 			cout << "Cone proximo\n";
 			motor(0, 0);
 			if (find_cone()) {
@@ -176,7 +179,7 @@ bool Evento::find_cone() {
 	LedsI2C led;
 
 	for (;;) {
-		if (gps_monitor.update() && (gps_monitor.distance_to(this->pos) > this->margemObjetivo + 1./1000.))
+		if (gps_monitor->update() && (gps_monitor->distance_to_2d(this->pos) > this->margemObjetivo + 1./1000.))
 			return false;
 
 		if (bumper_1 || bumper_2) {

@@ -4,7 +4,7 @@ bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
 	udp_send pixy_test distance compass_diff controle \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
-	BumperTest TesteGeral
+	BumperTest TesteGeral cameraTest
 
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
@@ -55,8 +55,8 @@ compass_diff_LDADD = -lm
 # color_follow_LDADD = -lpthread $(PIXY) -lm
 
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc src/lib/sleep.cc \
-	src/lib/errno_string.cc
-gpsd_client_new_LDADD = -lgps -lm
+	src/lib/errno_string.cc 
+gpsd_client_new_LDADD = -lgps -lm9
 
 PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
 	src/lib/UDP.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
@@ -80,6 +80,10 @@ BNO055_test_SOURCES = src/bin/utils/BNO055_test.cc src/lib/bno055.cc \
 BumperTest_SOURCES = src/bin/utils/BumperTest.cc src/lib/Bumper.cc src/lib/Leds.cc \
 	src/lib/errno_string.cc
 BumperTest_LDADD = -levdev
+
+cameraTest_SOURCES = src/lib/ThreadMotors.cc src/visao/camera.cpp src/visao/cameraMainTest.cc \
+	src/lib/serial.cc src/lib/ThreadSpawn.cc src/lib/sleep.cc src/lib/errno_string.cc
+cameraTest_LDADD = $(opencv_LIBS)
 
 # KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc \
 # 	src/lib/ThreadSpawn.cc src/lib/UDP.cc \s

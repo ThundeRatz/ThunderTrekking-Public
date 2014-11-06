@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include <stdint.h>
-#include <errno.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -24,8 +23,12 @@
 #include <sys/ioctl.h>
 #include <linux/joystick.h>
 
-typedef struct js_event js_event_t;
-/*{
+#ifdef JOYSTICK_NONBLOCK
+#include <errno.h>
+#endif
+
+/* struct js_event:
+{
 	uint32_t time;	// timestamp em milisegundos.
 					// Detalhe: não guarda o timestamp do sistema, mas um timestamp
 					// a partir de um valor arbitrário do driver:
@@ -41,57 +44,62 @@ typedef struct js_event js_event_t;
 }
 */
 
+inline static int version_check(int fd, int *version) {
+	if (ioctl(fd, JSIOCGVERSION, &version) < 0) {
+		fprintf(stderr, "Joystick - versão do driver < 1.0, abortando\n");
+		return -1;
+	}
+	return 0;
+}
+
 /*
  * 
  * int joystick_open()
  * 
- * Abre joystick, testa fd por versão compatível do driver e escreve na saída padrão
- * dados do controle. Retorna fd.
+ * Abre joystick e testa fd por versão compatível do driver. Retorna fd.
  * 
 */
 
 int joystick_open(char *dev) {
 	int version, fd;
-	char name[128], axes, buttons;
-	
 #ifdef JOYSTICK_NONBLOCK
-	#warning __FILE__ in NONBLOCK mode
 	fd = open(dev, O_RDONLY | O_NONBLOCK);
-#else
+#else	
 	fd = open(dev, O_RDONLY);
 #endif
-	
 	if (fd == -1) {
 		fprintf(stderr, "Erro na abertura de %s:\t", dev);
 		perror("open");
 		return -1;
 	}
 	
-	if (ioctl(fd, JSIOCGVERSION, &version) < 0) {
-		fprintf(stderr, "Versão do driver < 1.0, abortando\n");
+	if (version_check(fd, &version))
 		return -1;
-	}
-	
-	fprintf(stderr, "Versão 0x%x\n", version);
-	
-	if (ioctl(fd, JSIOCGNAME(sizeof(name)), name) < 0) {
-		fprintf(stderr, "Falha na leitura do nome\n");
-		return -1;
-	}
-	fprintf(stderr, "Nome: %s\n", name);
-	
-	if (ioctl(fd, JSIOCGAXES, &axes) < 0) {
-		fprintf(stderr, "Falha na leitura do número de eixos\n");
-		return -1;
-	}
-	fprintf(stderr, "%d eixos\n", axes);
-	
-	if (ioctl(fd, JSIOCGBUTTONS, &buttons) < 0) {
-		fprintf(stderr, "Falha na leitura do número de botões\n");
-		return -1;
-	}
-	fprintf(stderr, "%d botões\n", buttons);
 	return fd;
+}
+
+void joystick_dump(int fd) {
+	int version;
+	char name[128];
+	uint8_t axes, buttons;
+	if (version_check(fd, &version))
+		return;
+	printf("Versão 0x%x\n", version);
+	
+	if (ioctl(fd, JSIOCGNAME(sizeof(name)), name) < 0)
+		printf("Falha na leitura do nome\n");
+	else
+		printf("Nome: %s\n", name);
+	
+	if (ioctl(fd, JSIOCGAXES, &axes) < 0)
+		printf("Falha na leitura do número de eixos\n");
+	else
+		printf("%d eixos\n", axes);
+	
+	if (ioctl(fd, JSIOCGBUTTONS, &buttons) < 0)
+		printf("Falha na leitura do número de botões\n");
+	else
+		printf("%d botões\n", buttons);
 }
 
 /*
@@ -103,8 +111,8 @@ int joystick_open(char *dev) {
  * 
 */
 
-int joystick_read(int fd, js_event_t *event) {
-	switch (read(fd, event, sizeof(js_event_t))) {
+int joystick_read(int fd, struct js_event *event) {
+	switch (read(fd, event, sizeof(struct js_event))) {
 		case -1:
 #ifdef JOYSTICK_NONBLOCK
 		if (errno == EAGAIN)
@@ -115,8 +123,12 @@ int joystick_read(int fd, js_event_t *event) {
 		case 0:
 		fprintf(stderr, __FILE__ " - unexpected EOF at joystick device\n");
 		return -1;
-		case sizeof(js_event_t):
+		case sizeof(struct js_event):
+#ifdef JOYSTICK_NONBLOCK
 		return 1;	// há eventos
+#else
+		return 0;
+#endif
 		default:
 		fprintf(stderr, __FILE__ " - joystick invalid packet\n");
 		return -1;

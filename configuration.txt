@@ -1,0 +1,12 @@
+Aqui estão listadas as principais modificações feitas em um sistema Linux para usar com o programa do Trekking.
+
+/etc/inittab:
+"1:2345:respawn:/sbin/getty --noclear 38400 tty1" substituído por:
+"1:2345:respawn:/bin/login -f pi tty1 </dev/tty1 >/dev/tty1 2>&1"
+Ao invés de iniciar um tty em tty1, iniciamos uma sessão de login no usuário pi
+
+Execução automática:
+Primeiro executar o programa failsafe em um processo separado (/home/[...]/failsafe &) e iniciar o programa do Trekking (ver abaixo). O programa usa um lock file para evitar duas instâncias ao mesmo tempo, então não é necessário checar se o programa já está rodando.
+Para iniciar o programa do Trekking, usar:
+screen -d -m -L ./main
+no diretório do programa. Assim, o programa é iniciado em uma nova sessão de screen que pode ser recuperada ao logar no robô por ssh e logs são salvos na pasta do Trekking.

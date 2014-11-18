@@ -1,13 +1,16 @@
-#include "i2c.h"
+/*
+#include <stdint.h>
+#include "mod_i2c.h"
+#include "leds.h"
 
-// Código rápido só pra ligar os leds quando o trekking iniciar.
-// Será reescrito para um módulo decente de leds
-
-void setup_leds() {
-	int fd = i2c_open(1, 0x24);
+void leds_set(uint8_t mode, uint8_t reg) {
 	
-	if (fd != -1) {
-		i2c_write(fd, 5, 3);
-		i2c_write(fd, 6, 1);
-	}
+	self.bus.write_i2c_block_data(self.device, self.COR, [self.r, self.g, self.b])
+	if mode != None:
+		self.saved_mode = mode
+	if timestep != None:
+		self.saved_timestep = timestep
+	self.bus.write_byte_data(self.device, self.MODE, self.saved_mode)
+	self.bus.write_byte_data(self.device, self.TIMESTEP, self.saved_timestep)
 }
+*/

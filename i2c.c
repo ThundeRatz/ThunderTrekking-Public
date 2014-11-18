@@ -1,16 +1,21 @@
+// https://www.kernel.org/doc/Documentation/i2c/dev-interface
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <linux/i2c-dev.h>
+#include <linux/i2c.h>
 
-int i2c_open(int dev_n, uint8_t addr) {
+#define I2C_CHECK_FEATURE(functions, feature)		printf("i2c features: %s%s\n", (functions & feature) ? "" : "no ", #feature)
+
+int i2c_open(char *dev) {
 	int file, status;
-	char dev[40];
+	//char dev[40];
 	long funcs;
-	sprintf(dev, "/dev/i2c-%d", dev_n);
+	//sprintf(dev, "/dev/i2c-%d", dev_n);
 	
 	file = open(dev, O_RDWR);
 	if (file < 0) {
@@ -18,26 +23,30 @@ int i2c_open(int dev_n, uint8_t addr) {
 		return file;
 	}
 	
-	ioctl(file, I2C_FUNCS, &funcs);
-	if (funcs & I2C_FUNC_10BIT_ADDR)
-		printf("I2Cinfo - 10 bit addresses\n");
-	
-	if (funcs & I2C_FUNC_SMBUS_PEC)
-		printf("I2Cinfo - Packet error checking\n");
-	
-	if (funcs & I2C_FUNC_I2C)
-		printf("I2Cinfo - Combined read/write\n");
-	
-	if (!(funcs & I2C_FUNC_SMBUS_WRITE_BYTE)) {
-		printf("No write byte\n");
+	if (ioctl(file, I2C_FUNCS, &funcs) == -1) {
+		perror("ioctl");
+		close(file);
 		return -1;
 	}
 	
-	status = ioctl(file, I2C_SLAVE, addr);
-	if (status < 0) {
-		fprintf(stderr, "Failed to set i2c slave\n");
-		perror("ioctl");
-		return status;
-	}
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_10BIT_ADDR);	// suporta endereços de 10 bits
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PEC);	// packet error checking
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_I2C);			// combined read/write
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_PROTOCOL_MANGLING);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_NOSTART);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_BLOCK_PROC_CALL);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_QUICK);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_BYTE);		// ou
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_BYTE);	// I2C_FUNC_SMBUS_BYTE
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_BYTE_DATA);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_BYTE_DATA);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_WORD_DATA);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_WORD_DATA);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PROC_CALL);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_BLOCK_DATA);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_I2C_BLOCK);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
+	
 	return file;
 }

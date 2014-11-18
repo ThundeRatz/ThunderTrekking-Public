@@ -45,7 +45,7 @@ int main() {
 		return -1;
 	joystick_dump(js);
 	
-	if (motor_init() == -1)
+	if (motors_init() == -1)
 		return -1;
 #warning Ler todos os eventos em buffer de uma vez
 	

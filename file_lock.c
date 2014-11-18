@@ -7,12 +7,8 @@
 int file_lock(char *tmpfile) {
 	int fd;
 	fd = open(tmpfile, O_RDONLY | O_CREAT, S_IRUSR);
-	if (fd == -1)
+	if (fd == -1 || flock(fd, LOCK_EX | LOCK_NB) == -1)
 		return -1;
-	if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
-		close(fd);
-		return -1;
-	}
 	return fd;
 }
 

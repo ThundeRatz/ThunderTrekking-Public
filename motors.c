@@ -1,4 +1,4 @@
-#include "i2c.h"
+#include "mod_i2c.h"
 #ifdef DEBUG
 #include <stdio.h>
 #endif

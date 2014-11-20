@@ -1,2 +1,3 @@
 *.pyc
 joystick
+autom4te.cache/

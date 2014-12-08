@@ -6,7 +6,7 @@
 
 int file_lock(char *tmpfile) {
 	int fd;
-	fd = open(tmpfile, O_RDONLY | O_CREAT, S_IRUSR);
+	fd = open(tmpfile, O_RDONLY | O_CREAT | O_CLOEXEC, S_IRUSR);
 	if (fd == -1)
 		return -1;
 	if (flock(fd, LOCK_EX | LOCK_NB) == -1) {

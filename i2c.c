@@ -7,12 +7,12 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <linux/i2c-dev.h>
-#include <linux/i2c.h>
+//#include <linux/i2c.h>
 
 #define I2C_CHECK_FEATURE(functions, feature)		printf("i2c features: %s%s\n", (functions & feature) ? "" : "no ", #feature)
 
 int i2c_open(char *dev) {
-	int file, status;
+	int file;
 	//char dev[40];
 	long funcs;
 	//sprintf(dev, "/dev/i2c-%d", dev_n);
@@ -24,7 +24,7 @@ int i2c_open(char *dev) {
 	}
 	
 	if (ioctl(file, I2C_FUNCS, &funcs) == -1) {
-		perror("ioctl");
+		perror("i2c - ioctl");
 		close(file);
 		return -1;
 	}
@@ -33,7 +33,7 @@ int i2c_open(char *dev) {
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PEC);	// packet error checking
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_I2C);			// combined read/write
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_PROTOCOL_MANGLING);
-	I2C_CHECK_FEATURE(funcs, I2C_FUNC_NOSTART);
+	//I2C_CHECK_FEATURE(funcs, I2C_FUNC_NOSTART);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_BLOCK_PROC_CALL);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_QUICK);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_BYTE);		// ou

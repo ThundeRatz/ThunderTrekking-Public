@@ -11,9 +11,6 @@
  * estava no registrador, a escrita é descartada.
 ***********************************************************************/
 
-#warning TODO: função que escreve no i2c indepentendemente do valor antigo
-#warning (para watchdog, por exemplo)
-
 #define _POSIX_C_SOURCE 	199309L
 #define _GNU_SOURCE
 
@@ -24,11 +21,13 @@
 #include <time.h>
 #include "i2c.h"
 #include "simple_queue.h"
+#include "mod_i2c.h"
 #define I2C_DEV			"/dev/i2c-1"
 #define I2C_DEV_COUNT	2
 
 #define MOTORS_I2C_ADDR			0x69
 #define LEDS_I2C_ADDR			0x24
+#define COMPASS_I2C_ADDR		0x1e
 
 #define MS						1000000
 
@@ -36,9 +35,9 @@
 // Mostra __msg e o a string de erro __errno
 #define status_perror(__msg, __errno)	do {if (__errno) {char __errmsg[50]; fprintf(stderr, "%s: %s\n", __msg, strerror_r(__errno, __errmsg, sizeof(__errmsg)));}} while (0)
 // Executa cmd. Se retornar erro, chama status_perror e retorna da função
-#define status_try(cmd, errmsg)			do {int __errno = (cmd); if (__errno) {pthread_perror(errmsg, __errno); return;}} while (0)
+#define status_try(cmd, errmsg)			do {int __errno = (cmd); if (__errno) {status_perror(errmsg, __errno); return;}} while (0)
 // Executa cmd. Se houver erro, chama abort()
-#define status_abort(cmd, errmsg)		do {int __errno = (cmd); if (__errno) {pthread_perror(errmsg, __errno); abort();}} while (0)
+#define status_abort(cmd, errmsg)		do {int __errno = (cmd); if (__errno) {status_perror(errmsg, __errno); abort();}} while (0)
 
 static void *mod_i2c_thread(__attribute__((unused)) void *ignored);
 
@@ -73,15 +72,22 @@ static struct i2c_packet targets[] = {
 	{.dev = LEDS_I2C_ADDR, .reg = 3, .next = NOT_QUEUED},		// LOWADC
 	{.dev = LEDS_I2C_ADDR, .reg = 4, .next = NOT_QUEUED},		// HIGHADC
 	{.dev = LEDS_I2C_ADDR, .reg = 5, .next = NOT_QUEUED},		// MODE
-	{.dev = LEDS_I2C_ADDR, .reg = 6, .next = NOT_QUEUED}		// TIMESTEP
+	{.dev = LEDS_I2C_ADDR, .reg = 6, .next = NOT_QUEUED},		// TIMESTEP
+	
+	{.dev = COMPASS_I2C_ADDR, .reg = 0, .next = NOT_QUEUED},	// REG_COMPASS_CONF0
+	{.dev = COMPASS_I2C_ADDR, .reg = 1, .next = NOT_QUEUED},	// REG_COMPASS_CONF1
+	{.dev = COMPASS_I2C_ADDR, .reg = 2, .next = NOT_QUEUED},	// REG_COMPASS_CONF2
+	{.dev = COMPASS_I2C_ADDR, .reg = 3, .next = NOT_QUEUED},	// REG_COMPASS_X
+	{.dev = COMPASS_I2C_ADDR, .reg = 7, .next = NOT_QUEUED},	// REG_COMPASS_Y
+	{.dev = COMPASS_I2C_ADDR, .reg = 5, .next = NOT_QUEUED}		// REG_COMPASS_Z
 };
 
-static uint8_t devices[I2C_DEV_COUNT] = {MOTORS_I2C_ADDR, LEDS_I2C_ADDR};
 static int fd, queue_last = -1;
-static pthread_mutex_t i2c_lock = PTHREAD_MUTEX_INITIALIZER, i2c_available_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t i2c_available = PTHREAD_COND_INITIALIZER;
-static const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 5 * MS};
+static pthread_mutex_t i2c_lock = PTHREAD_MUTEX_INITIALIZER, i2c_available_mutex = PTHREAD_MUTEX_INITIALIZER, i2c_init_ended_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t i2c_available = PTHREAD_COND_INITIALIZER, i2c_init_ended = PTHREAD_COND_INITIALIZER;
+
 void mod_i2c_create() {
+	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 500 * MS};
 	pthread_t thread;
 	pthread_attr_t attr;
 	/*
@@ -98,14 +104,26 @@ void mod_i2c_create() {
 	status_abort(pthread_attr_init(&attr), "pthread_attr_init");
 	status_abort(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED), "pthread_attr_setdetachstate");
 	status_abort(pthread_create(&thread, NULL, mod_i2c_thread, NULL), "pthread_create");
+	
+	// esperamos a thread inicializar antes de retornar. Sem a espera, os primeiros comandos i2c eram
+	// adicionados na pilha mas só enviados quando houvesse mais uma escrita após a inicialização
+	// que gerasse o sinal para a thread. No programa, a inicialização da bússola só era enviada
+	// após o próximo comando (para mover o robô) e até lá as leituras davam erro.
+	status_abort(pthread_cond_wait(&i2c_init_ended, &i2c_init_ended_mutex), "pthread_cond_wait");
+	
+	if (nanosleep(&sleep_time, NULL) == -1)
+		perror("nanosleep");
 }
 
-void mod_i2c_write(int reg, uint8_t value) {
-	// se estamos escrevendo os mesmos dados que estão no buffer, ignorar
-	if (targets[reg].value.byte == value)
-		return;
+void mod_i2c_write_force(int reg, uint8_t value) {
+#ifdef DEBUG
+	printf("mod_i2c_write: %d = %hhu\n", reg, value);
+#endif
 	// pega o lock
 	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
+#ifdef DEBUG
+	printf("mod_i2c_write lock\n");
+#endif
 	// seta byte no buffer
 	targets[reg].value.byte = value;
 	
@@ -122,47 +140,146 @@ void mod_i2c_write(int reg, uint8_t value) {
 	}
 	
 	status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
+#ifdef DEBUG
+	printf("mod_i2c_write unlock\n");
+#endif
+	// sinaliza que temos dados para mod_i2c_thread
+	status_abort(pthread_cond_signal(&i2c_available), "pthread_cond_signal");
+	/*
+	int end = queue_last, now = queue_last;
+	printf("mod_i2c_write QUEUE:\n");
+	do {
+		now = targets[now].next;
+		printf("%x\t%x\n", targets[now].dev, targets[now].reg);
+	} while (now != end);
+	printf("\n");
+	*/
+	/*
+	struct i2c_packet *next = &targets[targets[queue_last].next];
+	while (i2c_slave(fd, next->dev) == -1)
+	perror("ioctl");
+	int i2c_status;
+	do {
+#ifdef DEBUG
+		printf("mod_i2c_thread: i2c_slave %x: %hhu = %hhu\n", next->dev, next->reg, next->value.byte);
+#endif
+		i2c_status = i2c_smbus_write_byte_data(fd, next->reg, next->value.byte);
+		status_perror("i2c_smbus_write_byte_data", i2c_status);
+	} while (i2c_status);
+	
+	if (queue_last == targets[queue_last].next) {
+		targets[queue_last].next = NOT_QUEUED;
+		queue_last = -1;
+	} else {
+		queue_last = targets[targets[queue_last].next].next;
+		targets[targets[queue_last].next].next = NOT_QUEUED;
+	}
+	*/
+}
+
+void mod_i2c_write(int reg, uint8_t value) {
+	// se estamos escrevendo os mesmos dados que estão no buffer, ignorar
+	if (targets[reg].value.byte != value)
+		mod_i2c_write_force(reg, value);
+}
+
+uint8_t mod_i2c_read_direct(uint8_t dev, uint8_t reg) {
+	int ret;
+	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
+#ifdef DEBUG
+	printf("mod_i2c_read: peguei lock - %x - %hhu\n", dev, reg);
+#endif
+	while (i2c_slave(fd, dev) == -1)
+		perror("ioctl");
+	while ((ret = i2c_smbus_read_byte_data(fd, reg)) == -1)
+		status_perror("i2c_smbus_read_byte_data", ret);
+	status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
+	return (uint8_t) ret;
+}
+
+uint8_t mod_i2c_read(int reg) {
+	int ret;
+	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
+#ifdef DEBUG
+	printf("mod_i2c_read: peguei lock - %x - %hhu\n", targets[reg].dev, targets[reg].reg);
+#endif
+	while (i2c_slave(fd, targets[reg].dev) == -1)
+		perror("ioctl");
+	while ((ret = i2c_smbus_read_byte_data(fd, targets[reg].reg)) == -1)
+		status_perror("i2c_smbus_read_byte_data", ret);
+	status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
+	return (uint8_t) ret;
+}
+
+#warning read_word aqui
+uint16_t mod_i2c_read_word(int reg) {
+	return (mod_i2c_read_direct(targets[reg].dev, targets[reg].reg) << 8) + mod_i2c_read_direct(targets[reg].dev, targets[reg].reg + 1);
 }
 
 #warning Adicionar checagem de erro (seria bom tocar alarme ou fazer algo se o i2c morrer de vez)
 #warning Usar timedwait, escrever qualquer coisa de tempos em tempos e ativar watchdog no uC
-#warning i2c block transfer
+#warning i2c block transfer e configurações (timeout...), sync
 static void *mod_i2c_thread(__attribute__((unused)) void *ignored) {
+	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 5 * MS};
 	// mutex para espera de condição. Como essa é a única thread esperando i2c_available, ficamos com o mutex
 	// durante toda a execução do programa (ele é pego e solto fora do loop). Se outras threads esperassem a
 	// condição que há dados para escrever no i2c, teríamos que soltar o lock a cada iteração.
 	status_abort(pthread_mutex_lock(&i2c_available_mutex), "pthread_mutex_lock");
+#ifdef DEBUG
+	printf("mod_i2c_thread: iniciado\n");
+#endif
+	status_abort(pthread_cond_broadcast(&i2c_init_ended), "pthread_cond_broadcast");
 	for (;;) {
 		status_abort(pthread_cond_wait(&i2c_available, &i2c_available_mutex), "pthread_cond_wait");
-		
+#ifdef DEBUG
+		printf("mod_i2c_thread: sinalizado\n");
+#endif
 		// se foi sinalizado que há dados, escreve enquanto fila possui itens
 		while (queue_last != NOT_QUEUED) {
-			struct i2c_packet *next;
 			int i2c_status;
-			pthread_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
+			status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
 			// essa checagem é desnecessária por sermos a única thread retirando itens da fila
 			// (se haviam itens antes de adquirir o lock ainda há itens), mas o programa poderia
 			// quebrar se alguém o mudasse no futuro.
 			if (queue_last == NOT_QUEUED)
-				continue;
-			next = &targets[targets[queue_last].next];
+				break;
 			
+#ifdef DEBUG
+			int end = queue_last, now = queue_last;
+			printf("mod_i2c_thread QUEUE:\n");
 			do {
-				while (i2c_slave(fd, next->dev) == -1)
-					perror("ioctl");
-				i2c_status = i2c_smbus_write_byte_data(fd, next->reg, next->value.byte);
+				now = targets[now].next;
+				printf("%x\t%x\n", targets[now].dev, targets[now].reg);
+			} while (now != end);
+			printf("\n");
+#endif
+			
+			while (i2c_slave(fd, targets[targets[queue_last].next].dev) == -1)
+				perror("ioctl");
+			do {
+#ifdef DEBUG
+				printf("mod_i2c_thread: i2c_slave %x: %hhu = %hhu\n", targets[targets[queue_last].next].dev, targets[targets[queue_last].next].reg, targets[targets[queue_last].next].value.byte);
+#endif
+				i2c_status = i2c_smbus_write_byte_data(fd, targets[targets[queue_last].next].reg, targets[targets[queue_last].next].value.byte);
 				status_perror("i2c_smbus_write_byte_data", i2c_status);
 			} while (i2c_status);
 			
-			if (queue_last == targets[queue_last].next)
-				queue_last = -1;
-			else
-				queue_last = targets[targets[queue_last].next].next;
-			targets[targets[queue_last].next].next = -1;
-			// solta o mutex antes de esperar um pouco entre escritas
-			pthread_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
 			
-			while (nanosleep(&sleep_time, NULL) == -1)
+			if (queue_last == targets[queue_last].next) {
+				targets[queue_last].next = NOT_QUEUED;
+				queue_last = NOT_QUEUED;
+			} else {
+				int lixo = targets[queue_last].next;
+				targets[queue_last].next = targets[targets[queue_last].next].next;
+				targets[lixo].next = NOT_QUEUED;
+			}
+			
+			// solta o mutex antes de esperar um pouco entre escritas
+			status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
+			
+			
+			
+			if (nanosleep(&sleep_time, NULL) == -1)
 				perror("nanosleep");
 		}
 	}

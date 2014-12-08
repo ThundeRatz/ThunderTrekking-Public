@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "joystick.h"
 #include "motors.h"
 #include "leds.h"
 #include "file_lock.h"
+#include "mod_i2c.h"
+#include "compass.h"
 
 void update(float x, float y) {
 	float tan, speed, absx, absy;
@@ -12,8 +15,9 @@ void update(float x, float y) {
 		absx = x > 0 ? x : -x;
 		absy = y > 0 ? y : -y;
 		tan = (absy - absx) / (absy + absx);
-		
-		printf("%f %f %f\n", x, y, tan);
+#ifdef DEBUG
+		printf("x = %f. y =  %f, tan = %f\n", x, y, tan);
+#endif
 		if (absy > absx)
 			speed = absy;
 		else
@@ -37,19 +41,21 @@ int main() {
 	if (file_lock("/tmp/trekking") == -1)
 		return -1;
 	
-	int js = joystick_open("/dev/input/js0"), on = 0;
+	int js, on = 0;
 	struct js_event jsev;
 	float x = 0., y = 0.;
 	
-	if (js == -1)
-		return -1;
+	mod_i2c_create();
+	
+	while ((js = joystick_open("/dev/input/js0")) == -1)
+		sleep(1);
+	
 	joystick_dump(js);
 	
-	if (motor_init() == -1)
-		return -1;
-#warning Ler todos os eventos em buffer de uma vez
-	
-	setup_leds();
+#warning Ler todos os eventos em buffer do joystick de uma vez
+	//leds_color(255, 255, 255);
+	leds_mode(PULSE3);
+	leds_timestep(1);
 	
 	while (!joystick_read(js, &jsev)) {
 		//printf("%u %d %u %u\n", jsev.time, jsev.value, jsev.type, jsev.number);
@@ -64,10 +70,27 @@ int main() {
 					update(x, y);
 			}
 		} else if (jsev.type & JS_EVENT_BUTTON) {
-			if (!(jsev.type & JS_EVENT_INIT) && jsev.number == 16 && jsev.value == 0) {
-				on = !on;
-				if (!on)
-					motor(0, 0);
+			if (!(jsev.type & JS_EVENT_INIT)) {
+				switch (jsev.number) {
+					case 16:
+					if (jsev.value == 0) {
+						on = !on;
+						if (!on)
+							motor(0, 0);
+					}
+					break;
+					
+					case 3:
+					
+					break;
+					
+					case 11:
+					printf("Iniciando calibração da bússola...\n");
+					char *newargv[] = {"/home/pi/build/calibra_bussola", NULL};
+					if (execve(newargv[0], newargv, NULL) == -1)
+						perror("execve");
+					break;
+				}
 			}
 		}
 	}

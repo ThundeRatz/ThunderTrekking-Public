@@ -45,7 +45,7 @@
 */
 
 inline static int version_check(int fd, int *version) {
-	if (ioctl(fd, JSIOCGVERSION, &version) < 0) {
+	if (ioctl(fd, JSIOCGVERSION, version) < 0) {
 		fprintf(stderr, "Joystick - versão do driver < 1.0, abortando\n");
 		return -1;
 	}

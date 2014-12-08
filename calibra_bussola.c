@@ -4,9 +4,10 @@
 #include "joystick.h"
 #include "mod_i2c.h"
 #include "motors.h"
+#include "compass.h"
 
 int main() {
-	double orientacao_inicial = compass_orientation();
+	double orientacao_inicial = compass_orientation(), diff;
 	printf("Calibração da bússola\n");
 	
 	if (file_lock("/tmp/trekking") == -1)
@@ -34,7 +35,11 @@ int main() {
 					break;
 					
 					case 11:
-					
+					diff = compass_diff(orientacao_inicial, compass_orientation());
+					if (diff > 0)
+						motor(250, 250 - (int) (5 * diff));
+					else
+						motor(250 - (int) (5 * diff), 250);
 					break;
 				}
 			}

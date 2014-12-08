@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -7,9 +8,12 @@
 int file_lock(char *tmpfile) {
 	int fd;
 	fd = open(tmpfile, O_RDONLY | O_CREAT | O_CLOEXEC, S_IRUSR);
-	if (fd == -1)
+	if (fd == -1) {
+		perror("open");
 		return -1;
+	}
 	if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
+		perror("flock");
 		close(fd);
 		return -1;
 	}

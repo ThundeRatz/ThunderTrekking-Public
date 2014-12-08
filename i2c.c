@@ -28,7 +28,7 @@ int i2c_open(char *dev) {
 		close(file);
 		return -1;
 	}
-	
+	/*
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_10BIT_ADDR);	// suporta endereços de 10 bits
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PEC);	// packet error checking
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_I2C);			// combined read/write
@@ -47,6 +47,6 @@ int i2c_open(char *dev) {
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_I2C_BLOCK);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
-	
+	*/
 	return file;
 }

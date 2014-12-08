@@ -1,9 +1,10 @@
-bin_PROGRAMS = trekking i2c_features compass_dump leds_control calibra_bussola
+bin_PROGRAMS = trekking i2c_features compass_dump leds_control calibra_bussola hmc5883l
 trekking_SOURCES = main.c motors.c file_lock.c joystick.c mod_i2c.c i2c.c compass.c
 i2c_features_SOURCES = i2c.c i2c_features.c
 compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
 leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
 calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c
+hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
-LINK_LIBS = -lpthread -lm
-AM_CFLAGS = -Wall -Wextra $(OPTIMIZE) $(LINK_LIBS)
+LDADD = -lpthread -lm 
+AM_CFLAGS = -Wall -Wextra $(OPTIMIZE)

@@ -19,11 +19,10 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
+#include <linux/i2c-dev.h>
 #include "i2c.h"
-#include "simple_queue.h"
 #include "mod_i2c.h"
 #define I2C_DEV			"/dev/i2c-1"
-#define I2C_DEV_COUNT	2
 
 #define MOTORS_I2C_ADDR			0x69
 #define LEDS_I2C_ADDR			0x24
@@ -74,12 +73,19 @@ static struct i2c_packet targets[] = {
 	{.dev = LEDS_I2C_ADDR, .reg = 5, .next = NOT_QUEUED},		// MODE
 	{.dev = LEDS_I2C_ADDR, .reg = 6, .next = NOT_QUEUED},		// TIMESTEP
 	
-	{.dev = COMPASS_I2C_ADDR, .reg = 0, .next = NOT_QUEUED},	// REG_COMPASS_CONF0
-	{.dev = COMPASS_I2C_ADDR, .reg = 1, .next = NOT_QUEUED},	// REG_COMPASS_CONF1
-	{.dev = COMPASS_I2C_ADDR, .reg = 2, .next = NOT_QUEUED},	// REG_COMPASS_CONF2
-	{.dev = COMPASS_I2C_ADDR, .reg = 3, .next = NOT_QUEUED},	// REG_COMPASS_X
-	{.dev = COMPASS_I2C_ADDR, .reg = 7, .next = NOT_QUEUED},	// REG_COMPASS_Y
-	{.dev = COMPASS_I2C_ADDR, .reg = 5, .next = NOT_QUEUED}		// REG_COMPASS_Z
+	{.dev = COMPASS_I2C_ADDR, .reg = 0, .next = NOT_QUEUED},	// REG_HMC_CONFIGURATION_A
+	{.dev = COMPASS_I2C_ADDR, .reg = 1, .next = NOT_QUEUED},	// REG_HMC_CONFIGURATION_B
+	{.dev = COMPASS_I2C_ADDR, .reg = 2, .next = NOT_QUEUED},	// REG_HMC_MODE
+	{.dev = COMPASS_I2C_ADDR, .reg = 3, .next = NOT_QUEUED},	// REG_HMC_DATA_OUT_X_MSB
+	{.dev = COMPASS_I2C_ADDR, .reg = 4, .next = NOT_QUEUED},	// REG_HMC_DATA_OUT_X_LSB
+	{.dev = COMPASS_I2C_ADDR, .reg = 5, .next = NOT_QUEUED},	// REG_HMC_DATA_OUT_Z_MSB
+	{.dev = COMPASS_I2C_ADDR, .reg = 6, .next = NOT_QUEUED},	// REG_HMC_DATA_OUT_Z_LSB
+	{.dev = COMPASS_I2C_ADDR, .reg = 7, .next = NOT_QUEUED},	// REG_HMC_DATA_OUT_Y_MSB
+	{.dev = COMPASS_I2C_ADDR, .reg = 8, .next = NOT_QUEUED},	// REG_HMC_DATA_OUT_Y_LSB
+	{.dev = COMPASS_I2C_ADDR, .reg = 9, .next = NOT_QUEUED},	// REG_HMC_STATUS
+	{.dev = COMPASS_I2C_ADDR, .reg = 10, .next = NOT_QUEUED},	// REG_HMC_ID_A
+	{.dev = COMPASS_I2C_ADDR, .reg = 11, .next = NOT_QUEUED},	// REG_HMC_ID_B
+	{.dev = COMPASS_I2C_ADDR, .reg = 12, .next = NOT_QUEUED},	// REG_HMC_ID_C
 };
 
 static int fd, queue_last = -1;
@@ -113,6 +119,17 @@ void mod_i2c_create() {
 	
 	if (nanosleep(&sleep_time, NULL) == -1)
 		perror("nanosleep");
+}
+
+static void set_slave(uint8_t slave) {
+	int i;
+	for (i = 0; i < 10; i++)
+		if (i2c_slave(fd, targets[targets[queue_last].next].dev) == -1)
+			perror("set_slave - ioctl");
+		else
+			return;
+	fprintf(stderr, "i2c - set_slave %x falhou 10 vezes, abortando\n", (unsigned int) slave);
+	abort();
 }
 
 void mod_i2c_write_force(int reg, uint8_t value) {
@@ -187,10 +204,9 @@ uint8_t mod_i2c_read_direct(uint8_t dev, uint8_t reg) {
 	int ret;
 	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
 #ifdef DEBUG
-	printf("mod_i2c_read: peguei lock - %x - %hhu\n", dev, reg);
+	printf("mod_i2c_read_direct: peguei lock - %x - %hhu\n", dev, reg);
 #endif
-	while (i2c_slave(fd, dev) == -1)
-		perror("ioctl");
+	set_slave(dev);
 	while ((ret = i2c_smbus_read_byte_data(fd, reg)) == -1)
 		status_perror("i2c_smbus_read_byte_data", ret);
 	status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
@@ -203,8 +219,7 @@ uint8_t mod_i2c_read(int reg) {
 #ifdef DEBUG
 	printf("mod_i2c_read: peguei lock - %x - %hhu\n", targets[reg].dev, targets[reg].reg);
 #endif
-	while (i2c_slave(fd, targets[reg].dev) == -1)
-		perror("ioctl");
+	set_slave(targets[reg].dev);
 	while ((ret = i2c_smbus_read_byte_data(fd, targets[reg].reg)) == -1)
 		status_perror("i2c_smbus_read_byte_data", ret);
 	status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
@@ -254,8 +269,7 @@ static void *mod_i2c_thread(__attribute__((unused)) void *ignored) {
 			printf("\n");
 #endif
 			
-			while (i2c_slave(fd, targets[targets[queue_last].next].dev) == -1)
-				perror("ioctl");
+			set_slave(targets[targets[queue_last].next].dev);
 			do {
 #ifdef DEBUG
 				printf("mod_i2c_thread: i2c_slave %x: %hhu = %hhu\n", targets[targets[queue_last].next].dev, targets[targets[queue_last].next].reg, targets[targets[queue_last].next].value.byte);

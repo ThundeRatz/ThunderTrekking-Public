@@ -1,5 +1,6 @@
 *.o
 *.pyc
+.deps/
 autom4te.cache/
 build/
 Makefile.in

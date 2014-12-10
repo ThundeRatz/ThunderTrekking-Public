@@ -6,7 +6,4 @@ build/
 Makefile.in
 Makefile
 aclocal.m4
-install-sh
-depcomp
 compile
-missing

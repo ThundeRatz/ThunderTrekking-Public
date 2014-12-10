@@ -12,6 +12,7 @@ enum {REG_DIR_D, REG_VEL_D, REG_DIR_E, REG_VEL_E,
 
 void mod_i2c_create();
 void mod_i2c_write(int reg, uint8_t value);
+void mod_i2c_write_now(int reg, uint8_t value);
 void mod_i2c_write_force(int reg, uint8_t value);
 uint8_t mod_i2c_read(int reg);
 uint16_t mod_i2c_read_word(int reg);

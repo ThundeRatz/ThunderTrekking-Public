@@ -47,11 +47,9 @@ union i2c_data {
 	uint8_t *block;
 };
 
-// Por enquanto, apenas transferência de bytes individuais é suportada.
-// A especificação possui extensões para envio de blocos. É uma coisa a ser feita.
-enum i2c_type {
+typedef enum {
 	DATA, QUICK, BYTE, BLOCK
-};
+} i2c_type;
 
 struct i2c_packet {
 	int next;
@@ -123,10 +121,10 @@ void mod_i2c_create() {
 		perror("nanosleep");
 }
 
-static void set_slave(uint8_t dev) {
+static void set_slave(uint8_t slave) {
 	int i;
 	for (i = 0; i < MAX_TRIES; i++)
-		if (i2c_slave(fd, dev) == -1)
+		if (i2c_slave(fd, slave) == -1)
 			perror("set_slave - ioctl");
 		else
 			return;
@@ -211,13 +209,13 @@ void mod_i2c_write(int reg, uint8_t value) {
 void mod_i2c_write_now(int reg, uint8_t value) {
 	int i;
 	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
-	set_slave(dev);
+	set_slave(targets[reg].dev);
 	for (i = 0; i < MAX_TRIES; i++)
-		if ((ret = i2c_smbus_write_byte_data(fd, targets[reg].reg, value)) == -1)
+		if (i2c_smbus_write_byte_data(fd, targets[reg].reg, value) == -1)
 			perror("i2c_smbus_write_byte_data");
 		else {
 			status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
-			return (uint8_t) ret;
+			return;
 		}
 	
 	fprintf(stderr, "i2c - mod_i2c_write_now %x.%x falhou 10 vezes, abortando\n", targets[reg].dev, targets[reg].reg);
@@ -225,14 +223,15 @@ void mod_i2c_write_now(int reg, uint8_t value) {
 }
 
 void mod_i2c_write_word_now(int reg, uint16_t value) {
+	int i;
 	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
-	set_slave(dev);
+	set_slave(targets[reg].dev);
 	for (i = 0; i < MAX_TRIES; i++)
-		if ((ret = i2c_smbus_write_word_data(fd, targets[reg].reg, value)) == -1)
+		if (i2c_smbus_write_word_data(fd, targets[reg].reg, value) == -1)
 			perror("i2c_smbus_write_word_data");
 		else {
 			status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
-			return (uint8_t) ret;
+			return;
 		}
 	
 	fprintf(stderr, "i2c - mod_i2c_write_word_now %x.%x falhou 10 vezes, abortando\n", targets[reg].dev, targets[reg].reg);
@@ -274,6 +273,7 @@ uint8_t mod_i2c_read(int reg) {
 }
 
 uint8_t mod_i2c_read_byte(int reg) {
+	int32_t ret;
 	int i;
 	set_slave(targets[reg].dev);
 	
@@ -284,6 +284,7 @@ uint8_t mod_i2c_read_byte(int reg) {
 			status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
 			return (uint8_t) ret;
 		}
+	}
 	
 	fprintf(stderr, "i2c - mod_i2c_read_byte %x.%x falhou 10 vezes, abortando\n", targets[reg].dev, targets[reg].reg);
 	abort();
@@ -293,7 +294,7 @@ uint16_t mod_i2c_read_word(int reg) {
 	int32_t ret;
 	int i;
 	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
-	for (i = 0; i < MAX_TRIES i++)
+	for (i = 0; i < MAX_TRIES; i++)
 		if ((ret = i2c_smbus_read_word_data(fd, targets[reg].reg)) == -1)
 			perror("i2c_smbus_read_word_data");
 		else {

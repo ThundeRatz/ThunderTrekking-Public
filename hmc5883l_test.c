@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 #include "hmc5883l.h"
 #include "file_lock.h"
 
 #define MS						1000000
 
 int main() {
-	int16_t data[];
+	int16_t *data;
 	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 50 * MS};
 	
 	if (file_lock("/tmp/trekking") == -1)

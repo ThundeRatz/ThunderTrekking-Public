@@ -57,7 +57,7 @@ int hmc5883l_init() {
 }
 
 #warning Block transfer aqui
-int16_t[] hmc5883l_read() {
+int16_t *hmc5883l_read() {
 	if (mod_i2c_read(REG_HMC_STATUS) & HMC_READY) {
 		i2c_block[0] = mod_i2c_read_word(HMC_DATA_OUT_X_MSB);
 		i2c_block[1] = mod_i2c_read_word(HMC_DATA_OUT_Z_MSB);

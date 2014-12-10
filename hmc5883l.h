@@ -4,6 +4,6 @@
 #include <stdint.h>
 
 int hmc5883l_init();
-int16_t[] hmc5883l_read();
+int16_t *hmc5883l_read();
 
 #endif

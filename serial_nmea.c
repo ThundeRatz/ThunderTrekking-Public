@@ -1,5 +1,6 @@
 #define _BSD_SOURCE
 #define _GNU_SOURCE
+// Tem uns includes a mais aqui
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,43 +15,8 @@
 #define nitens(list)	1[&list] - list
 #define try(cmd, msg)	do {if ((cmd) == -1) {perror(msg); exit(-1);}} while (0)
 
-#define CNRM  "\x1B[0m"
-#define CRED  "\x1B[31m"
-#define CGRN  "\x1B[32m"
-#define CYEL  "\x1B[33m"
-#define CBLU  "\x1B[34m"
-#define CMAG  "\x1B[35m"
-#define CCYN  "\x1B[36m"
-#define CWHT  "\x1B[37m"
-#define CRESET "\033[0m"
-
-// Ver man 3 termios para as flags para terminais
-
-/*
- * Possíveis constantes de baud:
- * B0
- * B50
- * B75
- * B110
- * B134
- * B150
- * B200
- * B300
- * B600
- * B1200
- * B1800
- * B2400
- * B4800
- * B9600
- * B19200
- * B38400
- * B57600
- * B115200
- * B230400
- * Tem valores consecutivos (http://www.delorie.com/djgpp/doc/incs/termios.h). Uma busca binária em uma array com os valores retorna o valor certo da constante.
- */
-
-static const unsigned int baud_list[] = {0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400};
+#include "colors.h"
+#include "serial.h"
 
 static char *commands[] = {"GGA", "GSA", "GSV", "RMC"};
 enum                      { GGA,   GSA,   GSV,   RMC};
@@ -69,52 +35,6 @@ int command(char *cmd) {
 	if (!found)
 		return -1;
 	return found - commands;
-}
-
-static int cmp_uints(const void *cmp1, const void *cmp2) {
-	unsigned int n1 = *(int *) cmp1, n2 = *(int *) cmp2;
-	return n1 - n2;
-}
-
-inline static int baud_bsearch(unsigned int *baud) {
-	unsigned int *found = NULL;
-	
-	found = bsearch(baud, &baud_list, nitens(baud_list), sizeof(baud_list[0]), cmp_uints);
-	if (!found)
-		return -1;
-	return found - baud_list;
-}
-
-int nmea_open(char *dev) {
-	struct termios tty;
-	int fd;
-	// https://github.com/cswaim/gps/blob/master/src/lib/tsip.cpp
-	try(fd = open(dev, O_RDWR| O_NOCTTY), "nmea - open");
-	
-	memset(&tty, 0, sizeof(tty));
-	
-	// Baud de entrada/saída
-	cfsetospeed(&tty, B4800);
-	cfsetispeed(&tty, B4800);
-	
-	// Não há paridade em NMEA
-	tty.c_iflag = IGNPAR;
-	
-	// Sem processamento adicional da saída
-	// (ver manual, há flags para conversão entre convenções como NL -> CRNL automáticas)
-	tty.c_oflag = 0;
-	
-	// 8 bits de dados, mas a especificação diz que o bit 7 é sempre 0
-	tty.c_cflag |= (CS8 | CLOCAL | CREAD);
-	
-	// VMIN e VTIME setam número mínimo de caracteres para ler antes de retornar read
-	// e timeout
-	
-	// Modo canônico
-	tty.c_lflag = ICANON;
-	tcflush(fd, TCIFLUSH);
-	try(tcsetattr(fd, TCSAFLUSH, &tty), "nmea - tcsetattr");
-	return fd;
 }
 
 inline void print_err(char *msg) {
@@ -177,7 +97,8 @@ typedef struct {
 } nmea_t;
 
 int main() {
-	int fd = nmea_open("/dev/ttyAMA0");
+	const int baud = 4800;
+	int fd = serial_open("/dev/ttyUSB0", &baud, O_RDWR);
 	nmea_t nmea;
 	
 	for (;;) {

@@ -77,7 +77,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
-	hmc5883l$(EXEEXT)
+	hmc5883l$(EXEEXT) nmea$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -108,6 +108,10 @@ am_leds_control_OBJECTS = leds_control.$(OBJEXT) mod_i2c.$(OBJEXT) \
 leds_control_OBJECTS = $(am_leds_control_OBJECTS)
 leds_control_LDADD = $(LDADD)
 leds_control_DEPENDENCIES =
+am_nmea_OBJECTS = serial.$(OBJEXT) serial_nmea.$(OBJEXT)
+nmea_OBJECTS = $(am_nmea_OBJECTS)
+nmea_LDADD = $(LDADD)
+nmea_DEPENDENCIES =
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -137,9 +141,9 @@ am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(hmc5883l_SOURCES) $(i2c_features_SOURCES) \
-	$(leds_control_SOURCES)
+	$(leds_control_SOURCES) $(nmea_SOURCES)
 DIST_SOURCES = $(hmc5883l_SOURCES) $(i2c_features_SOURCES) \
-	$(leds_control_SOURCES)
+	$(leds_control_SOURCES) $(nmea_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -274,6 +278,7 @@ i2c_features_SOURCES = i2c.c i2c_features.c
 # compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
 leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
 # calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c
+nmea_SOURCES = serial.c serial_nmea.c
 hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
@@ -387,6 +392,10 @@ leds_control$(EXEEXT): $(leds_control_OBJECTS) $(leds_control_DEPENDENCIES) $(EX
 	@rm -f leds_control$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(leds_control_OBJECTS) $(leds_control_LDADD) $(LIBS)
 
+nmea$(EXEEXT): $(nmea_OBJECTS) $(nmea_DEPENDENCIES) $(EXTRA_nmea_DEPENDENCIES) 
+	@rm -f nmea$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(nmea_OBJECTS) $(nmea_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -400,6 +409,8 @@ include ./$(DEPDIR)/i2c.Po
 include ./$(DEPDIR)/i2c_features.Po
 include ./$(DEPDIR)/leds_control.Po
 include ./$(DEPDIR)/mod_i2c.Po
+include ./$(DEPDIR)/serial.Po
+include ./$(DEPDIR)/serial_nmea.Po
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

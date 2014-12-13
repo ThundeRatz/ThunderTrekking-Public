@@ -1,4 +1,5 @@
 // https://www.kernel.org/doc/Documentation/i2c/dev-interface
+// https://www.kernel.org/doc/Documentation/i2c/smbus-protocol
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -11,11 +12,13 @@
 
 #define I2C_CHECK_FEATURE(functions, feature)		printf("i2c features: %s%s\n", (functions & feature) ? "" : "no ", #feature)
 
-int i2c_open(char *dev) {
+int i2c_open(int dev_n) {
 	int file;
-	//char dev[40];
+	char dev[60], sys[60], name[60];
 	long funcs;
-	//sprintf(dev, "/dev/i2c-%d", dev_n);
+	FILE *sys_f;
+	sprintf(dev, "/dev/i2c-%d", dev_n);
+	sprintf(sys, "/sys/class/i2c-dev/i2c-%d/name", dev_n);
 	
 	file = open(dev, O_RDWR);
 	if (file < 0) {
@@ -24,11 +27,18 @@ int i2c_open(char *dev) {
 	}
 	
 	if (ioctl(file, I2C_FUNCS, &funcs) == -1) {
-		perror("i2c - ioctl");
+		perror("i2c - ioctl I2C_FUNCS");
 		close(file);
 		return -1;
 	}
-	/*
+	
+	sys_f = fopen(sys, "r");
+	if (sys_f != NULL) {
+		fgets(name, sizeof(name), sys_f);
+		puts(name);
+	} else
+		printf("Falha ao ler nome do adaptador\n");
+	
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_10BIT_ADDR);	// suporta endereços de 10 bits
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PEC);	// packet error checking
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_I2C);			// combined read/write
@@ -47,6 +57,6 @@ int i2c_open(char *dev) {
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_I2C_BLOCK);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
-	*/
+	
 	return file;
 }

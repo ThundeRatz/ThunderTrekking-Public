@@ -4,10 +4,11 @@
 #include "compass.h"
 
 int main() {
-	double inicial = compass_orientation(), atual;
+	double inicial, atual;
 	//struct compass c;
 	mod_i2c_create();
 	sleep(3);
+	inicial = compass_orientation();
 	for (;;) {
 		//compass_read(&c);
 		//printf("%hd\t%hd\t%hd\n", c.x, c.y, c.z);

@@ -77,7 +77,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
-	hmc5883l$(EXEEXT) nmea$(EXEEXT)
+	hmc5883l$(EXEEXT) nmea$(EXEEXT) compass_dump$(EXEEXT) \
+	trekking$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -94,8 +95,14 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
+am_compass_dump_OBJECTS = compass_dump.$(OBJEXT) compass.$(OBJEXT) \
+	mod_i2c.$(OBJEXT) i2c.$(OBJEXT)
+compass_dump_OBJECTS = $(am_compass_dump_OBJECTS)
+compass_dump_LDADD = $(LDADD)
+compass_dump_DEPENDENCIES =
 am_hmc5883l_OBJECTS = hmc5883l_test.$(OBJEXT) hmc5883l.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT)
+	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT) \
+	compass.$(OBJEXT)
 hmc5883l_OBJECTS = $(am_hmc5883l_OBJECTS)
 hmc5883l_LDADD = $(LDADD)
 hmc5883l_DEPENDENCIES =
@@ -112,6 +119,13 @@ am_nmea_OBJECTS = serial.$(OBJEXT) serial_nmea.$(OBJEXT)
 nmea_OBJECTS = $(am_nmea_OBJECTS)
 nmea_LDADD = $(LDADD)
 nmea_DEPENDENCIES =
+am_trekking_OBJECTS = main.$(OBJEXT) motors.$(OBJEXT) \
+	file_lock.$(OBJEXT) joystick.$(OBJEXT) mod_i2c.$(OBJEXT) \
+	i2c.$(OBJEXT) compass.$(OBJEXT) init.$(OBJEXT) hook.$(OBJEXT) \
+	cont_array.$(OBJEXT)
+trekking_OBJECTS = $(am_trekking_OBJECTS)
+trekking_LDADD = $(LDADD)
+trekking_DEPENDENCIES =
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -140,10 +154,12 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(hmc5883l_SOURCES) $(i2c_features_SOURCES) \
-	$(leds_control_SOURCES) $(nmea_SOURCES)
-DIST_SOURCES = $(hmc5883l_SOURCES) $(i2c_features_SOURCES) \
-	$(leds_control_SOURCES) $(nmea_SOURCES)
+SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
+	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
+	$(nmea_SOURCES) $(trekking_SOURCES)
+DIST_SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
+	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
+	$(nmea_SOURCES) $(trekking_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -273,13 +289,13 @@ target_alias =
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .
-# trekking_SOURCES = main.c motors.c file_lock.c joystick.c mod_i2c.c i2c.c compass.c
+trekking_SOURCES = main.c motors.c file_lock.c joystick.c mod_i2c.c i2c.c compass.c init.c hook.c cont_array.c
 i2c_features_SOURCES = i2c.c i2c_features.c
-# compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
+compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
 leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
 # calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c
 nmea_SOURCES = serial.c serial_nmea.c
-hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c
+hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
 AM_CFLAGS = -Wall -Wextra $(OPTIMIZE)
@@ -380,6 +396,10 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+compass_dump$(EXEEXT): $(compass_dump_OBJECTS) $(compass_dump_DEPENDENCIES) $(EXTRA_compass_dump_DEPENDENCIES) 
+	@rm -f compass_dump$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(compass_dump_OBJECTS) $(compass_dump_LDADD) $(LIBS)
+
 hmc5883l$(EXEEXT): $(hmc5883l_OBJECTS) $(hmc5883l_DEPENDENCIES) $(EXTRA_hmc5883l_DEPENDENCIES) 
 	@rm -f hmc5883l$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hmc5883l_OBJECTS) $(hmc5883l_LDADD) $(LIBS)
@@ -396,19 +416,31 @@ nmea$(EXEEXT): $(nmea_OBJECTS) $(nmea_DEPENDENCIES) $(EXTRA_nmea_DEPENDENCIES)
 	@rm -f nmea$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(nmea_OBJECTS) $(nmea_LDADD) $(LIBS)
 
+trekking$(EXEEXT): $(trekking_OBJECTS) $(trekking_DEPENDENCIES) $(EXTRA_trekking_DEPENDENCIES) 
+	@rm -f trekking$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(trekking_OBJECTS) $(trekking_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/compass.Po
+include ./$(DEPDIR)/compass_dump.Po
+include ./$(DEPDIR)/cont_array.Po
 include ./$(DEPDIR)/file_lock.Po
 include ./$(DEPDIR)/hmc5883l.Po
 include ./$(DEPDIR)/hmc5883l_test.Po
+include ./$(DEPDIR)/hook.Po
 include ./$(DEPDIR)/i2c.Po
 include ./$(DEPDIR)/i2c_features.Po
+include ./$(DEPDIR)/init.Po
+include ./$(DEPDIR)/joystick.Po
 include ./$(DEPDIR)/leds_control.Po
+include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/mod_i2c.Po
+include ./$(DEPDIR)/motors.Po
 include ./$(DEPDIR)/serial.Po
 include ./$(DEPDIR)/serial_nmea.Po
 

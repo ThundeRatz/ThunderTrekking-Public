@@ -6,6 +6,7 @@
 #include "file_lock.h"
 #include "mod_i2c.h"
 #include "compass.h"
+#include "init.h"
 
 void update(float x, float y) {
 	float tan, speed, absx, absy;
@@ -37,19 +38,11 @@ void update(float x, float y) {
 
 
 int main() {
-	
-	if (file_lock("/tmp/trekking") == -1)
-		return -1;
-	
-	int js, on = 0;
+	int on = 0;
 	struct js_event jsev;
 	float x = 0., y = 0.;
 	
-	mod_i2c_create();
-	
-	while ((js = joystick_open("/dev/input/js0")) == -1)
-		sleep(1);
-	
+	init();
 	joystick_dump(js);
 	
 #warning Ler todos os eventos em buffer do joystick de uma vez
@@ -61,10 +54,12 @@ int main() {
 		//printf("%u %d %u %u\n", jsev.time, jsev.value, jsev.type, jsev.number);
 		if (jsev.type & JS_EVENT_AXIS) {
 			if (jsev.number == 2) {
+				printf("AXIS X\n");
 				x = ((float) jsev.value) / 32768;
 				if (on)
 					update(x, y);
 			} else if (jsev.number == 3) {
+				printf("AXIS Y\n");
 				y = ((float) jsev.value) / 32768;
 				if (on)
 					update(x, y);

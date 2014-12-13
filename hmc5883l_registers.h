@@ -26,9 +26,9 @@ enum {
 #define HMC_OUTPUT_1_5HZ	(1 << 2)
 #define HMC_OUTPUT_3HZ		(2 << 2)
 #define HMC_OUTPUT_7_5HZ	(3 << 2)
-#define HMC_OUTPUT_15_HZ	(4 << 2)
-#define HMC_OUTPUT_30_HZ	(5 << 2)
-#define HMC_OUTPUT_75_HZ	(6 << 2)
+#define HMC_OUTPUT_15HZ		(4 << 2)
+#define HMC_OUTPUT_30HZ		(5 << 2)
+#define HMC_OUTPUT_75HZ		(6 << 2)
 #define HMC_NORMAL			0
 #define HMC_POSITIVE		1
 #define HMC_NEGATIVE		2

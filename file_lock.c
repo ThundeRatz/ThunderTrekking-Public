@@ -7,14 +7,20 @@
 
 int file_lock(char *tmpfile) {
 	int fd;
-	fd = open(tmpfile, O_RDONLY | O_CREAT | O_CLOEXEC, S_IRUSR);
+	fd = open(tmpfile, O_RDWR | O_CREAT | O_CLOEXEC, S_IRUSR);
 	if (fd == -1) {
 		perror("open");
 		return -1;
 	}
+	
 	if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
+		FILE *f;
+		int pid;
 		perror("flock");
-		close(fd);
+		f = fdopen(fd, "rw");
+		if (fscanf(f, "%d", &pid) == 1)
+			printf("Lock pertence a %d\n", pid);
+		fclose(f);
 		return -1;
 	}
 	return fd;

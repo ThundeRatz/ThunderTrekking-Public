@@ -25,7 +25,7 @@ static int compare_command(const void *cmp1, const void *cmp2) {
 	return strncmp((const char *) cmp1, *(const char **) cmp2, 3);
 }
 
-int command(char *cmd) {
+static int command(char *cmd) {
 	char **found = NULL;
 	
 	if (!(cmd)[0] || !(cmd)[1] || !(cmd)[2])
@@ -37,7 +37,7 @@ int command(char *cmd) {
 	return found - commands;
 }
 
-inline void print_err(char *msg) {
+inline static void print_err(char *msg) {
 	fprintf(stderr, CRED ">>>>>>>>>>>>>>>>>>>> ERRO: %s <<<<<<<<<<<<<<<<<<<<\n" CRESET, msg);
 }
 

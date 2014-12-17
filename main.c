@@ -47,19 +47,17 @@ int main() {
 	
 #warning Ler todos os eventos em buffer do joystick de uma vez
 	//leds_color(255, 255, 255);
-	leds_mode(PULSE3);
-	leds_timestep(1);
+	//leds_mode(PULSE3);
+	//leds_timestep(1);
 	
 	while (!joystick_read(js, &jsev)) {
 		//printf("%u %d %u %u\n", jsev.time, jsev.value, jsev.type, jsev.number);
 		if (jsev.type & JS_EVENT_AXIS) {
 			if (jsev.number == 2) {
-				printf("AXIS X\n");
 				x = ((float) jsev.value) / 32768;
 				if (on)
 					update(x, y);
 			} else if (jsev.number == 3) {
-				printf("AXIS Y\n");
 				y = ((float) jsev.value) / 32768;
 				if (on)
 					update(x, y);

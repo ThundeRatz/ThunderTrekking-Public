@@ -14,7 +14,6 @@ void motor_left(int value) {
 }
 
 void motor(int right, int left) {
-	printf("M\n");
 	motor_right(right);
 	motor_left(left);
 #ifdef DEBUG

@@ -49,9 +49,9 @@ int hmc5883l_init() {
 		return -1;
 	}
 	
-	mod_i2c_write_now(REG_HMC_CONFIGURATION_A, HMC_SAMPLES_AVG_1 | HMC_OUTPUT_75HZ | HMC_NORMAL);
+	mod_i2c_write_now(REG_HMC_CONFIGURATION_A, HMC_SAMPLES_AVG_1 | HMC_OUTPUT_15HZ | HMC_NORMAL);
 	// 1090 é o padrão e não precisa ser setado. Outros valores podem ser escolhidos aqui:
-	// mod_i2c_write_force(REG_HMC_CONFIGURATION_B, HMC_GAIN_1090);
+	mod_i2c_write_force(REG_HMC_CONFIGURATION_B, HMC_GAIN_820);
 	mod_i2c_write_now(REG_HMC_MODE, HMC_CONTINUOUS_MEASUREMENT);
 	return 0;
 }
@@ -59,9 +59,9 @@ int hmc5883l_init() {
 #warning Block transfer aqui
 int16_t *hmc5883l_read() {
 	if (mod_i2c_read(REG_HMC_STATUS) & HMC_READY) {
-		i2c_block[0] = mod_i2c_read_word(REG_HMC_DATA_OUT_X_MSB);
-		i2c_block[1] = mod_i2c_read_word(REG_HMC_DATA_OUT_Z_MSB);
-		i2c_block[2] = mod_i2c_read_word(REG_HMC_DATA_OUT_Y_MSB);
+		i2c_block[0] = mod_i2c_read_word_inv(REG_HMC_DATA_OUT_X_MSB);
+		i2c_block[1] = mod_i2c_read_word_inv(REG_HMC_DATA_OUT_Z_MSB);
+		i2c_block[2] = mod_i2c_read_word_inv(REG_HMC_DATA_OUT_Y_MSB);
 		return i2c_block;
 	}
 	// Sem dados novos

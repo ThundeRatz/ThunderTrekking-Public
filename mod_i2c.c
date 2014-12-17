@@ -293,6 +293,22 @@ uint16_t mod_i2c_read_word(int reg) {
 	abort();
 }
 
+uint16_t mod_i2c_read_word_inv(int reg) {
+	int32_t ret;
+	int i;
+	status_abort(pthread_mutex_lock(&i2c_lock), "pthread_mutex_lock");
+	for (i = 0; i < MAX_TRIES; i++)
+		if ((ret = i2c_smbus_read_word_data(fd, targets[reg].reg)) == -1)
+			perror("i2c_smbus_read_word_data");
+		else {
+			status_abort(pthread_mutex_unlock(&i2c_lock), "pthread_mutex_unlock");
+			return ((uint16_t) ret) >> 8 | ((uint16_t) ret << 8);
+		}
+	
+	fprintf(stderr, "i2c - mod_i2c_read_word %x.%x falhou %d vezes, abortando\n", targets[reg].dev, targets[reg].reg, MAX_TRIES);
+	abort();
+}
+
 #warning Adicionar checagem de erro (seria bom tocar alarme ou fazer algo se o i2c morrer de vez)
 #warning Usar timedwait, escrever qualquer coisa de tempos em tempos e ativar watchdog no uC
 #warning i2c block transfer e configurações (timeout...), sync

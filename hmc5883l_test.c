@@ -31,19 +31,20 @@ int main() {
 		data = hmc5883l_read();
 		if (data != NULL) {
 			if (data[0] == HMC_OVERFLOW)
-				printf("OVFLW\t");
+				printf("X: OVFLW\t");
 			else
 				printf("%hd\t", data[0]);
 			if (data[1] == HMC_OVERFLOW)
-				printf("OVFLW\t");
+				printf("Z: OVFLW\t");
 			else
 				printf("%hd\t", data[1]);
 			if (data[2] == HMC_OVERFLOW)
-				printf("OVFLW\n");
+				printf("Y: OVFLW\n");
 			else
 				printf("%hd\n", data[2]);
 			atual = compass_orientation(data[0], data[2]);
-			printf("Diff: %g\n", compass_diff(inicial, atual));
+			printf("Atual: %.4g\tDiff: %g\n", atual, compass_diff(inicial, atual));
+			
 		}
 		if (nanosleep(&sleep_time, NULL) == -1)
 			perror("nanosleep");

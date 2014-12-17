@@ -16,4 +16,6 @@ void mod_i2c_write_now(int reg, uint8_t value);
 void mod_i2c_write_force(int reg, uint8_t value);
 uint8_t mod_i2c_read(int reg);
 uint16_t mod_i2c_read_word(int reg);
+uint16_t mod_i2c_read_word_inv(int reg);
+
 #endif

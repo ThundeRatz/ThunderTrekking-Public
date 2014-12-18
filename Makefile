@@ -78,7 +78,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
 	hmc5883l$(EXEEXT) nmea$(EXEEXT) compass_dump$(EXEEXT) \
-	trekking$(EXEEXT)
+	trekking$(EXEEXT) hmc5883l-log$(EXEEXT) motors-test$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -106,6 +106,12 @@ am_hmc5883l_OBJECTS = hmc5883l_test.$(OBJEXT) hmc5883l.$(OBJEXT) \
 hmc5883l_OBJECTS = $(am_hmc5883l_OBJECTS)
 hmc5883l_LDADD = $(LDADD)
 hmc5883l_DEPENDENCIES =
+am_hmc5883l_log_OBJECTS = hmc5883l_log.$(OBJEXT) hmc5883l.$(OBJEXT) \
+	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT) \
+	compass.$(OBJEXT) motors.$(OBJEXT)
+hmc5883l_log_OBJECTS = $(am_hmc5883l_log_OBJECTS)
+hmc5883l_log_LDADD = $(LDADD)
+hmc5883l_log_DEPENDENCIES =
 am_i2c_features_OBJECTS = i2c.$(OBJEXT) i2c_features.$(OBJEXT)
 i2c_features_OBJECTS = $(am_i2c_features_OBJECTS)
 i2c_features_LDADD = $(LDADD)
@@ -115,6 +121,11 @@ am_leds_control_OBJECTS = leds_control.$(OBJEXT) mod_i2c.$(OBJEXT) \
 leds_control_OBJECTS = $(am_leds_control_OBJECTS)
 leds_control_LDADD = $(LDADD)
 leds_control_DEPENDENCIES =
+am_motors_test_OBJECTS = motors_test.$(OBJEXT) motors.$(OBJEXT) \
+	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT)
+motors_test_OBJECTS = $(am_motors_test_OBJECTS)
+motors_test_LDADD = $(LDADD)
+motors_test_DEPENDENCIES =
 am_nmea_OBJECTS = serial.$(OBJEXT) serial_nmea.$(OBJEXT)
 nmea_OBJECTS = $(am_nmea_OBJECTS)
 nmea_LDADD = $(LDADD)
@@ -155,11 +166,13 @@ am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
-	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
-	$(nmea_SOURCES) $(trekking_SOURCES)
+	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
+	$(leds_control_SOURCES) $(motors_test_SOURCES) $(nmea_SOURCES) \
+	$(trekking_SOURCES)
 DIST_SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
-	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
-	$(nmea_SOURCES) $(trekking_SOURCES)
+	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
+	$(leds_control_SOURCES) $(motors_test_SOURCES) $(nmea_SOURCES) \
+	$(trekking_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -210,7 +223,7 @@ AM_DEFAULT_VERBOSITY = 1
 AUTOCONF = autoconf
 AUTOHEADER = autoheader
 AUTOMAKE = automake-1.14
-AWK = mawk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = 
@@ -233,7 +246,7 @@ LIBOBJS =
 LIBS = 
 LTLIBOBJS = 
 MAKEINFO = makeinfo
-MKDIR_P = /bin/mkdir -p
+MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
 PACKAGE = trekking
 PACKAGE_BUGREPORT = tiago.shibata@gmail.com
@@ -244,13 +257,13 @@ PACKAGE_URL =
 PACKAGE_VERSION = 0.1
 PATH_SEPARATOR = :
 SET_MAKE = 
-SHELL = /bin/bash
+SHELL = /bin/sh
 STRIP = 
 VERSION = 0.1
-abs_builddir = /home/trekking/trekking-git
-abs_srcdir = /home/trekking/trekking-git
-abs_top_builddir = /home/trekking/trekking-git
-abs_top_srcdir = /home/trekking/trekking-git
+abs_builddir = /home/tiago/trekking-git
+abs_srcdir = /home/tiago/trekking-git
+abs_top_builddir = /home/tiago/trekking-git
+abs_top_srcdir = /home/tiago/trekking-git
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -269,7 +282,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/trekking/trekking-git/install-sh
+install_sh = ${SHELL} /home/tiago/trekking-git/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -296,9 +309,11 @@ leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
 # calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c
 nmea_SOURCES = serial.c serial_nmea.c
 hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c
+hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c motors.c
+motors_test_SOURCES = motors_test.c motors.c mod_i2c.c i2c.c file_lock.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
-AM_CFLAGS = -Wall -Wextra $(OPTIMIZE)
+AM_CFLAGS = -Wall -Wextra -Iinclude $(OPTIMIZE)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -404,6 +419,10 @@ hmc5883l$(EXEEXT): $(hmc5883l_OBJECTS) $(hmc5883l_DEPENDENCIES) $(EXTRA_hmc5883l
 	@rm -f hmc5883l$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hmc5883l_OBJECTS) $(hmc5883l_LDADD) $(LIBS)
 
+hmc5883l-log$(EXEEXT): $(hmc5883l_log_OBJECTS) $(hmc5883l_log_DEPENDENCIES) $(EXTRA_hmc5883l_log_DEPENDENCIES) 
+	@rm -f hmc5883l-log$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(hmc5883l_log_OBJECTS) $(hmc5883l_log_LDADD) $(LIBS)
+
 i2c_features$(EXEEXT): $(i2c_features_OBJECTS) $(i2c_features_DEPENDENCIES) $(EXTRA_i2c_features_DEPENDENCIES) 
 	@rm -f i2c_features$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(i2c_features_OBJECTS) $(i2c_features_LDADD) $(LIBS)
@@ -411,6 +430,10 @@ i2c_features$(EXEEXT): $(i2c_features_OBJECTS) $(i2c_features_DEPENDENCIES) $(EX
 leds_control$(EXEEXT): $(leds_control_OBJECTS) $(leds_control_DEPENDENCIES) $(EXTRA_leds_control_DEPENDENCIES) 
 	@rm -f leds_control$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(leds_control_OBJECTS) $(leds_control_LDADD) $(LIBS)
+
+motors-test$(EXEEXT): $(motors_test_OBJECTS) $(motors_test_DEPENDENCIES) $(EXTRA_motors_test_DEPENDENCIES) 
+	@rm -f motors-test$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(motors_test_OBJECTS) $(motors_test_LDADD) $(LIBS)
 
 nmea$(EXEEXT): $(nmea_OBJECTS) $(nmea_DEPENDENCIES) $(EXTRA_nmea_DEPENDENCIES) 
 	@rm -f nmea$(EXEEXT)
@@ -431,6 +454,7 @@ include ./$(DEPDIR)/compass_dump.Po
 include ./$(DEPDIR)/cont_array.Po
 include ./$(DEPDIR)/file_lock.Po
 include ./$(DEPDIR)/hmc5883l.Po
+include ./$(DEPDIR)/hmc5883l_log.Po
 include ./$(DEPDIR)/hmc5883l_test.Po
 include ./$(DEPDIR)/hook.Po
 include ./$(DEPDIR)/i2c.Po
@@ -441,6 +465,7 @@ include ./$(DEPDIR)/leds_control.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/mod_i2c.Po
 include ./$(DEPDIR)/motors.Po
+include ./$(DEPDIR)/motors_test.Po
 include ./$(DEPDIR)/serial.Po
 include ./$(DEPDIR)/serial_nmea.Po
 

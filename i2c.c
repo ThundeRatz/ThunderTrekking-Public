@@ -7,19 +7,45 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdint.h>
-#include <linux/i2c-dev.h>
-//#include <linux/i2c.h>
+#include <linux/i2c.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "log.h"
 
 #define I2C_CHECK_FEATURE(functions, feature)		printf("i2c features: %s%s\n", (functions & feature) ? "" : "no ", #feature)
 
-int i2c_open(int dev_n) {
+/***********************************************************************
+ * i2c_open
+ * Abre dispositivo i2c em /dev/i2c-<dev_n> e retorna fd.
+ * dev_name não é necessário para a abertura, mas é usado para checar se
+ * abrimos o adaptador correto. Usando NULL não há checagem.
+***********************************************************************/
+int i2c_open(int dev_n, char *dev_name) {
 	int file;
 	char dev[60], sys[60], name[60];
 	long funcs;
 	FILE *sys_f;
-	sprintf(dev, "/dev/i2c-%d", dev_n);
-	sprintf(sys, "/sys/class/i2c-dev/i2c-%d/name", dev_n);
 	
+	sprintf(sys, "/sys/class/i2c-dev/i2c-%d/name", dev_n);
+	sys_f = fopen(sys, "r");
+	if (sys_f != NULL) {
+		size_t len;
+		fgets(name, sizeof(name), sys_f);
+		len = strlen(name);
+		if (name[len - 1] == '\n')
+			name[len - 1] = 0;
+		if (dev_name != NULL && strcmp(name, dev_name)) {
+			fprintf(stderr, "i2c_open: Falha na checagem do nome do adaptador\nEsperado %s, encontrou %s\n", dev_name, name);
+			abort();
+		} else
+			LOG("Adaptador i2c: %s\n", name);
+	} else {
+		fprintf(stderr, "i2c_open: Falha ao ler nome do adaptador\n");
+		abort();
+	}
+	
+	sprintf(dev, "/dev/i2c-%d", dev_n);
 	file = open(dev, O_RDWR);
 	if (file < 0) {
 		perror("open");
@@ -32,13 +58,7 @@ int i2c_open(int dev_n) {
 		return -1;
 	}
 	
-	sys_f = fopen(sys, "r");
-	if (sys_f != NULL) {
-		fgets(name, sizeof(name), sys_f);
-		puts(name);
-	} else
-		printf("Falha ao ler nome do adaptador\n");
-	
+#ifdef DEBUG
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_10BIT_ADDR);	// suporta endereços de 10 bits
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PEC);	// packet error checking
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_I2C);			// combined read/write
@@ -57,6 +77,7 @@ int i2c_open(int dev_n) {
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_I2C_BLOCK);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
+#endif
 	
 	return file;
 }

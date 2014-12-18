@@ -46,6 +46,8 @@ int main() {
 	joystick_dump(js);
 	
 #warning Ler todos os eventos em buffer do joystick de uma vez
+	leds_color(0, 0, 0);
+	leds_mode(MANUAL);
 	//leds_color(255, 255, 255);
 	//leds_mode(PULSE3);
 	//leds_timestep(1);

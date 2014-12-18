@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 		printf("i2c device file: ");
 		scanf("%d", &dev_n);
 	}
-	fd = i2c_open(dev_n);
+	fd = i2c_open(dev_n, NULL);
 	
 	if (fd < 0)
 		printf("i2c_open failed\n");

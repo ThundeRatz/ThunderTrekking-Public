@@ -19,11 +19,13 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
-#include <linux/i2c-dev.h>
+#include <linux/i2c.h>
+#include <unistd.h>
 #include "i2c.h"
 #include "mod_i2c.h"
 #include "status.h"
-#define I2C_DEV			6
+#define I2C_DEV			1
+#define I2C_DEV_NAME	"i915 gmbus vga"
 
 #define MOTORS_I2C_ADDR			0x69
 #define LEDS_I2C_ADDR			0x24
@@ -31,7 +33,7 @@
 
 #define MS						1000000
 
-#define MAX_TRIES				10
+#define MAX_TRIES				100
 
 #define len(array)				((&array)[1] - array)
 
@@ -101,7 +103,7 @@ void mod_i2c_create() {
 	}
 	*/
 	
-	if ((fd = i2c_open(I2C_DEV)) == -1) {
+	if ((fd = i2c_open(I2C_DEV, I2C_DEV_NAME)) == -1) {
 		fprintf(stderr, "i2c_open %d falhou\n", I2C_DEV);
 		abort();
 	}
@@ -127,6 +129,10 @@ void mod_i2c_create() {
 	// antes de mod_i2c_thread chamar pthread_cond_wait)
 	/*if (nanosleep(&sleep_time, NULL) == -1)
 		perror("nanosleep");*/
+}
+
+void mod_i2c_destroy() {
+	close(fd);
 }
 
 static void set_slave(uint8_t slave) {

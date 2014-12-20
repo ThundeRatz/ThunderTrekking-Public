@@ -78,7 +78,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
 	hmc5883l$(EXEEXT) nmea$(EXEEXT) compass_dump$(EXEEXT) \
-	trekking$(EXEEXT) hmc5883l-log$(EXEEXT) motors-test$(EXEEXT)
+	trekking$(EXEEXT) hmc5883l-log$(EXEEXT) motors-test$(EXEEXT) \
+	udp_send$(EXEEXT) udp_recv_bussola$(EXEEXT) \
+	udp_recv_gps$(EXEEXT) udp_recv_proximity$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -137,6 +139,22 @@ am_trekking_OBJECTS = main.$(OBJEXT) motors.$(OBJEXT) \
 trekking_OBJECTS = $(am_trekking_OBJECTS)
 trekking_LDADD = $(LDADD)
 trekking_DEPENDENCIES =
+am_udp_recv_bussola_OBJECTS = udp_recv_bussola.$(OBJEXT)
+udp_recv_bussola_OBJECTS = $(am_udp_recv_bussola_OBJECTS)
+udp_recv_bussola_LDADD = $(LDADD)
+udp_recv_bussola_DEPENDENCIES =
+am_udp_recv_gps_OBJECTS = udp_recv_gps.$(OBJEXT)
+udp_recv_gps_OBJECTS = $(am_udp_recv_gps_OBJECTS)
+udp_recv_gps_LDADD = $(LDADD)
+udp_recv_gps_DEPENDENCIES =
+am_udp_recv_proximity_OBJECTS = udp_recv_proximity.$(OBJEXT)
+udp_recv_proximity_OBJECTS = $(am_udp_recv_proximity_OBJECTS)
+udp_recv_proximity_LDADD = $(LDADD)
+udp_recv_proximity_DEPENDENCIES =
+am_udp_send_OBJECTS = udp_send.$(OBJEXT)
+udp_send_OBJECTS = $(am_udp_send_OBJECTS)
+udp_send_LDADD = $(LDADD)
+udp_send_DEPENDENCIES =
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -168,11 +186,15 @@ am__v_CCLD_1 =
 SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
 	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
 	$(leds_control_SOURCES) $(motors_test_SOURCES) $(nmea_SOURCES) \
-	$(trekking_SOURCES)
+	$(trekking_SOURCES) $(udp_recv_bussola_SOURCES) \
+	$(udp_recv_gps_SOURCES) $(udp_recv_proximity_SOURCES) \
+	$(udp_send_SOURCES)
 DIST_SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
 	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
 	$(leds_control_SOURCES) $(motors_test_SOURCES) $(nmea_SOURCES) \
-	$(trekking_SOURCES)
+	$(trekking_SOURCES) $(udp_recv_bussola_SOURCES) \
+	$(udp_recv_gps_SOURCES) $(udp_recv_proximity_SOURCES) \
+	$(udp_send_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -311,6 +333,10 @@ nmea_SOURCES = serial.c serial_nmea.c
 hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c
 hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c motors.c
 motors_test_SOURCES = motors_test.c motors.c mod_i2c.c i2c.c file_lock.c
+udp_send_SOURCES = udp_send.c
+udp_recv_bussola_SOURCES = udp_recv_bussola.c
+udp_recv_gps_SOURCES = udp_recv_gps.c
+udp_recv_proximity_SOURCES = udp_recv_proximity.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
 AM_CFLAGS = -Wall -Wextra -Iinclude $(OPTIMIZE)
@@ -443,6 +469,22 @@ trekking$(EXEEXT): $(trekking_OBJECTS) $(trekking_DEPENDENCIES) $(EXTRA_trekking
 	@rm -f trekking$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(trekking_OBJECTS) $(trekking_LDADD) $(LIBS)
 
+udp_recv_bussola$(EXEEXT): $(udp_recv_bussola_OBJECTS) $(udp_recv_bussola_DEPENDENCIES) $(EXTRA_udp_recv_bussola_DEPENDENCIES) 
+	@rm -f udp_recv_bussola$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_recv_bussola_OBJECTS) $(udp_recv_bussola_LDADD) $(LIBS)
+
+udp_recv_gps$(EXEEXT): $(udp_recv_gps_OBJECTS) $(udp_recv_gps_DEPENDENCIES) $(EXTRA_udp_recv_gps_DEPENDENCIES) 
+	@rm -f udp_recv_gps$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_recv_gps_OBJECTS) $(udp_recv_gps_LDADD) $(LIBS)
+
+udp_recv_proximity$(EXEEXT): $(udp_recv_proximity_OBJECTS) $(udp_recv_proximity_DEPENDENCIES) $(EXTRA_udp_recv_proximity_DEPENDENCIES) 
+	@rm -f udp_recv_proximity$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_recv_proximity_OBJECTS) $(udp_recv_proximity_LDADD) $(LIBS)
+
+udp_send$(EXEEXT): $(udp_send_OBJECTS) $(udp_send_DEPENDENCIES) $(EXTRA_udp_send_DEPENDENCIES) 
+	@rm -f udp_send$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_send_OBJECTS) $(udp_send_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -468,6 +510,10 @@ include ./$(DEPDIR)/motors.Po
 include ./$(DEPDIR)/motors_test.Po
 include ./$(DEPDIR)/serial.Po
 include ./$(DEPDIR)/serial_nmea.Po
+include ./$(DEPDIR)/udp_recv_bussola.Po
+include ./$(DEPDIR)/udp_recv_gps.Po
+include ./$(DEPDIR)/udp_recv_proximity.Po
+include ./$(DEPDIR)/udp_send.Po
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

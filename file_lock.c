@@ -23,6 +23,9 @@ int file_lock(char *tmpfile) {
 		fclose(f);
 		return -1;
 	}
+	
+	write(fd, "TODO: escrever PID aqui\n", sizeof("TODO: escrever PID aqui\n"));
+	
 	return fd;
 }
 

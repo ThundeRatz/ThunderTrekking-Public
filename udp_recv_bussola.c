@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	socklen_t addr_len = sizeof(struct sockaddr_in);
 	uint16_t listen_port;
 	if (argc < 2) {
-		fprintf(stderr, "Uso:\n\t%s listen_port\n", argv[0]);
+		fprintf(stderr, "Uso:\n\t%s listen_port\nMostra ângulo entre norte magnético e eixo y em torno de z [-pi, pi], rotação em x [-pi/2, pi/2] e rotação em y [-pi, pi]\n", argv[0]);
 		return -1;
 	}
 	

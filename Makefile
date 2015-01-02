@@ -80,7 +80,9 @@ bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
 	hmc5883l$(EXEEXT) nmea$(EXEEXT) compass_dump$(EXEEXT) \
 	trekking$(EXEEXT) hmc5883l-log$(EXEEXT) motors-test$(EXEEXT) \
 	udp_send$(EXEEXT) udp_recv_bussola$(EXEEXT) \
-	udp_recv_gps$(EXEEXT) udp_recv_proximity$(EXEEXT)
+	udp_recv_gps$(EXEEXT) udp_recv_proximity$(EXEEXT) \
+	motors_i2c_force$(EXEEXT) \
+	motors_i2c_force_alternating$(EXEEXT) failsafe$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -102,6 +104,11 @@ am_compass_dump_OBJECTS = compass_dump.$(OBJEXT) compass.$(OBJEXT) \
 compass_dump_OBJECTS = $(am_compass_dump_OBJECTS)
 compass_dump_LDADD = $(LDADD)
 compass_dump_DEPENDENCIES =
+am_failsafe_OBJECTS = failsafe.$(OBJEXT) mod_i2c.$(OBJEXT) \
+	i2c.$(OBJEXT) file_lock.$(OBJEXT) motors.$(OBJEXT)
+failsafe_OBJECTS = $(am_failsafe_OBJECTS)
+failsafe_LDADD = $(LDADD)
+failsafe_DEPENDENCIES =
 am_hmc5883l_OBJECTS = hmc5883l_test.$(OBJEXT) hmc5883l.$(OBJEXT) \
 	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT) \
 	compass.$(OBJEXT)
@@ -128,6 +135,19 @@ am_motors_test_OBJECTS = motors_test.$(OBJEXT) motors.$(OBJEXT) \
 motors_test_OBJECTS = $(am_motors_test_OBJECTS)
 motors_test_LDADD = $(LDADD)
 motors_test_DEPENDENCIES =
+am_motors_i2c_force_OBJECTS = motors_i2c_force.$(OBJEXT) \
+	motors.$(OBJEXT) mod_i2c.$(OBJEXT) i2c.$(OBJEXT) \
+	file_lock.$(OBJEXT)
+motors_i2c_force_OBJECTS = $(am_motors_i2c_force_OBJECTS)
+motors_i2c_force_LDADD = $(LDADD)
+motors_i2c_force_DEPENDENCIES =
+am_motors_i2c_force_alternating_OBJECTS =  \
+	motors_i2c_force_alternating.$(OBJEXT) motors.$(OBJEXT) \
+	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT)
+motors_i2c_force_alternating_OBJECTS =  \
+	$(am_motors_i2c_force_alternating_OBJECTS)
+motors_i2c_force_alternating_LDADD = $(LDADD)
+motors_i2c_force_alternating_DEPENDENCIES =
 am_nmea_OBJECTS = serial.$(OBJEXT) serial_nmea.$(OBJEXT)
 nmea_OBJECTS = $(am_nmea_OBJECTS)
 nmea_LDADD = $(LDADD)
@@ -183,15 +203,19 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
-	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
-	$(leds_control_SOURCES) $(motors_test_SOURCES) $(nmea_SOURCES) \
+SOURCES = $(compass_dump_SOURCES) $(failsafe_SOURCES) \
+	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
+	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
+	$(motors_test_SOURCES) $(motors_i2c_force_SOURCES) \
+	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
 	$(trekking_SOURCES) $(udp_recv_bussola_SOURCES) \
 	$(udp_recv_gps_SOURCES) $(udp_recv_proximity_SOURCES) \
 	$(udp_send_SOURCES)
-DIST_SOURCES = $(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
-	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
-	$(leds_control_SOURCES) $(motors_test_SOURCES) $(nmea_SOURCES) \
+DIST_SOURCES = $(compass_dump_SOURCES) $(failsafe_SOURCES) \
+	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
+	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
+	$(motors_test_SOURCES) $(motors_i2c_force_SOURCES) \
+	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
 	$(trekking_SOURCES) $(udp_recv_bussola_SOURCES) \
 	$(udp_recv_gps_SOURCES) $(udp_recv_proximity_SOURCES) \
 	$(udp_send_SOURCES)
@@ -337,6 +361,9 @@ udp_send_SOURCES = udp_send.c
 udp_recv_bussola_SOURCES = udp_recv_bussola.c
 udp_recv_gps_SOURCES = udp_recv_gps.c
 udp_recv_proximity_SOURCES = udp_recv_proximity.c
+motors_i2c_force_SOURCES = motors_i2c_force.c motors.c mod_i2c.c i2c.c file_lock.c
+motors_i2c_force_alternating_SOURCES = motors_i2c_force_alternating.c motors.c mod_i2c.c i2c.c file_lock.c
+failsafe_SOURCES = failsafe.c mod_i2c.c i2c.c file_lock.c motors.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
 AM_CFLAGS = -Wall -Wextra -Iinclude $(OPTIMIZE)
@@ -441,6 +468,10 @@ compass_dump$(EXEEXT): $(compass_dump_OBJECTS) $(compass_dump_DEPENDENCIES) $(EX
 	@rm -f compass_dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(compass_dump_OBJECTS) $(compass_dump_LDADD) $(LIBS)
 
+failsafe$(EXEEXT): $(failsafe_OBJECTS) $(failsafe_DEPENDENCIES) $(EXTRA_failsafe_DEPENDENCIES) 
+	@rm -f failsafe$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(failsafe_OBJECTS) $(failsafe_LDADD) $(LIBS)
+
 hmc5883l$(EXEEXT): $(hmc5883l_OBJECTS) $(hmc5883l_DEPENDENCIES) $(EXTRA_hmc5883l_DEPENDENCIES) 
 	@rm -f hmc5883l$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hmc5883l_OBJECTS) $(hmc5883l_LDADD) $(LIBS)
@@ -460,6 +491,14 @@ leds_control$(EXEEXT): $(leds_control_OBJECTS) $(leds_control_DEPENDENCIES) $(EX
 motors-test$(EXEEXT): $(motors_test_OBJECTS) $(motors_test_DEPENDENCIES) $(EXTRA_motors_test_DEPENDENCIES) 
 	@rm -f motors-test$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(motors_test_OBJECTS) $(motors_test_LDADD) $(LIBS)
+
+motors_i2c_force$(EXEEXT): $(motors_i2c_force_OBJECTS) $(motors_i2c_force_DEPENDENCIES) $(EXTRA_motors_i2c_force_DEPENDENCIES) 
+	@rm -f motors_i2c_force$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(motors_i2c_force_OBJECTS) $(motors_i2c_force_LDADD) $(LIBS)
+
+motors_i2c_force_alternating$(EXEEXT): $(motors_i2c_force_alternating_OBJECTS) $(motors_i2c_force_alternating_DEPENDENCIES) $(EXTRA_motors_i2c_force_alternating_DEPENDENCIES) 
+	@rm -f motors_i2c_force_alternating$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(motors_i2c_force_alternating_OBJECTS) $(motors_i2c_force_alternating_LDADD) $(LIBS)
 
 nmea$(EXEEXT): $(nmea_OBJECTS) $(nmea_DEPENDENCIES) $(EXTRA_nmea_DEPENDENCIES) 
 	@rm -f nmea$(EXEEXT)
@@ -494,6 +533,7 @@ distclean-compile:
 include ./$(DEPDIR)/compass.Po
 include ./$(DEPDIR)/compass_dump.Po
 include ./$(DEPDIR)/cont_array.Po
+include ./$(DEPDIR)/failsafe.Po
 include ./$(DEPDIR)/file_lock.Po
 include ./$(DEPDIR)/hmc5883l.Po
 include ./$(DEPDIR)/hmc5883l_log.Po
@@ -507,6 +547,8 @@ include ./$(DEPDIR)/leds_control.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/mod_i2c.Po
 include ./$(DEPDIR)/motors.Po
+include ./$(DEPDIR)/motors_i2c_force.Po
+include ./$(DEPDIR)/motors_i2c_force_alternating.Po
 include ./$(DEPDIR)/motors_test.Po
 include ./$(DEPDIR)/serial.Po
 include ./$(DEPDIR)/serial_nmea.Po

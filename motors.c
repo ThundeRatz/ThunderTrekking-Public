@@ -22,3 +22,8 @@ void motor(int right, int left) {
 		printf("INVALID MOTOR SPEED!\n");
 #endif
 }
+
+void motor_init() {
+	mod_i2c_write_force(REG_VEL_E, 0);
+	mod_i2c_write_force(REG_VEL_D, 0);
+}

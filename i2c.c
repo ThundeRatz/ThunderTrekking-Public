@@ -1,5 +1,6 @@
 // https://www.kernel.org/doc/Documentation/i2c/dev-interface
 // https://www.kernel.org/doc/Documentation/i2c/smbus-protocol
+// https://www.kernel.org/doc/Documentation/i2c/functionality
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -13,7 +14,7 @@
 
 #include "log.h"
 
-#define I2C_CHECK_FEATURE(functions, feature)		printf("i2c features: %s%s\n", (functions & feature) ? "" : "no ", #feature)
+#define I2C_CHECK_FEATURE(functions, feature)		printf("%32s | %s\n", #feature, (functions & feature) ? "YES" : "NO")
 
 /***********************************************************************
  * i2c_open
@@ -27,22 +28,25 @@ int i2c_open(int dev_n, char *dev_name) {
 	long funcs;
 	FILE *sys_f;
 	
-	sprintf(sys, "/sys/class/i2c-dev/i2c-%d/name", dev_n);
-	sys_f = fopen(sys, "r");
-	if (sys_f != NULL) {
-		size_t len;
-		fgets(name, sizeof(name), sys_f);
-		len = strlen(name);
-		if (name[len - 1] == '\n')
-			name[len - 1] = 0;
-		if (dev_name != NULL && strcmp(name, dev_name)) {
-			fprintf(stderr, "i2c_open: Falha na checagem do nome do adaptador\nEsperado %s, encontrou %s\n", dev_name, name);
+	if (dev_name != NULL) {
+		sprintf(sys, "/sys/class/i2c-dev/i2c-%d/name", dev_n);
+		sys_f = fopen(sys, "r");
+		if (sys_f != NULL) {
+			size_t len;
+			fgets(name, sizeof(name), sys_f);
+			fclose(sys_f);
+			len = strlen(name);
+			if (name[len - 1] == '\n')
+				name[len - 1] = 0;
+			if (dev_name != NULL && strcmp(name, dev_name)) {
+				fprintf(stderr, "i2c_open: Falha na checagem do nome do adaptador\nEsperado %s, encontrou %s\n", dev_name, name);
+				abort();
+			} else
+				LOG("Adaptador i2c: %s\n", name);
+		} else {
+			fprintf(stderr, "i2c_open: Falha ao ler nome do adaptador\n");
 			abort();
-		} else
-			LOG("Adaptador i2c: %s\n", name);
-	} else {
-		fprintf(stderr, "i2c_open: Falha ao ler nome do adaptador\n");
-		abort();
+		}
 	}
 	
 	sprintf(dev, "/dev/i2c-%d", dev_n);
@@ -59,11 +63,12 @@ int i2c_open(int dev_n, char *dev_name) {
 	}
 	
 #ifdef DEBUG
+	printf("I2C features:\n");
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_10BIT_ADDR);	// suporta endereços de 10 bits
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_PEC);	// packet error checking
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_I2C);			// combined read/write
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_PROTOCOL_MANGLING);
-	//I2C_CHECK_FEATURE(funcs, I2C_FUNC_NOSTART);
+	I2C_CHECK_FEATURE(funcs, I2C_FUNC_NOSTART);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_BLOCK_PROC_CALL);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_QUICK);
 	I2C_CHECK_FEATURE(funcs, I2C_FUNC_SMBUS_READ_BYTE);		// ou

@@ -24,7 +24,7 @@ static void sig_handler(__attribute__((unused)) int signo) {
 }
 
 int main() {
-	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 8 * MS};
+	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 4 * MS};
 	struct sigaction sinal;
 	int speed = 0, aumentando = 1;
 	

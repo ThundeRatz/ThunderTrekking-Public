@@ -366,7 +366,7 @@ motors_i2c_force_alternating_SOURCES = motors_i2c_force_alternating.c motors.c m
 failsafe_SOURCES = failsafe.c mod_i2c.c i2c.c file_lock.c motors.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
-AM_CFLAGS = -Wall -Wextra -Iinclude $(OPTIMIZE)
+AM_CFLAGS = -Wall -Wextra -I$(srcdir)/include $(OPTIMIZE)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

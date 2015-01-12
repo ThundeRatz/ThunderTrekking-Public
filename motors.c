@@ -4,13 +4,29 @@
 #endif
 
 void motor_right(int value) {
-	mod_i2c_write(REG_DIR_D, value < 0);
-	mod_i2c_write(REG_VEL_D, value > 0 ? value : -value);
+	if (value > 250) {
+		mod_i2c_write(REG_DIR_D, 0);
+		mod_i2c_write(REG_VEL_D, 250);
+	} else if (value < -250) {
+		mod_i2c_write(REG_DIR_D, 1);
+		mod_i2c_write(REG_VEL_D, 250);
+	} else {
+		mod_i2c_write(REG_DIR_D, value < 0);
+		mod_i2c_write(REG_VEL_D, value > 0 ? value : -value);
+	}
 }
 
 void motor_left(int value) {
-	mod_i2c_write(REG_DIR_E, value < 0);
-	mod_i2c_write(REG_VEL_E, value > 0 ? value : -value);
+	if (value > 250) {
+		mod_i2c_write(REG_DIR_E, 0);
+		mod_i2c_write(REG_VEL_E, 250);
+	} else if (value < -250) {
+		mod_i2c_write(REG_DIR_E, 1);
+		mod_i2c_write(REG_VEL_E, 250);
+	} else {
+		mod_i2c_write(REG_DIR_E, value < 0);
+		mod_i2c_write(REG_VEL_E, value > 0 ? value : -value);
+	}
 }
 
 void motor(int right, int left) {

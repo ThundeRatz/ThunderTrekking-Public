@@ -16,9 +16,9 @@ int main() {
 			printf("failsafe: Parando...\n");
 			mod_i2c_create();
 			motor_init();
+			file_unlock(fd);
 #warning WAIT aqui
 			sleep(1);
-			file_unlock(fd);
 			return 0;
 		}
 		sleep(1);

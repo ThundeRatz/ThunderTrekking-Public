@@ -82,7 +82,9 @@ bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
 	udp_send$(EXEEXT) udp_recv_bussola$(EXEEXT) \
 	udp_recv_gps$(EXEEXT) udp_recv_proximity$(EXEEXT) \
 	motors_i2c_force$(EXEEXT) \
-	motors_i2c_force_alternating$(EXEEXT) failsafe$(EXEEXT)
+	motors_i2c_force_alternating$(EXEEXT) failsafe$(EXEEXT) \
+	calibra_bussola$(EXEEXT) teste_bussola$(EXEEXT) \
+	joystick_kill$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -99,6 +101,13 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
+am_calibra_bussola_OBJECTS = calibra_bussola.$(OBJEXT) \
+	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) joystick.$(OBJEXT) \
+	compass.$(OBJEXT) file_lock.$(OBJEXT) motors.$(OBJEXT) \
+	compass_udp.$(OBJEXT)
+calibra_bussola_OBJECTS = $(am_calibra_bussola_OBJECTS)
+calibra_bussola_LDADD = $(LDADD)
+calibra_bussola_DEPENDENCIES =
 am_compass_dump_OBJECTS = compass_dump.$(OBJEXT) compass.$(OBJEXT) \
 	mod_i2c.$(OBJEXT) i2c.$(OBJEXT)
 compass_dump_OBJECTS = $(am_compass_dump_OBJECTS)
@@ -125,6 +134,11 @@ am_i2c_features_OBJECTS = i2c.$(OBJEXT) i2c_features.$(OBJEXT)
 i2c_features_OBJECTS = $(am_i2c_features_OBJECTS)
 i2c_features_LDADD = $(LDADD)
 i2c_features_DEPENDENCIES =
+am_joystick_kill_OBJECTS = joystick_kill.$(OBJEXT) joystick.$(OBJEXT) \
+	motors.$(OBJEXT) mod_i2c.$(OBJEXT) i2c.$(OBJEXT)
+joystick_kill_OBJECTS = $(am_joystick_kill_OBJECTS)
+joystick_kill_LDADD = $(LDADD)
+joystick_kill_DEPENDENCIES =
 am_leds_control_OBJECTS = leds_control.$(OBJEXT) mod_i2c.$(OBJEXT) \
 	i2c.$(OBJEXT)
 leds_control_OBJECTS = $(am_leds_control_OBJECTS)
@@ -152,6 +166,12 @@ am_nmea_OBJECTS = serial.$(OBJEXT) serial_nmea.$(OBJEXT)
 nmea_OBJECTS = $(am_nmea_OBJECTS)
 nmea_LDADD = $(LDADD)
 nmea_DEPENDENCIES =
+am_teste_bussola_OBJECTS = teste_bussola.$(OBJEXT) mod_i2c.$(OBJEXT) \
+	i2c.$(OBJEXT) joystick.$(OBJEXT) compass.$(OBJEXT) \
+	file_lock.$(OBJEXT) motors.$(OBJEXT) compass_udp.$(OBJEXT)
+teste_bussola_OBJECTS = $(am_teste_bussola_OBJECTS)
+teste_bussola_LDADD = $(LDADD)
+teste_bussola_DEPENDENCIES =
 am_trekking_OBJECTS = main.$(OBJEXT) motors.$(OBJEXT) \
 	file_lock.$(OBJEXT) joystick.$(OBJEXT) mod_i2c.$(OBJEXT) \
 	i2c.$(OBJEXT) compass.$(OBJEXT) init.$(OBJEXT) hook.$(OBJEXT) \
@@ -203,22 +223,24 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(compass_dump_SOURCES) $(failsafe_SOURCES) \
-	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
-	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
+SOURCES = $(calibra_bussola_SOURCES) $(compass_dump_SOURCES) \
+	$(failsafe_SOURCES) $(hmc5883l_SOURCES) \
+	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
+	$(joystick_kill_SOURCES) $(leds_control_SOURCES) \
 	$(motors_test_SOURCES) $(motors_i2c_force_SOURCES) \
 	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
-	$(trekking_SOURCES) $(udp_recv_bussola_SOURCES) \
-	$(udp_recv_gps_SOURCES) $(udp_recv_proximity_SOURCES) \
-	$(udp_send_SOURCES)
-DIST_SOURCES = $(compass_dump_SOURCES) $(failsafe_SOURCES) \
-	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
-	$(i2c_features_SOURCES) $(leds_control_SOURCES) \
+	$(teste_bussola_SOURCES) $(trekking_SOURCES) \
+	$(udp_recv_bussola_SOURCES) $(udp_recv_gps_SOURCES) \
+	$(udp_recv_proximity_SOURCES) $(udp_send_SOURCES)
+DIST_SOURCES = $(calibra_bussola_SOURCES) $(compass_dump_SOURCES) \
+	$(failsafe_SOURCES) $(hmc5883l_SOURCES) \
+	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
+	$(joystick_kill_SOURCES) $(leds_control_SOURCES) \
 	$(motors_test_SOURCES) $(motors_i2c_force_SOURCES) \
 	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
-	$(trekking_SOURCES) $(udp_recv_bussola_SOURCES) \
-	$(udp_recv_gps_SOURCES) $(udp_recv_proximity_SOURCES) \
-	$(udp_send_SOURCES)
+	$(teste_bussola_SOURCES) $(trekking_SOURCES) \
+	$(udp_recv_bussola_SOURCES) $(udp_recv_gps_SOURCES) \
+	$(udp_recv_proximity_SOURCES) $(udp_send_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -352,7 +374,7 @@ trekking_SOURCES = main.c motors.c file_lock.c joystick.c mod_i2c.c i2c.c compas
 i2c_features_SOURCES = i2c.c i2c_features.c
 compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
 leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
-# calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c
+calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c
 nmea_SOURCES = serial.c serial_nmea.c
 hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c
 hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c motors.c
@@ -364,6 +386,8 @@ udp_recv_proximity_SOURCES = udp_recv_proximity.c
 motors_i2c_force_SOURCES = motors_i2c_force.c motors.c mod_i2c.c i2c.c file_lock.c
 motors_i2c_force_alternating_SOURCES = motors_i2c_force_alternating.c motors.c mod_i2c.c i2c.c file_lock.c
 failsafe_SOURCES = failsafe.c mod_i2c.c i2c.c file_lock.c motors.c
+teste_bussola_SOURCES = teste_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c
+joystick_kill_SOURCES = joystick_kill.c joystick.c motors.c mod_i2c.c i2c.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
 AM_CFLAGS = -Wall -Wextra -I$(srcdir)/include $(OPTIMIZE)
@@ -464,6 +488,10 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+calibra_bussola$(EXEEXT): $(calibra_bussola_OBJECTS) $(calibra_bussola_DEPENDENCIES) $(EXTRA_calibra_bussola_DEPENDENCIES) 
+	@rm -f calibra_bussola$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(calibra_bussola_OBJECTS) $(calibra_bussola_LDADD) $(LIBS)
+
 compass_dump$(EXEEXT): $(compass_dump_OBJECTS) $(compass_dump_DEPENDENCIES) $(EXTRA_compass_dump_DEPENDENCIES) 
 	@rm -f compass_dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(compass_dump_OBJECTS) $(compass_dump_LDADD) $(LIBS)
@@ -484,6 +512,10 @@ i2c_features$(EXEEXT): $(i2c_features_OBJECTS) $(i2c_features_DEPENDENCIES) $(EX
 	@rm -f i2c_features$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(i2c_features_OBJECTS) $(i2c_features_LDADD) $(LIBS)
 
+joystick_kill$(EXEEXT): $(joystick_kill_OBJECTS) $(joystick_kill_DEPENDENCIES) $(EXTRA_joystick_kill_DEPENDENCIES) 
+	@rm -f joystick_kill$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(joystick_kill_OBJECTS) $(joystick_kill_LDADD) $(LIBS)
+
 leds_control$(EXEEXT): $(leds_control_OBJECTS) $(leds_control_DEPENDENCIES) $(EXTRA_leds_control_DEPENDENCIES) 
 	@rm -f leds_control$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(leds_control_OBJECTS) $(leds_control_LDADD) $(LIBS)
@@ -503,6 +535,10 @@ motors_i2c_force_alternating$(EXEEXT): $(motors_i2c_force_alternating_OBJECTS) $
 nmea$(EXEEXT): $(nmea_OBJECTS) $(nmea_DEPENDENCIES) $(EXTRA_nmea_DEPENDENCIES) 
 	@rm -f nmea$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(nmea_OBJECTS) $(nmea_LDADD) $(LIBS)
+
+teste_bussola$(EXEEXT): $(teste_bussola_OBJECTS) $(teste_bussola_DEPENDENCIES) $(EXTRA_teste_bussola_DEPENDENCIES) 
+	@rm -f teste_bussola$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(teste_bussola_OBJECTS) $(teste_bussola_LDADD) $(LIBS)
 
 trekking$(EXEEXT): $(trekking_OBJECTS) $(trekking_DEPENDENCIES) $(EXTRA_trekking_DEPENDENCIES) 
 	@rm -f trekking$(EXEEXT)
@@ -530,8 +566,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/calibra_bussola.Po
 include ./$(DEPDIR)/compass.Po
 include ./$(DEPDIR)/compass_dump.Po
+include ./$(DEPDIR)/compass_udp.Po
 include ./$(DEPDIR)/cont_array.Po
 include ./$(DEPDIR)/failsafe.Po
 include ./$(DEPDIR)/file_lock.Po
@@ -543,6 +581,7 @@ include ./$(DEPDIR)/i2c.Po
 include ./$(DEPDIR)/i2c_features.Po
 include ./$(DEPDIR)/init.Po
 include ./$(DEPDIR)/joystick.Po
+include ./$(DEPDIR)/joystick_kill.Po
 include ./$(DEPDIR)/leds_control.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/mod_i2c.Po
@@ -552,6 +591,7 @@ include ./$(DEPDIR)/motors_i2c_force_alternating.Po
 include ./$(DEPDIR)/motors_test.Po
 include ./$(DEPDIR)/serial.Po
 include ./$(DEPDIR)/serial_nmea.Po
+include ./$(DEPDIR)/teste_bussola.Po
 include ./$(DEPDIR)/udp_recv_bussola.Po
 include ./$(DEPDIR)/udp_recv_gps.Po
 include ./$(DEPDIR)/udp_recv_proximity.Po

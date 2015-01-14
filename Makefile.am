@@ -1,9 +1,9 @@
-bin_PROGRAMS = i2c_features leds_control hmc5883l nmea compass_dump trekking hmc5883l-log motors-test udp_send udp_recv_bussola udp_recv_gps udp_recv_proximity motors_i2c_force motors_i2c_force_alternating failsafe # calibra_bussola
+bin_PROGRAMS = i2c_features leds_control hmc5883l nmea compass_dump trekking hmc5883l-log motors-test udp_send udp_recv_bussola udp_recv_gps udp_recv_proximity motors_i2c_force motors_i2c_force_alternating failsafe calibra_bussola teste_bussola joystick_kill
 trekking_SOURCES = main.c motors.c file_lock.c joystick.c mod_i2c.c i2c.c compass.c init.c hook.c cont_array.c
 i2c_features_SOURCES = i2c.c i2c_features.c
 compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
 leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
-# calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c
+calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c
 nmea_SOURCES = serial.c serial_nmea.c
 hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c
 hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c motors.c
@@ -15,6 +15,8 @@ udp_recv_proximity_SOURCES = udp_recv_proximity.c
 motors_i2c_force_SOURCES = motors_i2c_force.c motors.c mod_i2c.c i2c.c file_lock.c
 motors_i2c_force_alternating_SOURCES = motors_i2c_force_alternating.c motors.c mod_i2c.c i2c.c file_lock.c
 failsafe_SOURCES = failsafe.c mod_i2c.c i2c.c file_lock.c motors.c
+teste_bussola_SOURCES = teste_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c
+joystick_kill_SOURCES = joystick_kill.c joystick.c motors.c mod_i2c.c i2c.c
 
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 

@@ -21,6 +21,7 @@
 int main() {
 	double diff;
 	float compass[3], orientacao_inicial;
+	int ciclo_add = 0;
 	
 	
 	printf("Calibração da bússola\n");
@@ -39,11 +40,21 @@ int main() {
 		diff = compass_diff(orientacao_inicial, compass[0]);
 		printf("%f %f - diff %g\n", orientacao_inicial, compass[0], diff);
 		if (diff > 2 || diff < -2)
-			motor(0, 0);
+			if (ciclo_add)
+				motor(1, 0);
+			else
+				motor(0, 0);
 		else if (diff > 0)
-			motor(MAX_SPEED, MAX_SPEED - (int) (P * diff));
+			if (ciclo_add)
+				motor(MAX_SPEED + 1, MAX_SPEED - (int) (P * diff));
+			else
+				motor(MAX_SPEED, MAX_SPEED - (int) (P * diff));
 		else
-			motor(MAX_SPEED + (int) (P * diff), MAX_SPEED);
+			if (ciclo_add)
+				motor(MAX_SPEED + (int) (P * diff), MAX_SPEED + 1);
+			else
+				motor(MAX_SPEED + (int) (P * diff), MAX_SPEED);
+		ciclo_add = !ciclo_add;
 	}
 	
 	motor(0, 0);

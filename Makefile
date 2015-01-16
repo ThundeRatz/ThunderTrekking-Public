@@ -82,9 +82,8 @@ bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
 	udp_send$(EXEEXT) udp_recv_bussola$(EXEEXT) \
 	udp_recv_gps$(EXEEXT) udp_recv_proximity$(EXEEXT) \
 	motors_i2c_force$(EXEEXT) \
-	motors_i2c_force_alternating$(EXEEXT) failsafe$(EXEEXT) \
-	calibra_bussola$(EXEEXT) teste_bussola$(EXEEXT) \
-	joystick_kill$(EXEEXT)
+	motors_i2c_force_alternating$(EXEEXT) calibra_bussola$(EXEEXT) \
+	teste_bussola$(EXEEXT) joystick_kill$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -101,32 +100,25 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_calibra_bussola_OBJECTS = calibra_bussola.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) joystick.$(OBJEXT) \
-	compass.$(OBJEXT) file_lock.$(OBJEXT) motors.$(OBJEXT) \
-	compass_udp.$(OBJEXT)
+am_calibra_bussola_OBJECTS = calibra_bussola.$(OBJEXT) i2c.$(OBJEXT) \
+	joystick.$(OBJEXT) compass.$(OBJEXT) file_lock.$(OBJEXT) \
+	motors.$(OBJEXT) compass_udp.$(OBJEXT) init.$(OBJEXT)
 calibra_bussola_OBJECTS = $(am_calibra_bussola_OBJECTS)
 calibra_bussola_LDADD = $(LDADD)
 calibra_bussola_DEPENDENCIES =
 am_compass_dump_OBJECTS = compass_dump.$(OBJEXT) compass.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT)
+	i2c.$(OBJEXT)
 compass_dump_OBJECTS = $(am_compass_dump_OBJECTS)
 compass_dump_LDADD = $(LDADD)
 compass_dump_DEPENDENCIES =
-am_failsafe_OBJECTS = failsafe.$(OBJEXT) mod_i2c.$(OBJEXT) \
-	i2c.$(OBJEXT) file_lock.$(OBJEXT) motors.$(OBJEXT)
-failsafe_OBJECTS = $(am_failsafe_OBJECTS)
-failsafe_LDADD = $(LDADD)
-failsafe_DEPENDENCIES =
 am_hmc5883l_OBJECTS = hmc5883l_test.$(OBJEXT) hmc5883l.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT) \
-	compass.$(OBJEXT)
+	i2c.$(OBJEXT) file_lock.$(OBJEXT) compass.$(OBJEXT)
 hmc5883l_OBJECTS = $(am_hmc5883l_OBJECTS)
 hmc5883l_LDADD = $(LDADD)
 hmc5883l_DEPENDENCIES =
 am_hmc5883l_log_OBJECTS = hmc5883l_log.$(OBJEXT) hmc5883l.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT) \
-	compass.$(OBJEXT) motors.$(OBJEXT)
+	i2c.$(OBJEXT) file_lock.$(OBJEXT) compass.$(OBJEXT) \
+	motors.$(OBJEXT)
 hmc5883l_log_OBJECTS = $(am_hmc5883l_log_OBJECTS)
 hmc5883l_log_LDADD = $(LDADD)
 hmc5883l_log_DEPENDENCIES =
@@ -134,30 +126,27 @@ am_i2c_features_OBJECTS = i2c.$(OBJEXT) i2c_features.$(OBJEXT)
 i2c_features_OBJECTS = $(am_i2c_features_OBJECTS)
 i2c_features_LDADD = $(LDADD)
 i2c_features_DEPENDENCIES =
-am_joystick_kill_OBJECTS = joystick_kill.$(OBJEXT) joystick.$(OBJEXT) \
-	motors.$(OBJEXT) mod_i2c.$(OBJEXT) i2c.$(OBJEXT)
+am_joystick_kill_OBJECTS = joystick_kill.$(OBJEXT) joystick.$(OBJEXT)
 joystick_kill_OBJECTS = $(am_joystick_kill_OBJECTS)
 joystick_kill_LDADD = $(LDADD)
 joystick_kill_DEPENDENCIES =
-am_leds_control_OBJECTS = leds_control.$(OBJEXT) mod_i2c.$(OBJEXT) \
-	i2c.$(OBJEXT)
+am_leds_control_OBJECTS = leds_control.$(OBJEXT) i2c.$(OBJEXT)
 leds_control_OBJECTS = $(am_leds_control_OBJECTS)
 leds_control_LDADD = $(LDADD)
 leds_control_DEPENDENCIES =
 am_motors_test_OBJECTS = motors_test.$(OBJEXT) motors.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT)
+	i2c.$(OBJEXT) file_lock.$(OBJEXT)
 motors_test_OBJECTS = $(am_motors_test_OBJECTS)
 motors_test_LDADD = $(LDADD)
 motors_test_DEPENDENCIES =
 am_motors_i2c_force_OBJECTS = motors_i2c_force.$(OBJEXT) \
-	motors.$(OBJEXT) mod_i2c.$(OBJEXT) i2c.$(OBJEXT) \
-	file_lock.$(OBJEXT)
+	motors.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT)
 motors_i2c_force_OBJECTS = $(am_motors_i2c_force_OBJECTS)
 motors_i2c_force_LDADD = $(LDADD)
 motors_i2c_force_DEPENDENCIES =
 am_motors_i2c_force_alternating_OBJECTS =  \
 	motors_i2c_force_alternating.$(OBJEXT) motors.$(OBJEXT) \
-	mod_i2c.$(OBJEXT) i2c.$(OBJEXT) file_lock.$(OBJEXT)
+	i2c.$(OBJEXT) file_lock.$(OBJEXT)
 motors_i2c_force_alternating_OBJECTS =  \
 	$(am_motors_i2c_force_alternating_OBJECTS)
 motors_i2c_force_alternating_LDADD = $(LDADD)
@@ -166,15 +155,15 @@ am_nmea_OBJECTS = serial.$(OBJEXT) serial_nmea.$(OBJEXT)
 nmea_OBJECTS = $(am_nmea_OBJECTS)
 nmea_LDADD = $(LDADD)
 nmea_DEPENDENCIES =
-am_teste_bussola_OBJECTS = teste_bussola.$(OBJEXT) mod_i2c.$(OBJEXT) \
-	i2c.$(OBJEXT) joystick.$(OBJEXT) compass.$(OBJEXT) \
-	file_lock.$(OBJEXT) motors.$(OBJEXT) compass_udp.$(OBJEXT)
+am_teste_bussola_OBJECTS = teste_bussola.$(OBJEXT) i2c.$(OBJEXT) \
+	joystick.$(OBJEXT) compass.$(OBJEXT) file_lock.$(OBJEXT) \
+	motors.$(OBJEXT) compass_udp.$(OBJEXT) init.$(OBJEXT)
 teste_bussola_OBJECTS = $(am_teste_bussola_OBJECTS)
 teste_bussola_LDADD = $(LDADD)
 teste_bussola_DEPENDENCIES =
 am_trekking_OBJECTS = main.$(OBJEXT) motors.$(OBJEXT) \
-	file_lock.$(OBJEXT) joystick.$(OBJEXT) mod_i2c.$(OBJEXT) \
-	i2c.$(OBJEXT) compass.$(OBJEXT) init.$(OBJEXT) hook.$(OBJEXT) \
+	file_lock.$(OBJEXT) joystick.$(OBJEXT) i2c.$(OBJEXT) \
+	compass.$(OBJEXT) init.$(OBJEXT) hook.$(OBJEXT) \
 	cont_array.$(OBJEXT)
 trekking_OBJECTS = $(am_trekking_OBJECTS)
 trekking_LDADD = $(LDADD)
@@ -224,19 +213,19 @@ am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(calibra_bussola_SOURCES) $(compass_dump_SOURCES) \
-	$(failsafe_SOURCES) $(hmc5883l_SOURCES) \
-	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
-	$(joystick_kill_SOURCES) $(leds_control_SOURCES) \
-	$(motors_test_SOURCES) $(motors_i2c_force_SOURCES) \
+	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
+	$(i2c_features_SOURCES) $(joystick_kill_SOURCES) \
+	$(leds_control_SOURCES) $(motors_test_SOURCES) \
+	$(motors_i2c_force_SOURCES) \
 	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
 	$(teste_bussola_SOURCES) $(trekking_SOURCES) \
 	$(udp_recv_bussola_SOURCES) $(udp_recv_gps_SOURCES) \
 	$(udp_recv_proximity_SOURCES) $(udp_send_SOURCES)
 DIST_SOURCES = $(calibra_bussola_SOURCES) $(compass_dump_SOURCES) \
-	$(failsafe_SOURCES) $(hmc5883l_SOURCES) \
-	$(hmc5883l_log_SOURCES) $(i2c_features_SOURCES) \
-	$(joystick_kill_SOURCES) $(leds_control_SOURCES) \
-	$(motors_test_SOURCES) $(motors_i2c_force_SOURCES) \
+	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
+	$(i2c_features_SOURCES) $(joystick_kill_SOURCES) \
+	$(leds_control_SOURCES) $(motors_test_SOURCES) \
+	$(motors_i2c_force_SOURCES) \
 	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
 	$(teste_bussola_SOURCES) $(trekking_SOURCES) \
 	$(udp_recv_bussola_SOURCES) $(udp_recv_gps_SOURCES) \
@@ -370,24 +359,23 @@ target_alias =
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .
-trekking_SOURCES = main.c motors.c file_lock.c joystick.c mod_i2c.c i2c.c compass.c init.c hook.c cont_array.c
+trekking_SOURCES = main.c motors.c file_lock.c joystick.c i2c.c compass.c init.c hook.c cont_array.c
 i2c_features_SOURCES = i2c.c i2c_features.c
-compass_dump_SOURCES = compass_dump.c compass.c mod_i2c.c i2c.c
-leds_control_SOURCES = leds_control.c mod_i2c.c i2c.c
-calibra_bussola_SOURCES = calibra_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c
+compass_dump_SOURCES = compass_dump.c compass.c i2c.c
+leds_control_SOURCES = leds_control.c i2c.c
+calibra_bussola_SOURCES = calibra_bussola.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c init.c
 nmea_SOURCES = serial.c serial_nmea.c
-hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c
-hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c mod_i2c.c i2c.c file_lock.c compass.c motors.c
-motors_test_SOURCES = motors_test.c motors.c mod_i2c.c i2c.c file_lock.c
+hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c i2c.c file_lock.c compass.c
+hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c i2c.c file_lock.c compass.c motors.c
+motors_test_SOURCES = motors_test.c motors.c i2c.c file_lock.c
 udp_send_SOURCES = udp_send.c
 udp_recv_bussola_SOURCES = udp_recv_bussola.c
 udp_recv_gps_SOURCES = udp_recv_gps.c
 udp_recv_proximity_SOURCES = udp_recv_proximity.c
-motors_i2c_force_SOURCES = motors_i2c_force.c motors.c mod_i2c.c i2c.c file_lock.c
-motors_i2c_force_alternating_SOURCES = motors_i2c_force_alternating.c motors.c mod_i2c.c i2c.c file_lock.c
-failsafe_SOURCES = failsafe.c mod_i2c.c i2c.c file_lock.c motors.c
-teste_bussola_SOURCES = teste_bussola.c mod_i2c.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c
-joystick_kill_SOURCES = joystick_kill.c joystick.c motors.c mod_i2c.c i2c.c
+motors_i2c_force_SOURCES = motors_i2c_force.c motors.c i2c.c file_lock.c
+motors_i2c_force_alternating_SOURCES = motors_i2c_force_alternating.c motors.c i2c.c file_lock.c
+teste_bussola_SOURCES = teste_bussola.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c init.c
+joystick_kill_SOURCES = joystick_kill.c joystick.c
 OPTIMIZE = -O0 -g -flto #-DDEBUG
 LDADD = -lpthread -lm 
 AM_CFLAGS = -Wall -Wextra -I$(srcdir)/include $(OPTIMIZE)
@@ -496,10 +484,6 @@ compass_dump$(EXEEXT): $(compass_dump_OBJECTS) $(compass_dump_DEPENDENCIES) $(EX
 	@rm -f compass_dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(compass_dump_OBJECTS) $(compass_dump_LDADD) $(LIBS)
 
-failsafe$(EXEEXT): $(failsafe_OBJECTS) $(failsafe_DEPENDENCIES) $(EXTRA_failsafe_DEPENDENCIES) 
-	@rm -f failsafe$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(failsafe_OBJECTS) $(failsafe_LDADD) $(LIBS)
-
 hmc5883l$(EXEEXT): $(hmc5883l_OBJECTS) $(hmc5883l_DEPENDENCIES) $(EXTRA_hmc5883l_DEPENDENCIES) 
 	@rm -f hmc5883l$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hmc5883l_OBJECTS) $(hmc5883l_LDADD) $(LIBS)
@@ -571,7 +555,6 @@ include ./$(DEPDIR)/compass.Po
 include ./$(DEPDIR)/compass_dump.Po
 include ./$(DEPDIR)/compass_udp.Po
 include ./$(DEPDIR)/cont_array.Po
-include ./$(DEPDIR)/failsafe.Po
 include ./$(DEPDIR)/file_lock.Po
 include ./$(DEPDIR)/hmc5883l.Po
 include ./$(DEPDIR)/hmc5883l_log.Po
@@ -584,7 +567,6 @@ include ./$(DEPDIR)/joystick.Po
 include ./$(DEPDIR)/joystick_kill.Po
 include ./$(DEPDIR)/leds_control.Po
 include ./$(DEPDIR)/main.Po
-include ./$(DEPDIR)/mod_i2c.Po
 include ./$(DEPDIR)/motors.Po
 include ./$(DEPDIR)/motors_i2c_force.Po
 include ./$(DEPDIR)/motors_i2c_force_alternating.Po

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "mod_i2c.h"
 #include "leds.h"
 
 #define len(array)	((&array)[1] - array)

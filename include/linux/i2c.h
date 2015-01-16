@@ -194,6 +194,7 @@ union i2c_smbus_data {
 
 #include <linux/types.h>
 #include <sys/ioctl.h>
+#include <stdlib.h>
 
 
 /* -- i2c.h -- */

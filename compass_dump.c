@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "mod_i2c.h"
 #include "compass.h"
 
 int main() {

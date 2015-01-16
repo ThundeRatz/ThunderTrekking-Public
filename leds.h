@@ -1,8 +1,6 @@
 #ifndef __LEDS_H__
 #define __LEDS_H__
 
-#include "mod_i2c.h"
-
 enum leds_modes {
 	MANUAL, BLINK, PULSE, PULSE3
 };

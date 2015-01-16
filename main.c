@@ -4,7 +4,6 @@
 #include "motors.h"
 #include "leds.h"
 #include "file_lock.h"
-#include "mod_i2c.h"
 #include "compass.h"
 #include "init.h"
 
@@ -46,8 +45,8 @@ int main() {
 	joystick_dump(js);
 	
 #warning Ler todos os eventos em buffer do joystick de uma vez
-	leds_color(0, 0, 0);
-	leds_mode(MANUAL);
+	//leds_color(0, 0, 0);
+	//leds_mode(MANUAL);
 	//leds_color(255, 255, 255);
 	//leds_mode(PULSE3);
 	//leds_timestep(1);

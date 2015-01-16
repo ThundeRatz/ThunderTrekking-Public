@@ -13,23 +13,18 @@
 #include <unistd.h>
 #include "file_lock.h"
 #include "joystick.h"
-#include "mod_i2c.h"
 #include "motors.h"
 #include "compass.h"
 #include "compass_udp.h"
+#include "init.h"
 
 int main() {
 	double diff;
 	float compass[3], orientacao_inicial;
-	int ciclo_add = 0;
-	
 	
 	printf("Calibração da bússola\n");
 	
-	if (file_lock("/tmp/trekking") == -1)
-		return -1;
-	
-	mod_i2c_create();
+	init();
 	if (compass_udp_init())
 		return -1;
 	compass_udp_recv(compass);
@@ -40,21 +35,11 @@ int main() {
 		diff = compass_diff(orientacao_inicial, compass[0]);
 		printf("%f %f - diff %g\n", orientacao_inicial, compass[0], diff);
 		if (diff > 2 || diff < -2)
-			if (ciclo_add)
-				motor(1, 0);
-			else
-				motor(0, 0);
+			motor(0, 0);
 		else if (diff > 0)
-			if (ciclo_add)
-				motor(MAX_SPEED + 1, MAX_SPEED - (int) (P * diff));
-			else
-				motor(MAX_SPEED, MAX_SPEED - (int) (P * diff));
+			motor(MAX_SPEED, MAX_SPEED - (int) (P * diff));
 		else
-			if (ciclo_add)
-				motor(MAX_SPEED + (int) (P * diff), MAX_SPEED + 1);
-			else
-				motor(MAX_SPEED + (int) (P * diff), MAX_SPEED);
-		ciclo_add = !ciclo_add;
+			motor(MAX_SPEED + (int) (P * diff), MAX_SPEED);
 	}
 	
 	motor(0, 0);

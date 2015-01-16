@@ -24,6 +24,7 @@
 #include <linux/joystick.h>
 
 #ifdef JOYSTICK_NONBLOCK
+#include <poll.h>
 #include <errno.h>
 #endif
 
@@ -112,6 +113,16 @@ void joystick_dump(int fd) {
 */
 
 int joystick_read(int fd, struct js_event *event) {
+#ifdef JOYSTICK_NONBLOCK
+	struct pollfd joystick_poll = {.fd = fd, .events = POLLIN};
+	switch (poll(&joystick_poll, 1, 0)) {
+		case 0:
+		return 0;
+		
+		case -1:
+		return -1;
+	}
+#endif
 	switch (read(fd, event, sizeof(struct js_event))) {
 		case -1:
 #ifdef JOYSTICK_NONBLOCK

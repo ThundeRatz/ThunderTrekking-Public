@@ -1,45 +1,79 @@
-#include "mod_i2c.h"
-#ifdef DEBUG
-#include <stdio.h>
-#endif
+#define _GNU_SOURCE
+#include <pthread.h>
 
-void motor_right(int value) {
-	if (value > 250) {
-		mod_i2c_write(REG_DIR_D, 0);
-		mod_i2c_write(REG_VEL_D, 250);
-	} else if (value < -250) {
-		mod_i2c_write(REG_DIR_D, 1);
-		mod_i2c_write(REG_VEL_D, 250);
-	} else {
-		mod_i2c_write(REG_DIR_D, value < 0);
-		mod_i2c_write(REG_VEL_D, value > 0 ? value : -value);
+#include "i2c.h"
+#include "status.h"
+
+#define MAX_TRIES	20
+
+#define MS			1000000
+
+static void *motor_thread(__attribute__((unused)) void *ignored);
+
+static int i2c, speed_r = 0, speed_l = 0;
+
+int motor_init() {
+	pthread_t thread;
+	pthread_attr_t attr;
+	
+	i2c = i2c_open(1, "i915 gmbus vga");
+	if (i2c == -1) {
+		perror("i2c_open");
+		return -1;
 	}
-}
-
-void motor_left(int value) {
-	if (value > 250) {
-		mod_i2c_write(REG_DIR_E, 0);
-		mod_i2c_write(REG_VEL_E, 250);
-	} else if (value < -250) {
-		mod_i2c_write(REG_DIR_E, 1);
-		mod_i2c_write(REG_VEL_E, 250);
-	} else {
-		mod_i2c_write(REG_DIR_E, value < 0);
-		mod_i2c_write(REG_VEL_E, value > 0 ? value : -value);
+	
+	if (i2c_slave(i2c, 0x69)) {
+		perror("i2c_slave");
+		return -1;
 	}
+	
+	status_try(pthread_attr_init(&attr), "pthread_attr_init");
+	status_try(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED), "pthread_attr_setdetachstate");
+	status_try(pthread_create(&thread, NULL, motor_thread, NULL), "pthread_create");
+	
+	return 0;
 }
 
-void motor(int right, int left) {
-	motor_right(right);
-	motor_left(left);
-#ifdef DEBUG
-	printf("motor - %d %d\n", right, left);
-	if (right < -255 || right > 255 || left < -255 || left > 255)
-		printf("INVALID MOTOR SPEED!\n");
-#endif
+void motor(int left, int right) {
+	if (left > 250)
+		speed_l = 250;
+	else if (left < -250)
+		speed_l = -250;
+	else
+		speed_l = left;
+	
+	if (right > 250)
+		speed_r = 250;
+	else if (right < -250)
+		speed_r = -250;
+	else
+		speed_r = right;
 }
 
-void motor_init() {
-	mod_i2c_write_force(REG_VEL_E, 0);
-	mod_i2c_write_force(REG_VEL_D, 0);
+void motor_wait() {
+	if (i2c_smbus_write_byte_data(i2c, 0, speed_l < 0))
+		perror("i2c_smbus_write_byte_data");
+	if (i2c_smbus_write_byte_data(i2c, 1, speed_l >= 0 ? speed_l : -speed_l))
+		perror("i2c_smbus_write_byte_data");
+	if (i2c_smbus_write_byte_data(i2c, 2, speed_r < 0))
+		perror("i2c_smbus_write_byte_data");
+	if (i2c_smbus_write_byte_data(i2c, 3, speed_r >= 0 ? speed_r : -speed_r))
+		perror("i2c_smbus_write_byte_data");
+}
+
+// Versão mod_i2c.c substituida por pouco mais de 10 linhas!
+static void *motor_thread(__attribute__((unused)) void *ignored) {
+	static const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 50 * MS};
+	for (;;) {
+		nanosleep(&sleep_time, NULL);
+		if (i2c_smbus_write_byte_data(i2c, 0, speed_l < 0))
+			perror("i2c_smbus_write_byte_data");
+		if (i2c_smbus_write_byte_data(i2c, 1, speed_l >= 0 ? speed_l : -speed_l))
+			perror("i2c_smbus_write_byte_data");
+		if (i2c_smbus_write_byte_data(i2c, 2, speed_r < 0))
+			perror("i2c_smbus_write_byte_data");
+		if (i2c_smbus_write_byte_data(i2c, 3, speed_r >= 0 ? speed_r : -speed_r))
+			perror("i2c_smbus_write_byte_data");
+	}
+	return NULL;
 }

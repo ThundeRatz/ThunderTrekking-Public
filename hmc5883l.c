@@ -35,7 +35,6 @@
 
 #include <stdio.h>
 #include "hmc5883l_registers.h"
-#include "mod_i2c.h"
 
 // 32 bytes é o tamanho máximo retornado por i2c_smbus_read_block_data
 // pela especificação

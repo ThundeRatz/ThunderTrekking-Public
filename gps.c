@@ -3,6 +3,9 @@
 // menores distância e outros em coordenadas esféricas
 
 #include <math.h>
+
+#include "gps.h"
+
 #define EARTH_R			6371
 #define TO_DEGREES(x)	((x) * 180. / M_PI)
 #define TO_RAD(x)		((x) * M_PI / 180.)
@@ -24,11 +27,11 @@ static double haversine(double a) {
 // gerando erro ao usar acos. Os resultados válidos divergem
 // consideravelmente do método haversine (ver link).
 // O uso de haversine (definido acima) evita erros de precisão.
-double gps_distance(gps_coord from, gps_coord to) {
-	double	phy1 = TO_RAD(from.latitude),
-			phy2 = TO_RAD(to.latitude),
-			delta_lat = TO_RAD(to.latitude - from.latitude),
-			delta_long = TO_RAD(to.longitude - from.longitude);
+double gps_distance(const gps_coord_t *from, const gps_coord_t *to) {
+	double	phy1 = TO_RAD(from->latitude),
+			phy2 = TO_RAD(to->latitude),
+			delta_lat = TO_RAD(to->latitude - from->latitude),
+			delta_long = TO_RAD(to->longitude - from->longitude);
 	double a, dist_angular;
 	
 	a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
@@ -38,8 +41,8 @@ double gps_distance(gps_coord from, gps_coord to) {
 }
 
 // Forward Azimuth (angulação inicial)
-double azimuth(gps_coord from, gps_coord to) {
-	double	y = sin(to.longitude - from.longitude) * cos(to.longitude),
-			x = cos(from.latitude) * sin(to.latitude) - sin(from.latitude) * cos(to.latitude) * cos(to.longitude - from.longitude);
+double azimuth(const gps_coord_t *from, const gps_coord_t *to) {
+	double	y = sin(to->longitude - from->longitude) * cos(to->longitude),
+			x = cos(from->latitude) * sin(to->latitude) - sin(from->latitude) * cos(to->latitude) * cos(to->longitude - from->longitude);
 	return atan2(y, x);
 }

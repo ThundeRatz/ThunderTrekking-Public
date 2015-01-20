@@ -6,24 +6,20 @@
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 
-#include "gps.h"
-
 static int udp_socket;
 
-int gps_udp_init() {
+int hmc5883l_udp_init() {
 	struct sockaddr_in local;
-	int udp_buffer_size = 2 * sizeof(double);
+	
 	if ((udp_socket = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("socket");
 		return -1;
 	}
 	
-	setsockopt(udp_socket, SOL_SOCKET, SO_RCVBUF, &udp_buffer_size, sizeof(udp_buffer_size));
-	
 	memset((char *) &local, 0, sizeof(local));
 	local.sin_family = AF_INET;	//IPv4
 	local.sin_addr.s_addr = INADDR_ANY;
-	local.sin_port = htons(8888);
+	local.sin_port = htons(14140);
 	
 	if (bind(udp_socket, (struct sockaddr *) &local, sizeof(local)) == -1) {
 		perror("bind");
@@ -33,17 +29,17 @@ int gps_udp_init() {
 	return 0;
 }
 
-int gps_udp_recv(gps_coord_t *data) {
-	switch (recv(udp_socket, data, 2 * sizeof(double), 0)) {
+int hmc5883l_udp_recv(int16_t *data) {
+	switch (recv(udp_socket, data, 3 * sizeof(int16_t), 0)) {
 		case -1:
-		perror("recv");
+		perror("hmc5883l_udp_recv - recv");
 		return -1;
 		
-		case 2 * sizeof(double):
+		case 3 * sizeof(int16_t):
 		return 0;
 		
 		default:
-		fprintf(stderr, "gps_udp_recv: Tamanho errado de mensagem\n");
+		fprintf(stderr, "compass_udp_recv: Tamanho errado de mensagem\n");
 		return -1;
 	}
 }

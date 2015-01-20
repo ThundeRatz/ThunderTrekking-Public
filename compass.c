@@ -1,11 +1,12 @@
 #include <math.h>
 #include <stdint.h>
 
-#define X_OFFSET	22.5
-#define Y_OFFSET	-131
+#define X_OFFSET	-55
+#define Y_OFFSET	+75
+#define ROTATION	-0.5
 
 double compass_orientation(int16_t x, int16_t y) {
-	return atan2((double) y - Y_OFFSET, (double) x - X_OFFSET);
+	return atan2((double) y + Y_OFFSET, (double) x + X_OFFSET) + ROTATION;
 }
 
 double compass_diff(double target, double now) {
@@ -19,4 +20,8 @@ double compass_diff(double target, double now) {
 		r -= 2 * M_PI;
 	return r;
 	//return (r <= M_PI ? r : r - 2 * M_PI);
+}
+
+double pass_filter(double last, double now, double pass) {
+	return now * pass + last * (1 - pass);
 }

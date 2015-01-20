@@ -83,7 +83,9 @@ bin_PROGRAMS = i2c_features$(EXEEXT) leds_control$(EXEEXT) \
 	udp_recv_gps$(EXEEXT) udp_recv_proximity$(EXEEXT) \
 	motors_i2c_force$(EXEEXT) \
 	motors_i2c_force_alternating$(EXEEXT) calibra_bussola$(EXEEXT) \
-	teste_bussola$(EXEEXT) joystick_kill$(EXEEXT)
+	teste_bussola$(EXEEXT) joystick_kill$(EXEEXT) \
+	udp_recv_hmc5883l$(EXEEXT) calibra_hmc5883l$(EXEEXT) \
+	hmc_log_rotate$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -106,6 +108,13 @@ am_calibra_bussola_OBJECTS = calibra_bussola.$(OBJEXT) i2c.$(OBJEXT) \
 calibra_bussola_OBJECTS = $(am_calibra_bussola_OBJECTS)
 calibra_bussola_LDADD = $(LDADD)
 calibra_bussola_DEPENDENCIES =
+am_calibra_hmc5883l_OBJECTS = calibra_hmc5883l.$(OBJEXT) \
+	compass.$(OBJEXT) file_lock.$(OBJEXT) motors.$(OBJEXT) \
+	hmc5883l_udp.$(OBJEXT) init.$(OBJEXT) gps_udp.$(OBJEXT) \
+	i2c.$(OBJEXT) joystick.$(OBJEXT) pid.$(OBJEXT) gps.$(OBJEXT)
+calibra_hmc5883l_OBJECTS = $(am_calibra_hmc5883l_OBJECTS)
+calibra_hmc5883l_LDADD = $(LDADD)
+calibra_hmc5883l_DEPENDENCIES =
 am_compass_dump_OBJECTS = compass_dump.$(OBJEXT) compass.$(OBJEXT) \
 	i2c.$(OBJEXT)
 compass_dump_OBJECTS = $(am_compass_dump_OBJECTS)
@@ -122,6 +131,13 @@ am_hmc5883l_log_OBJECTS = hmc5883l_log.$(OBJEXT) hmc5883l.$(OBJEXT) \
 hmc5883l_log_OBJECTS = $(am_hmc5883l_log_OBJECTS)
 hmc5883l_log_LDADD = $(LDADD)
 hmc5883l_log_DEPENDENCIES =
+am_hmc_log_rotate_OBJECTS = hmc_log_rotate.$(OBJEXT) compass.$(OBJEXT) \
+	file_lock.$(OBJEXT) motors.$(OBJEXT) hmc5883l_udp.$(OBJEXT) \
+	init.$(OBJEXT) gps_udp.$(OBJEXT) i2c.$(OBJEXT) \
+	joystick.$(OBJEXT)
+hmc_log_rotate_OBJECTS = $(am_hmc_log_rotate_OBJECTS)
+hmc_log_rotate_LDADD = $(LDADD)
+hmc_log_rotate_DEPENDENCIES =
 am_i2c_features_OBJECTS = i2c.$(OBJEXT) i2c_features.$(OBJEXT)
 i2c_features_OBJECTS = $(am_i2c_features_OBJECTS)
 i2c_features_LDADD = $(LDADD)
@@ -176,6 +192,10 @@ am_udp_recv_gps_OBJECTS = udp_recv_gps.$(OBJEXT)
 udp_recv_gps_OBJECTS = $(am_udp_recv_gps_OBJECTS)
 udp_recv_gps_LDADD = $(LDADD)
 udp_recv_gps_DEPENDENCIES =
+am_udp_recv_hmc5883l_OBJECTS = udp_recv_hmc5883l.$(OBJEXT)
+udp_recv_hmc5883l_OBJECTS = $(am_udp_recv_hmc5883l_OBJECTS)
+udp_recv_hmc5883l_LDADD = $(LDADD)
+udp_recv_hmc5883l_DEPENDENCIES =
 am_udp_recv_proximity_OBJECTS = udp_recv_proximity.$(OBJEXT)
 udp_recv_proximity_OBJECTS = $(am_udp_recv_proximity_OBJECTS)
 udp_recv_proximity_LDADD = $(LDADD)
@@ -212,24 +232,28 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(calibra_bussola_SOURCES) $(compass_dump_SOURCES) \
-	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
+SOURCES = $(calibra_bussola_SOURCES) $(calibra_hmc5883l_SOURCES) \
+	$(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
+	$(hmc5883l_log_SOURCES) $(hmc_log_rotate_SOURCES) \
 	$(i2c_features_SOURCES) $(joystick_kill_SOURCES) \
 	$(leds_control_SOURCES) $(motors_test_SOURCES) \
 	$(motors_i2c_force_SOURCES) \
 	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
 	$(teste_bussola_SOURCES) $(trekking_SOURCES) \
 	$(udp_recv_bussola_SOURCES) $(udp_recv_gps_SOURCES) \
-	$(udp_recv_proximity_SOURCES) $(udp_send_SOURCES)
-DIST_SOURCES = $(calibra_bussola_SOURCES) $(compass_dump_SOURCES) \
-	$(hmc5883l_SOURCES) $(hmc5883l_log_SOURCES) \
+	$(udp_recv_hmc5883l_SOURCES) $(udp_recv_proximity_SOURCES) \
+	$(udp_send_SOURCES)
+DIST_SOURCES = $(calibra_bussola_SOURCES) $(calibra_hmc5883l_SOURCES) \
+	$(compass_dump_SOURCES) $(hmc5883l_SOURCES) \
+	$(hmc5883l_log_SOURCES) $(hmc_log_rotate_SOURCES) \
 	$(i2c_features_SOURCES) $(joystick_kill_SOURCES) \
 	$(leds_control_SOURCES) $(motors_test_SOURCES) \
 	$(motors_i2c_force_SOURCES) \
 	$(motors_i2c_force_alternating_SOURCES) $(nmea_SOURCES) \
 	$(teste_bussola_SOURCES) $(trekking_SOURCES) \
 	$(udp_recv_bussola_SOURCES) $(udp_recv_gps_SOURCES) \
-	$(udp_recv_proximity_SOURCES) $(udp_send_SOURCES)
+	$(udp_recv_hmc5883l_SOURCES) $(udp_recv_proximity_SOURCES) \
+	$(udp_send_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -364,12 +388,15 @@ i2c_features_SOURCES = i2c.c i2c_features.c
 compass_dump_SOURCES = compass_dump.c compass.c i2c.c
 leds_control_SOURCES = leds_control.c i2c.c
 calibra_bussola_SOURCES = calibra_bussola.c i2c.c joystick.c compass.c file_lock.c motors.c compass_udp.c init.c
+calibra_hmc5883l_SOURCES = calibra_hmc5883l.c compass.c file_lock.c motors.c hmc5883l_udp.c init.c gps_udp.c i2c.c joystick.c pid.c gps.c
+hmc_log_rotate_SOURCES = hmc_log_rotate.c compass.c file_lock.c motors.c hmc5883l_udp.c init.c gps_udp.c i2c.c joystick.c
 nmea_SOURCES = serial.c serial_nmea.c
 hmc5883l_SOURCES = hmc5883l_test.c hmc5883l.c i2c.c file_lock.c compass.c
 hmc5883l_log_SOURCES = hmc5883l_log.c hmc5883l.c i2c.c file_lock.c compass.c motors.c
 motors_test_SOURCES = motors_test.c motors.c i2c.c file_lock.c
 udp_send_SOURCES = udp_send.c
 udp_recv_bussola_SOURCES = udp_recv_bussola.c
+udp_recv_hmc5883l_SOURCES = udp_recv_hmc5883l.c
 udp_recv_gps_SOURCES = udp_recv_gps.c
 udp_recv_proximity_SOURCES = udp_recv_proximity.c
 motors_i2c_force_SOURCES = motors_i2c_force.c motors.c i2c.c file_lock.c
@@ -480,6 +507,10 @@ calibra_bussola$(EXEEXT): $(calibra_bussola_OBJECTS) $(calibra_bussola_DEPENDENC
 	@rm -f calibra_bussola$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(calibra_bussola_OBJECTS) $(calibra_bussola_LDADD) $(LIBS)
 
+calibra_hmc5883l$(EXEEXT): $(calibra_hmc5883l_OBJECTS) $(calibra_hmc5883l_DEPENDENCIES) $(EXTRA_calibra_hmc5883l_DEPENDENCIES) 
+	@rm -f calibra_hmc5883l$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(calibra_hmc5883l_OBJECTS) $(calibra_hmc5883l_LDADD) $(LIBS)
+
 compass_dump$(EXEEXT): $(compass_dump_OBJECTS) $(compass_dump_DEPENDENCIES) $(EXTRA_compass_dump_DEPENDENCIES) 
 	@rm -f compass_dump$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(compass_dump_OBJECTS) $(compass_dump_LDADD) $(LIBS)
@@ -491,6 +522,10 @@ hmc5883l$(EXEEXT): $(hmc5883l_OBJECTS) $(hmc5883l_DEPENDENCIES) $(EXTRA_hmc5883l
 hmc5883l-log$(EXEEXT): $(hmc5883l_log_OBJECTS) $(hmc5883l_log_DEPENDENCIES) $(EXTRA_hmc5883l_log_DEPENDENCIES) 
 	@rm -f hmc5883l-log$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(hmc5883l_log_OBJECTS) $(hmc5883l_log_LDADD) $(LIBS)
+
+hmc_log_rotate$(EXEEXT): $(hmc_log_rotate_OBJECTS) $(hmc_log_rotate_DEPENDENCIES) $(EXTRA_hmc_log_rotate_DEPENDENCIES) 
+	@rm -f hmc_log_rotate$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(hmc_log_rotate_OBJECTS) $(hmc_log_rotate_LDADD) $(LIBS)
 
 i2c_features$(EXEEXT): $(i2c_features_OBJECTS) $(i2c_features_DEPENDENCIES) $(EXTRA_i2c_features_DEPENDENCIES) 
 	@rm -f i2c_features$(EXEEXT)
@@ -536,6 +571,10 @@ udp_recv_gps$(EXEEXT): $(udp_recv_gps_OBJECTS) $(udp_recv_gps_DEPENDENCIES) $(EX
 	@rm -f udp_recv_gps$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(udp_recv_gps_OBJECTS) $(udp_recv_gps_LDADD) $(LIBS)
 
+udp_recv_hmc5883l$(EXEEXT): $(udp_recv_hmc5883l_OBJECTS) $(udp_recv_hmc5883l_DEPENDENCIES) $(EXTRA_udp_recv_hmc5883l_DEPENDENCIES) 
+	@rm -f udp_recv_hmc5883l$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_recv_hmc5883l_OBJECTS) $(udp_recv_hmc5883l_LDADD) $(LIBS)
+
 udp_recv_proximity$(EXEEXT): $(udp_recv_proximity_OBJECTS) $(udp_recv_proximity_DEPENDENCIES) $(EXTRA_udp_recv_proximity_DEPENDENCIES) 
 	@rm -f udp_recv_proximity$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(udp_recv_proximity_OBJECTS) $(udp_recv_proximity_LDADD) $(LIBS)
@@ -551,14 +590,19 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/calibra_bussola.Po
+include ./$(DEPDIR)/calibra_hmc5883l.Po
 include ./$(DEPDIR)/compass.Po
 include ./$(DEPDIR)/compass_dump.Po
 include ./$(DEPDIR)/compass_udp.Po
 include ./$(DEPDIR)/cont_array.Po
 include ./$(DEPDIR)/file_lock.Po
+include ./$(DEPDIR)/gps.Po
+include ./$(DEPDIR)/gps_udp.Po
 include ./$(DEPDIR)/hmc5883l.Po
 include ./$(DEPDIR)/hmc5883l_log.Po
 include ./$(DEPDIR)/hmc5883l_test.Po
+include ./$(DEPDIR)/hmc5883l_udp.Po
+include ./$(DEPDIR)/hmc_log_rotate.Po
 include ./$(DEPDIR)/hook.Po
 include ./$(DEPDIR)/i2c.Po
 include ./$(DEPDIR)/i2c_features.Po
@@ -571,11 +615,13 @@ include ./$(DEPDIR)/motors.Po
 include ./$(DEPDIR)/motors_i2c_force.Po
 include ./$(DEPDIR)/motors_i2c_force_alternating.Po
 include ./$(DEPDIR)/motors_test.Po
+include ./$(DEPDIR)/pid.Po
 include ./$(DEPDIR)/serial.Po
 include ./$(DEPDIR)/serial_nmea.Po
 include ./$(DEPDIR)/teste_bussola.Po
 include ./$(DEPDIR)/udp_recv_bussola.Po
 include ./$(DEPDIR)/udp_recv_gps.Po
+include ./$(DEPDIR)/udp_recv_hmc5883l.Po
 include ./$(DEPDIR)/udp_recv_proximity.Po
 include ./$(DEPDIR)/udp_send.Po
 

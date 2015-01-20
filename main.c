@@ -55,7 +55,7 @@ int main() {
 		//printf("%u %d %u %u\n", jsev.time, jsev.value, jsev.type, jsev.number);
 		if (jsev.type & JS_EVENT_AXIS) {
 			if (jsev.number == 2) {
-				x = ((float) jsev.value) / 32768;
+				x = -((float) jsev.value) / 32768;
 				if (on)
 					update(x, y);
 			} else if (jsev.number == 3) {

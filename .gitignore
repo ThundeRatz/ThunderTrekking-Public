@@ -3,6 +3,7 @@
 .deps/
 autom4te.cache/
 build/
+Imagens/
 Makefile.in
 Makefile
 aclocal.m4

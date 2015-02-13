@@ -1,5 +1,8 @@
 package org.thunderatz.tiago.thundertrekking;
 
+import org.thunderatz.tiago.thundertrekking.util.SystemUiHider;
+
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,26 +17,26 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 */
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import java.net.NetworkInterface;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
-public class MainActivity extends Activity implements SensorEventListener, LocationListener {
+public class MainActivity extends Activity implements SensorEventListener {
 
     private static final float low_pass_alpha = 0.85f;
     private TextView log;
@@ -43,9 +46,7 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
     private ServerThread gps;
     private ServerThread compass;
     private ServerThread proximity;
-    private TorchServer torch;
-    private SensorEventListener sensor_listener;
-    private LocationListener gps_listener = this;
+    private ServerThread torch;
     /*
     private static CameraDevice cameraDevice;
     private static CaptureRequest.Builder cameraBuilder;
@@ -70,17 +71,6 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         }
     };
     */
-    Logger logger = new Logger() {
-        @Override
-        public void add(final String msg) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    log.append(msg);
-                }
-            });
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +78,9 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
 
         setContentView(R.layout.activity_main);
 
-        sensor_listener = this;
-        gps_listener = this;
+        final LocationManager location = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        final LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (!location.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         }
@@ -124,101 +111,15 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         for (Sensor sensor : sensors)
             log.append(sensor.getName() + " (" + sensor.getVendor() + ")\n");
 
-        gps = new ServerThread(logger, 1414, "gps", new ListenerRegisterer() {
+        //gps = new ServerThread(log, 1414, "gps");
+        compass = new ServerThread(log, 1415, "compass", new ListenerRegisterer() {
             @Override
-            public boolean register() {
-                final String provider;
-                Criteria criteria = new Criteria();
-                // Ver http://developer.android.com/reference/android/location/Criteria.html
-                // Podemos também pedir dados como velocidade
-                criteria.setAccuracy(Criteria.ACCURACY_FINE);
-                provider = locationManager.getBestProvider(criteria, false);
-                if (provider != null) {
-                    logger.add("gps: provider " + provider + "\n");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            locationManager.requestLocationUpdates(provider, 0, 0, gps_listener);
-                        }
-                    });
-                    return true;
-                }
-                logger.add("gps: sem gps\n");
-                return false;
-            }
-
-            @Override
-            public void unregister() {
-                locationManager.removeUpdates(gps_listener);
+            public void register(boolean enable) {
+                
             }
         });
-        compass = new ServerThread(logger, 1415, "compass", new ListenerRegisterer() {
-            @Override
-            public boolean register() {
-                boolean acelerometro_necessario = false;
-                // TYPE_ROTATION_VECTOR retorna rotação como mix do campo magnético e giroscópio
-                // (usando campo magnético para leitura da rotação, mas calculando com giroscópio a rotação
-                // entre as amostras do campo magnético e permitindo maior frequência de atualização que apenas
-                // com campo magnético) e será nosso sensor preferido. Tem maior consumo de bateria também
-                if (mSensorManager.registerListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_FASTEST)) {
-                    logger.add("Com TYPE_ROTATION_VECTOR\n");
-                } else {
-                    // Sem giroscópio
-                    logger.add("Sem TYPE_ROTATION_VECTOR\n");
-                    if (mSensorManager.registerListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_FASTEST)) {
-                        // Com leitura do campo magnético terrestre
-                        logger.add("Com TYPE_GEOMAGNETIC_ROTATION_VECTOR\n");
-                    } else {
-                        logger.add("Sem TYPE_GEOMAGNETIC_ROTATION_VECTOR\n");
-                        if (mSensorManager.registerListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST)) {
-                            logger.add("Com TYPE_MAGNETIC_FIELD\n");
-                            acelerometro_necessario = true;
-                        } else {
-                            logger.add("Sem TYPE_MAGNETIC_FIELD\n");
-                        }
-                    }
-                }
-
-                if (acelerometro_necessario)
-                    if (mSensorManager.registerListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL))
-                        logger.add("Com TYPE_ACCELEROMETER\n");
-                    else {
-                        logger.add("Sem TYPE_ACCELEROMETER\n");
-                        mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-                        return false;
-                    }
-                return true;
-            }
-
-            @Override
-            public void unregister() {
-                mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-                mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR));
-                mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR));
-                mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-                mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
-            }
-        });
-        proximity = new ServerThread(logger, 1416, "proximity", new ListenerRegisterer() {
-            @Override
-            public boolean register() {
-                if (mSensorManager.registerListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_FASTEST)) {
-                    logger.add("Com TYPE_PROXIMITY\n");
-                    return true;
-                }
-                logger.add("Sem TYPE_PROXIMITY\n");
-                return false;
-            }
-
-            @Override
-            public void unregister() {
-                mSensorManager.unregisterListener(sensor_listener, mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY));
-            }
-        });
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            torch = new TorchServer(logger, 1417, "torch");
-        } else
-            log.append("Sem FEATURE_CAMERA_FLASH\n");
+        //proximity = new ServerThread(log, 1416, "proximity");
+        torch = new ServerThread(log, 1417, "torch", null);
         /*
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sensores");
@@ -229,14 +130,48 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
 
     @Override
     protected void onResume() {
+        boolean acelerometro_necessario = false;
         super.onResume();
+        // TYPE_ROTATION_VECTOR retorna rotação como mix do campo magnético e giroscópio
+        // (usando campo magnético para leitura da rotação, mas calculando com giroscópio a rotação
+        // entre as amostras do campo magnético e permitindo maior frequência de atualização que apenas
+        // com campo magnético) e será nosso sensor preferido. Tem maior consumo de bateria também
+        if (mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_FASTEST)) {
+            log.append("Com TYPE_ROTATION_VECTOR\n");
+        } else {
+            // Sem giroscópio
+            log.append("Sem TYPE_ROTATION_VECTOR\n");
+            if (mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_FASTEST)) {
+                // Com leitura do campo magnético terrestre
+                log.append("Com TYPE_GEOMAGNETIC_ROTATION_VECTOR\n");
+            } else {
+                log.append("Sem TYPE_GEOMAGNETIC_ROTATION_VECTOR\n");
+                if (mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST)) {
+                    log.append("Com TYPE_MAGNETIC_FIELD\n");
+                    acelerometro_necessario = true;
+                } else {
+                    log.append("Sem TYPE_MAGNETIC_FIELD\n");
+                }
+            }
+        }
+        if (acelerometro_necessario)
+            if (mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST))
+                log.append("Com TYPE_ACCELEROMETER\n");
+            else
+                log.append("Sem TYPE_ACCELEROMETER\n");
 
-        //if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+            String cameraId;
+            log.append("Com FEATURE_CAMERA_FLASH\n");
+            camera = Camera.open();
+            Camera.Parameters p = camera.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            camera.setParameters(p);
+            camera.startPreview();
             /*
             // Ver exemplos:
             // https://github.com/googlesamples/android-Camera2Basic/blob/master/Application/src/main/java/com/example/android/camera2basic/Camera2BasicFragment.java
             // http://blog.csdn.net/torvalbill/article/details/40376145
-            String cameraId;
             CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
             for (cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
@@ -248,7 +183,8 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
             manager.openCamera(cameraId, mStateCallback, null);
             */
             //cameraBuilder.set(SCALER_CROP_REGION, TORCH);
-        //}
+        } else
+            log.append("Sem FEATURE_CAMERA_FLASH\n");
     }
 
     @Override
@@ -257,6 +193,13 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
         // Parar de receber leituras de sensores para economizar bateria
         /* mSensorManager.unregisterListener(this); */
         // Parar câmera
+        /*
+        Camera.Parameters p = camera.getParameters();
+        p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        camera.setParameters(p);
+        camera.stopPreview();
+        camera.release();
+        */
         /*
         if (cameraDevice != null) {
             cameraDevice.close();
@@ -325,23 +268,16 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
                 }
                 if (vazio)
                     return;
+
                 // getRotationMatrix retorna false se houver erro (matriz próxima de nula, por
                 // exemplo, em queda livre). Também se não tivermos recebido nenhuma leitura
                 // do acelerômetro ainda
                 if (SensorManager.getRotationMatrix(rotacao, inclinacao, gravity, event.values)) {
-                    ByteBuffer buffer = ByteBuffer.allocate(4 * 3); // espaço para 3 floats
-                    buffer.order(ByteOrder.LITTLE_ENDIAN);
                     SensorManager.getOrientation(rotacao, orientacao_celular);
-                    for (float value : orientacao_celular){
-                        buffer.putFloat(value);
-                    }
-                    // Log.i("compass", "reading " + buffer.getFloat(0) + "," + buffer.getFloat(4) + "," + buffer.getFloat(8));
-                    compass.send(buffer.array());
                     // A seguinte linha pode servir para pegar inclinação do campo
                     // inclinacao_geomagnetico = SensorManager.getInclination(inclinacao);
 
-                    // E para testar os valores:
-                    /*log.setText("Compass: yaw: " + Double.toString(orientacao_celular[0] * 180.0f / Math.PI) +
+                    /*log.append("Compass: yaw: " + Double.toString(orientacao_celular[0] * 180.0f / Math.PI) +
                             "\npitch: " + Double.toString(orientacao_celular[1] * 180.0f / Math.PI) +
                             "\nroll: " + Double.toString(orientacao_celular[2] * 180.0f / Math.PI) +
                             "\nincl: " + Double.toString(inclinacao_geomagnetico * 180.0f / Math.PI));*/
@@ -349,56 +285,9 @@ public class MainActivity extends Activity implements SensorEventListener, Locat
                 break;
             }
 
-            case Sensor.TYPE_PROXIMITY: {
-                ByteBuffer buffer = ByteBuffer.allocate(4 * 1); // espaço para 1 float
-                buffer.order(ByteOrder.LITTLE_ENDIAN);
-                buffer.putFloat(event.values[0]);
-                proximity.send(buffer.array());
-                break;
-            }
-
             default:
             log.append("onSensorChanged: Sensor desconhecido recebido\n");
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        ByteBuffer buffer = ByteBuffer.allocate(8 * 2); // espaço para 2 doubles
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.putDouble(location.getLatitude());
-        buffer.putDouble(location.getLongitude());
-        gps.send(buffer.array());
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        logger.add("onProviderEnabled: " + provider + "\n");
-    }
-
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        logger.add("onProviderDisabled: " + provider + "\n");
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        int satelites;
-        logger.add("onStatusChanged: " + provider + ": ");
-        if (status == LocationProvider.OUT_OF_SERVICE)
-            logger.add("Fora de serviço");
-        else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE)
-            logger.add("Temporariamente sem sinal");
-        else if (status == LocationProvider.AVAILABLE)
-            logger.add("Disponível");
-        else
-            logger.add("Status desconhecido");
-
-        satelites = extras.getInt("satellites", -1);
-        if (satelites != -1)
-            logger.add(" (" + Integer.toString(satelites) + "satélites)");
-        logger.add("\n");
     }
 
     @Override

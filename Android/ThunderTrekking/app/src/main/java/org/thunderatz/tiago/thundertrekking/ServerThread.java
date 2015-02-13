@@ -1,5 +1,8 @@
 package org.thunderatz.tiago.thundertrekking;
 
+import android.app.Activity;
+import android.widget.TextView;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -8,104 +11,74 @@ import java.net.InetAddress;
 public class ServerThread extends Thread {
     int port;
     String id;
-    protected DatagramSocket socket;
-    protected Logger logger;
-    protected InetAddress client_addr;
-    protected int client_port = 0;
-    protected ListenerRegisterer registerer;
+    private DatagramSocket socket;
+    private TextView log;
+    private InetAddress client_addr;
+    private int client_port = 0;
+    private ListenerRegisterer register;
 
-    ServerThread(Logger l, int target_port, String my_id, ListenerRegisterer r) {
-        logger = l;
+    ServerThread(TextView t, int target_port, String my_id, ListenerRegisterer r) {
+        log = t;
         port = target_port;
-        id = my_id + "(" + Integer.toString(port) + "): ";
-        registerer = r;
-        start();
-    }
-
-    protected void log(String msg) {
-        logger.add(id + msg + "\n");
+        id = my_id;
+        register = r;
     }
 
     @Override
     public void run() {
-        if (registerer != null) {
-            try {
-                socket = new DatagramSocket(port);
-                byte[] remote_port = new byte[5];
+        try {
+            socket = new DatagramSocket(port);
+            log.append(id + ": porta " + Integer.toString(port) + "\n");
 
-                while (socket != null) {
-                    DatagramPacket packet = new DatagramPacket(remote_port, 5);
-                    int new_port;
-                    log("Esperando conexões");
-                    socket.receive(packet);
-                    String remote = new String(remote_port, 0, packet.getLength()).trim();
-                    client_addr = packet.getAddress();
-
-                    // Pacote vazio para sensores
-                    if (remote.isEmpty()) {
-                        registerer.unregister();
-                        log("Parando transmissão");
-                        continue;
-                    }
-
-                    try {
-                        new_port = Integer.parseInt(new String(remote_port).trim());
-                    } catch (NumberFormatException e) {
-                        log(e.toString());
-                        continue;
-                    }
-
-                    log(client_addr.getHostName() + ":" + Integer.toString(packet.getPort()) + " direcionando para " + Integer.toString(client_port));
-                    if (client_port != new_port && registerer != null) {
-                        // Se não pudemos registrar (sensor não existe), enviar pacote vazio para clientes
-                        // indicando que não temos o sensor
-                        if (!registerer.register()) {
-                            log("registerer.register retornou erro\n");
-                            DatagramPacket empty;
-                            empty = new DatagramPacket(null, 0, client_addr, client_port);
-                            try {
-                                socket.send(empty);
-                            } catch (IOException e) {
-                                log(e.toString());
-                                client_port = 0;
-                            }
-                        }
-                        client_port = new_port;
-                    }
-                }
-            } catch (IOException e) {
-                log(e.toString());
-                close();
+            // Receber pacote de tamanho 0 (usado apenas para identificar endereço e porta para respostas)
+            while (socket != null) {
+                DatagramPacket packet = new DatagramPacket(null, 0);
+                socket.receive(packet);
+                client_addr = packet.getAddress();
+                client_port = packet.getPort();
+                log.append(id + " (" + Integer.toString(port) + "): accept " + client_addr.getHostName() + " " + Integer.toString(client_port) + "\n");
             }
-            log("saindo da thread");
+        } catch (IOException e) {
+            log.append(e.toString() + "\n");
+            client_port = 0;
         }
     }
 
     public void send(byte[] data) {
         if (client_port == 0) {
-            log("send: Sem clientes");
+            log.append(id + " - send: Sem clientes\n");
             return;
         }
 
-        final DatagramPacket packet = new DatagramPacket(data, data.length, client_addr, client_port);
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    socket.send(packet);
-                } catch (IOException e) {
-                    log(e.toString());
-                }
-            }
-        }).start();
+        DatagramPacket packet;
+        packet = new DatagramPacket(data, data.length, client_addr, client_port);
+        try {
+            socket.send(packet);
+        } catch (IOException e) {
+            log.append(e.toString() + "\n");
+            client_port = 0;
+        }
+    }
+
+    public void recv(byte[] data) {
+        if (client_port == 0) {
+            log.append(id + " - recv: Sem clientes\n");
+            return;
+        }
+
+        DatagramPacket packet;
+        packet = new DatagramPacket(data, data.length, client_addr, client_port);
+        try {
+            socket.receive(packet);
+        } catch (IOException e) {
+            log.append(e.toString() + "\n");
+            client_port = 0;
+        }
     }
 
     public void close() {
-        log("close");
-        if (registerer != null) {
-            registerer.unregister();
-            socket.close();
-            socket = null;
-            client_port = 0;
-        }
+        socket.close();
+        socket = null;
+        client_port = 0;
     }
 }

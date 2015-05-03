@@ -1,2 +1,8 @@
-*.pyc
-joystick
+*.o
+*~
+.deps/
+autom4te.cache/
+build/
+Imagens/
+Makefile.in
+config.log

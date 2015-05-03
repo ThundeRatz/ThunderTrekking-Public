@@ -1,8 +1,0 @@
-HMC5883L logger
-Gera log de saídas da bússola na saída padrão.
-A saída pode ser visualizada com algum programa que plote gráficos
-ou processada para calcular deslocamentos/rotações para corrigir o
-campo magnético recebido da bússola
-11973.334051007	105	12	25
-11973.337476945	105	12	25
-11973.340894922	105	12	25

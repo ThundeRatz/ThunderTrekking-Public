@@ -1,4 +1,0 @@
-/home/tiago/prog/OpenTLD/src/3rdparty/cvblobs/CMakeFiles/cvblobs.dir
-/home/tiago/prog/OpenTLD/src/opentld/CMakeFiles/main.dir
-/home/tiago/prog/OpenTLD/src/opentld/CMakeFiles/opentld.dir
-/home/tiago/prog/OpenTLD/src/libopentld/CMakeFiles/libopentld.dir

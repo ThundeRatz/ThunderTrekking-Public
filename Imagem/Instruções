@@ -1,4 +1,0 @@
-export LD_LIBRARY_PATH=/usr/local/lib/
-ffmpeg -f v4l2 -s 640x480 -i /dev/video0 -c:v libx264 -preset ultrafast -qp 0 ~/trekking/Imagens/Positivos/video.mkv
-ffmpeg -i ~/trekking/Imagens/Positivos/video.mkv -an -f image2 "~/trekking/Imagens/Positivos/ /output_%04d.png"
-~/trekking/OpenTLD/bin/opentld -d VID -i ~/trekking/Imagens/Positivos/video.mkv -s -p ~/trekking/Imagens/Positivos/location_data

@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+mkdir -p googlecode-output
+cd googlecode-output
+while read image ; do
+	echo $image
+	wget -c http://tutorial-haartraining.googlecode.com/svn/trunk/data/negatives/$image &
+	sleep .1
+	read next
+	echo $next
+	wget -c http://tutorial-haartraining.googlecode.com/svn/trunk/data/negatives/$next &
+	sleep .1
+	read next
+	echo $next
+	wget -c http://tutorial-haartraining.googlecode.com/svn/trunk/data/negatives/$next &
+	sleep .1
+done

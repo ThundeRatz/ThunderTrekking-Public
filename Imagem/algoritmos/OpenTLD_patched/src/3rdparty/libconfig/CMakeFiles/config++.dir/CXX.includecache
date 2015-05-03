@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfig.h
+stdio.h
+-
+
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfig.h++
+stdio.h
+-
+exception
+-
+string
+-
+
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfigcpp.c++
+libconfig.h++
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfig.h++
+wincompat.h
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/wincompat.h
+libconfig.h
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfig.h
+cstring
+-
+cstdlib
+-
+sstream
+-
+
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfigcpp.cc
+libconfigcpp.c++
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/libconfigcpp.c++
+
+/home/tiago/prog/OpenTLD/src/3rdparty/libconfig/wincompat.h
+windows.h
+-
+

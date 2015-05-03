@@ -1,0 +1,5 @@
+Positivos/cone_gaiola/cone_gaiola.png
+Positivos/cone_gaiola/cone_kevin2.png
+Positivos/cone_gaiola/cone_kevin3.png
+Positivos/cone_gaiola/cone_kevin.png
+Positivos/cone_gaiola/cone_thunder.png

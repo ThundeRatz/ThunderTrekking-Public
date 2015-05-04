@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <pthread.h>
 
 #include "thread_spawn.h"
 #include "udp_receiver.h"
@@ -45,8 +47,13 @@ gps_coord_t * gps_get() {
 void gps_set(gps_coord_t *nova, double pass) {
 	static pthread_mutex_t gps_mutex = PTHREAD_MUTEX_INITIALIZER;
 	status_perror("pthread_mutex_lock", pthread_mutex_lock(&gps_mutex));
-	gps.latitude = gps.latitude * (1 - pass) + pass * nova->latitude;
-	gps.longitude = gps.longitude * (1 - pass) + pass * nova->longitude;
+	if (gps.latitude == 0.) {
+		gps.latitude = nova->latitude;
+		gps.longitude = nova->longitude;
+	} else {
+		gps.latitude = gps.latitude * (1 - pass) + pass * nova->latitude;
+		gps.longitude = gps.longitude * (1 - pass) + pass * nova->longitude;
+	}
 	status_perror("pthread_mutex_unlock", pthread_mutex_unlock(&gps_mutex));
 }
 

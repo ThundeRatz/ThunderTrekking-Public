@@ -6,3 +6,4 @@ build/
 Imagens/
 Makefile.in
 config.log
+aclocal.m4

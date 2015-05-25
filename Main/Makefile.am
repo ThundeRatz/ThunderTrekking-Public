@@ -25,7 +25,7 @@ gpsd_client_SOURCES = src/lib/thread_gpsd_client.c src/lib/thread_spawn.c \
 OPTIMIZE = -O3 -flto
 LDADD = -lpthread -lm -lpixyusb -lboost_thread -lboost_system -lboost_chrono -lstdc++ -lusb-1.0 -lgps
 AM_CFLAGS = -Wall -Wextra -I$(srcdir)/include -I$(srcdir)/src/lib \
-	-fdiagnostics-color=auto -D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
+	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
 
 .PHONY: scripts
 

@@ -6,6 +6,7 @@
 #define UDP_HMC5883L		1415
 #define UDP_HC_SR04			1416
 #define UDP_GPS				1417
+#define UDP_LEDS            1418           
 
 #define UDP_GPS_CELL		8888
 #define UDP_BUSSOLA_CELL	8889

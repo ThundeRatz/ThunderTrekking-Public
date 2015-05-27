@@ -1,6 +1,6 @@
-#define LED_R    XX   // Portas dos LEDs
-#define LED_G    XX   
-#define LED_B    XX   
+#define LED_R    13   // Portas dos LEDs
+#define LED_G    19   
+#define LED_B    26   
 
 #define APAG 0 // Definir os status possiveis pro LED
 #define ACES 1
@@ -20,11 +20,11 @@
 void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignored) { 
 	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 50 * MS};
     int8_t status_antigo = 0, status = 0;
-    int socket = udp_receiver_init(UDP_LED);
+    int socket = udp_receiver_init(UDP_LEDS);
     
     int8_t led[5]; //led[0] = Red; led[1] = Green; led[2] = Blue; led[3] = Periodo; led[4] = "Duty"
     int per, duty1, duty2;
-    int8_t pacote;
+    int8_t statusc, pacote;
     
     if (socket == -1) {
         perror("udp_receiver_init");
@@ -36,10 +36,10 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
     gpio_dma_output(LED_B);
   
     for (;;) {
-        status = udp_receiver_recv(UDP_LEDS, &pacote, sizeof(pacote)) //Status vem de fora do programa
+        status = udp_receiver_recv(UDP_LEDS, &pacote, sizeof(pacote)); //Status vem de fora do programa
         statusc = pacote;
         if (status != status_antigo) {     //Se o status muda, ver qual o status novo e realizar a acao
-            for (int i = 0; i < 3, i++) {
+            for (int i = 0; i < 3; i++) {
                 led[i] = statusc%2;        // Salva os valores para os LEDs
                 statusc /= 2;
             }
@@ -63,9 +63,9 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
                 if (led[2] == ACES)
                     gtio_dma_set(LED_B);
                 nanosleep(&periodo1, NULL);  // Apaga todos os LEDs
-                gtio_dma_clear(LED_R);
-                gtio_dma_clear(LED_G);
-                gtio_dma_clear(LED_B);
+                gpio_dma_clear(LED_R);
+                gpio_dma_clear(LED_G);
+                gpio_dma_clear(LED_B);
                 nanosleep(&periodo2, NULL);
                 status_antigo = status;
             }

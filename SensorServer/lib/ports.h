@@ -5,5 +5,6 @@
 #define UDP_BIGODE		1414
 #define UDP_HMC5883L	1415
 #define UDP_HC_SR04		1416
+#define UDP_LEDS        1417
 
 #endif

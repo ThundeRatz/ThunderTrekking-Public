@@ -8,7 +8,7 @@
 #include <time.h>
 #include "gpio_dma.h"
 #include "udp_sender.h"
-#include "ports.h"
+#include "ports.h" //teste
 
 #define MS	1000000
 

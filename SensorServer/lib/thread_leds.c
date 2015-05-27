@@ -62,7 +62,7 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
             else
                 gpio_dma_clear(LED_G);
             if (led[2] == ACES)
-                gtio_dma_set(LED_B);
+                gpio_dma_set(LED_B);
             else
                 gpio_dma_clear(LED_B);
             
@@ -80,7 +80,7 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
                 if (led[1] == ACES)
                     gpio_dma_set(LED_G);
                 if (led[2] == ACES)
-                    gtio_dma_set(LED_B);
+                    gpio_dma_set(LED_B);
                 nanosleep(&periodo1, NULL);  // Apaga todos os LEDs
                 gpio_dma_clear(LED_R);
                 gpio_dma_clear(LED_G);

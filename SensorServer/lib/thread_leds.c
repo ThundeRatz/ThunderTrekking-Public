@@ -57,11 +57,11 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
             // Se 1 => gpio_amd_set(LED_X)
             while (status == status_antigo) {
                 if (led[0] == ACES)          // Acende os LEDs que devem ser acesos
-                    gtio_dma_set(LED_R);
+                    gpio_dma_set(LED_R);
                 if (led[1] == ACES)
-                    gtio_dma_set(LED_G);
+                    gpio_dma_set(LED_G);
                 if (led[2] == ACES)
-                    gtio_dma_set(LED_B);
+                    gpio_dma_set(LED_B);
                 nanosleep(&periodo1, NULL);  // Apaga todos os LEDs
                 gpio_dma_clear(LED_R);
                 gpio_dma_clear(LED_G);

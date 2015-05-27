@@ -9,7 +9,7 @@ int main() {
 	int udp_socket;
 	uint8_t data;
 	
-	if ((udp_socket = udp_sender_init(UDP_LEDS) == -1) {
+	if ((udp_socket = udp_sender_init(UDP_LEDS)) == -1) {
 		perror("udp_receiver_init");
 		return -1;
 	}
@@ -17,6 +17,5 @@ int main() {
 	for (;;) {
 		scanf("%hhu", &data);
 		udp_sender_send(udp_socket, &data, sizeof(data));
-	
 	}
 }

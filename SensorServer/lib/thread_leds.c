@@ -24,21 +24,28 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
     
     int8_t led[5]; //led[0] = Red; led[1] = Green; led[2] = Blue; led[3] = Periodo; led[4] = "Duty"
     int per, duty1, duty2;
-    int8_t statusc, pacote;
+    uint8_t statusc, pacote;
     
     if (socket == -1) {
         perror("udp_receiver_init");
         exit(-1);
     }
-    
+    printf("Leds inicializados.\n");
     gpio_dma_output(LED_R);  // Seta as portasdos LEDs como saida
     gpio_dma_output(LED_G);  
     gpio_dma_output(LED_B);
   
     for (;;) {
-        status = udp_receiver_recv(UDP_LEDS, &pacote, sizeof(pacote)); //Status vem de fora do programa
+		printf("Esperando dados...\n");
+        if (udp_receiver_recv(socket, &pacote, sizeof(pacote)) == -1) {//Status vem de fora do programa
+			const struct timespec sleep_error = {.tv_sec = 0, .tv_nsec = 500 * MS};
+			perror("udp_receiver_recv");
+			nanosleep(&sleep_error, NULL);
+			continue;
+		}
         statusc = pacote;
-        if (status != status_antigo) {     //Se o status muda, ver qual o status novo e realizar a acao
+        printf("%hhu\n", pacote);
+        if (statusc != status_antigo) {     //Se o status muda, ver qual o status novo e realizar a acao
             for (int i = 0; i < 3; i++) {
                 led[i] = statusc%2;        // Salva os valores para os LEDs
                 statusc /= 2;
@@ -53,20 +60,31 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
             const struct timespec periodo1 = {.tv_sec = 0, .tv_nsec = duty1 * MS};
             const struct timespec periodo2 = {.tv_sec = 0, .tv_nsec = duty2 * MS};
             
-            if (led[0] == ACES)          // Acende os LEDs que devem ser acesos
-                gpio_dma_set(LED_R);
-            else
-                gpio_dma_clear(LED_R);
-            if (led[1] == ACES)
-                gpio_dma_set(LED_G);
-            else
-                gpio_dma_clear(LED_G);
-            if (led[2] == ACES)
-                gpio_dma_set(LED_B);
-            else
-                gpio_dma_clear(LED_B);
-            
-            
+            if (led[0] == ACES) {         // Acende os LEDs que devem ser acesos
+                gpio_dma_input_with_pull(LED_R, GPIO_DMA_PULLUP);
+                printf("LEDR aceso\n");
+			}
+            else {
+                gpio_dma_input_with_pull(LED_R, GPIO_DMA_PULLDOWN);
+                printf("LEDR apagado\n");
+			}
+            if (led[1] == ACES){
+                gpio_dma_input_with_pull(LED_G, GPIO_DMA_PULLUP);
+			    printf("LEDG aceso\n");
+			}
+            else {
+                gpio_dma_input_with_pull(LED_G, GPIO_DMA_PULLDOWN);
+                printf("LEDG apagado\n");
+			}
+            if (led[2] == ACES) {
+                gpio_dma_input_with_pull(LED_B, GPIO_DMA_PULLUP);
+                printf("LEDB aceso\n");
+			}
+            else {
+                gpio_dma_input_with_pull(LED_B, GPIO_DMA_PULLDOWN);
+				printf("LEDB apagado\n");
+			}
+            status_antigo = statusc;
             
             
             

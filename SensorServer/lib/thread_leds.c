@@ -15,8 +15,6 @@
 
 #define MS	1000000
 
-
-
 void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignored) { 
 	const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 50 * MS};
     int8_t status_antigo = 0, status = 0;

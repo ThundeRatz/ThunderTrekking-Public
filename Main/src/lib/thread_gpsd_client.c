@@ -1,4 +1,5 @@
 #include <gps.h>
+#include <thread_gps.h>
 #include <easy_thread.h>
 
 EASY_THREAD(gps_serial_thread) {
@@ -16,13 +17,12 @@ EASY_THREAD(gps_serial_thread) {
 	}
 
 	for (;;) {
-		//const struct timespec gps_wait = {.tv_sec = 1, .tv_nsec = 0};
-		//nanosleep(&gps_wait, NULL);
 		if (gps_read(&gpsdata) == -1) {
 			perror("gps_read");
-		} else if (gpsdata.fix.mode == MODE_2D || gpsdata.fix.mode == MODE_3D)
-			printf("GPSD - %lf %lf\n", gpsdata.fix.latitude, gpsdata.fix.longitude);
-		else
+		} else if (gpsdata.fix.mode == MODE_2D || gpsdata.fix.mode == MODE_3D) {
+			gps_coord_t gps = {.latitude = gpsdata.fix.latitude, .longitude = gpsdata.fix.longitude};
+			gps_set(&gps, 0.8);
+		} else
 			printf("GPSD - No fix\n");
 	}
 }

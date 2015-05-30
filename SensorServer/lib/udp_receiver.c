@@ -29,3 +29,24 @@ int udp_receiver_init(uint16_t port) {
 	return udp_socket;
 }
 
+// Para os LEDs
+int udp_receiver_init_nonblock(uint16_t port) {
+	struct sockaddr_in local;
+	int udp_socket;
+	if ((udp_socket = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0)) == -1) {
+		perror("socket");
+		return -1;
+	}
+	
+	memset((char *) &local, 0, sizeof(local));
+	local.sin_family = AF_INET;	//IPv4
+	local.sin_addr.s_addr = INADDR_ANY;
+	local.sin_port = htons(port);
+
+	if (bind(udp_socket, (struct sockaddr *) &local, sizeof(local)) == -1) {
+		perror("bind");
+		return -1;
+	}
+	
+	return udp_socket;
+}

@@ -26,7 +26,7 @@ udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c
 OPTIMIZE = -O3 -flto
 LDADD = -lpthread -lm -lpixyusb -lboost_thread -lboost_system -lboost_chrono -lstdc++ -lusb-1.0 -lgps
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
-	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
+	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 -g #$(OPTIMIZE)
 
 .PHONY: scripts
 

@@ -1,12 +1,14 @@
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send controle main pixy_test azimuth distance compass_diff \
-	gpsd_client udp_sendr_led
+	gpsd_client udp_sendr_led udp_recv_camera
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
 udp_recv_bigodes_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bigodes.c
 udp_recv_hmc5883l_SOURCES = src/lib/udp_receiver.c src/lib/compass.c src/bin/udp_recv/udp_recv_hmc5883l.c
 udp_recv_bussola_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bussola_cell.c
 udp_recv_gps_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_gps_cell.c
+udp_recv_camera_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_camera.c
 udp_send_SOURCES = src/bin/utils/udp_send.c
+udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c
 pixy_test_SOURCES = src/lib/thread_spawn.c src/lib/pixy_cam.c src/bin/utils/pixy_test.c
 azimuth_SOURCES = src/lib/gps_coord.c src/bin/utils/azimuth.c
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
@@ -21,7 +23,6 @@ main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 compass_diff_SOURCES = src/lib/compass.c src/bin/utils/compass_diff.c
 gpsd_client_SOURCES = src/lib/thread_gpsd_client.c src/lib/thread_spawn.c \
 	src/bin/utils/gpsd_client.c
-udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c
 
 OPTIMIZE = -O3 -flto
 LDADD = -lpthread -lm -lpixyusb -lboost_thread -lboost_system -lboost_chrono -lstdc++ -lusb-1.0 -lgps

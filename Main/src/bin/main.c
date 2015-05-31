@@ -1,7 +1,5 @@
 #define COMPASS_P	5
 
-#define DEBUG_DEADZONE		1500
-
 #define JOYSTICK_NONBLOCK
 
 #include <stdio.h>
@@ -47,118 +45,17 @@ void espera_trigger();
 int main() {
 	int evento_atual;
 
-	if (file_lock("/tmp/trekking") == -1) {
-		printf("file_lock falhou\n");
-		exit(-1);
-	}
-
 	thread_spawn(gps_thread, NULL);
 	thread_spawn(motors_thread, NULL);
 	thread_spawn(hmc5883l_thread, NULL);
 	thread_spawn(sonar_thread, NULL);
 
-	pixy_cam_init();
-
-	while ((joystick = joystick_open_nb("/dev/input/js0")) == -1) {
-		const struct timespec sleep_joystick = {.tv_sec = 0, .tv_nsec = 500 * MS};
-		printf("Joystick não conectado\n");
-		if (nanosleep(&sleep_joystick, NULL) == -1)
-			perror("nanosleep");
-	}
-
-	joystick_dump(joystick);
-
-	printf("Esperado botão 14\n");
-	espera_trigger();
-
 	gps_set(&eventos[0].pos, 1.);
 
 	for (evento_atual = 1; evento_atual < len(eventos); evento_atual++)
 		executa_evento(evento_atual);
-	int motor_l = 0, motor_r = 0;
-	int debug_helper = 0;
-	for (;;) {
-		struct js_event joystick_event;
-		int joystick_has_packets = 1;
-		while (joystick_has_packets)
-			switch (joystick_read_nb(joystick, &joystick_event)) {
-				case -1:
-				printf("joystick_read_nb - erro de leitura, parando\n");
-				motor_l = motor_r = 0;
-				debug_helper = 0;
-				joystick_has_packets = 0;
-				break;
-
-				case 1:
-				if (joystick_event.type  & JS_EVENT_BUTTON) {
-					if (joystick_event.number == 14 && !joystick_event.value) {
-						printf("Pausado\n");
-						motor(0, 0);
-						espera_trigger();
-						printf("Retomando\n");
-					}
-					if (joystick_event.number == 9 && !joystick_event.value) {
-						printf("Terminado\n");
-						motor(0, 0);
-						exit(0);
-					}
-				}
-
-				if (joystick_event.type  & JS_EVENT_AXIS) {
-					if (joystick_event.number == 18) {
-						if (joystick_event.value > DEBUG_DEADZONE)
-							debug_helper = (joystick_event.value - DEBUG_DEADZONE) / 80;
-						else if (joystick_event.value < -DEBUG_DEADZONE)
-							debug_helper = (joystick_event.value + DEBUG_DEADZONE) / 80;
-						else
-							debug_helper = 0;
-					}
-				}
-				break;
-
-				case 0:
-				joystick_has_packets = 0;
-				break;
-			}
-
-		if (debug_helper) {
-			if (debug_helper > 0) {
-				motor_l = 255;
-				motor_r = 255 - debug_helper;
-			} else {
-				motor_r = 255;
-				motor_l = 255 + debug_helper;
-			}
-			printf("Motor %d %d (DBG)\n", motor_l, motor_r);
-		} else {
-			motor_l = 180; motor_r = 180;
-			printf("Motor %d %d\n", motor_l, motor_r);
-		}
-
-		motor(motor_l, motor_r);
-		nanosleep(&cycle, NULL);
-	}
 	printf("Terminado\n");
 	return 0;
-}
-
-void espera_trigger() {
-	for (;;) {
-		struct js_event joystick_event;
-		const struct timespec joystick_sleep_time = {.tv_sec = 0, .tv_nsec = 10 * MS};
-		while (joystick_read_nb(joystick, &joystick_event) == 1) {
-			if ((joystick_event.type  & JS_EVENT_BUTTON) && !(joystick_event.type & JS_EVENT_INIT) &&
-				joystick_event.number == 14 && joystick_event.type)
-				return;
-			if ((joystick_event.type  & JS_EVENT_BUTTON) && !(joystick_event.type & JS_EVENT_INIT) &&
-				joystick_event.number == 9 && joystick_event.type) {
-				printf("Terminado\n");
-				exit(0);
-			}
-		}
-		if (nanosleep(&joystick_sleep_time, NULL) == -1)
-			perror("nanosleep");
-	}
 }
 
 static void executa_evento(int evento_atual) {
@@ -211,91 +108,9 @@ static void executa_evento(int evento_atual) {
 					return;
 				}
 			}
-		} else {
-			/*if (eventos[evento_atual].desvio == 0) { // esquerda
-				if (sonar_l < 50 * 1000 * 58 || sonar_r < 30 * 1000 * 58) {
-					printf("Sonares próximos - desvio esquerda\n");
-					motor_l = -180;
-					motor_r = 200;
-				}
-			} else {
-				if (sonar_r < 50 * 1000 * 58 || sonar_l < 30 * 1000 * 58) {
-					printf("Sonares próximos - desvio direita\n");
-					motor_l = 200;
-					motor_r = -180;
-				}
-			}*/
 		}
-
-		if (gps_distance(gps_get(), &eventos[evento_atual].pos) < eventos[evento_atual].margem_gps) {
-			if (!eventos[evento_atual].tem_cone) {
-				printf("Checkpoint!\n");
-				return;
-			}
-			pixy_cam_get(&pixy);
-			if (pixy.height * pixy.width > 100) {
-				int delta = pixy.x - 180;
-				printf("PIXY delta %d\n", delta);
-				if (delta > 0) {
-					motor_l = 200;
-					motor_r = 200 - delta;
-				} else {
-					motor_l = 200 + delta;
-					motor_r = 200;
-				}
-			}
-		}
-
-		int joystick_has_packets = 1;
-		while (joystick_has_packets)
-			switch (joystick_read_nb(joystick, &joystick_event)) {
-				case -1:
-				printf("joystick_read_nb - erro de leitura, parando\n");
-				motor_l = motor_r = 0;
-				debug_helper = 0;
-				joystick_has_packets = 0;
-				break;
-
-				case 1:
-				if (joystick_event.type  & JS_EVENT_BUTTON) {
-					if (joystick_event.number == 14 && !joystick_event.value) {
-						printf("Pausado\n");
-						motor(0, 0);
-						espera_trigger();
-						printf("Retomando\n");
-					}
-					if (joystick_event.number == 9 && !joystick_event.value) {
-						printf("Terminado\n");
-						motor(0, 0);
-						exit(0);
-					}
-					if (joystick_event.number == 0 && !joystick_event.value) {
-						printf("debug switch\n");
-						debug_enabled = !debug_enabled;
-					}
-				}
-
-				if (joystick_event.type  & JS_EVENT_AXIS) {
-					if (joystick_event.number == 19) {
-						if (joystick_event.value > -30000)
-							quadrado = 1;
-						else
-							quadrado = 0;
-					}
-				}
-				break;
-
-				case 0:
-				joystick_has_packets = 0;
-				break;
-			}
 
 		printf("Motor %d %d\n", motor_l, motor_r);
-
-		if (motor_l > motor_r)
-			motor(245, 100);
-		else
-			motor(150, 245);
 		nanosleep(&cycle, NULL);
 	}
 }

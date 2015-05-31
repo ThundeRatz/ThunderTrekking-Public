@@ -91,7 +91,7 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	udp_recv_gps_cell$(EXEEXT) udp_send$(EXEEXT) controle$(EXEEXT) \
 	main$(EXEEXT) pixy_test$(EXEEXT) azimuth$(EXEEXT) \
 	distance$(EXEEXT) compass_diff$(EXEEXT) gpsd_client$(EXEEXT) \
-	udp_sendr_led$(EXEEXT)
+	udp_sendr_led$(EXEEXT) udp_recv_camera$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -163,6 +163,11 @@ am_udp_recv_bussola_cell_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
 udp_recv_bussola_cell_OBJECTS = $(am_udp_recv_bussola_cell_OBJECTS)
 udp_recv_bussola_cell_LDADD = $(LDADD)
 udp_recv_bussola_cell_DEPENDENCIES =
+am_udp_recv_camera_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
+	src/bin/udp_recv/udp_recv_camera.$(OBJEXT)
+udp_recv_camera_OBJECTS = $(am_udp_recv_camera_OBJECTS)
+udp_recv_camera_LDADD = $(LDADD)
+udp_recv_camera_DEPENDENCIES =
 am_udp_recv_gps_cell_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
 	src/bin/udp_recv/udp_recv_gps_cell.$(OBJEXT)
 udp_recv_gps_cell_OBJECTS = $(am_udp_recv_gps_cell_OBJECTS)
@@ -220,16 +225,16 @@ SOURCES = $(azimuth_SOURCES) $(compass_diff_SOURCES) \
 	$(controle_SOURCES) $(distance_SOURCES) $(gpsd_client_SOURCES) \
 	$(main_SOURCES) $(pixy_test_SOURCES) \
 	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
-	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
-	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
-	$(udp_sendr_led_SOURCES)
+	$(udp_recv_camera_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
 DIST_SOURCES = $(azimuth_SOURCES) $(compass_diff_SOURCES) \
 	$(controle_SOURCES) $(distance_SOURCES) $(gpsd_client_SOURCES) \
 	$(main_SOURCES) $(pixy_test_SOURCES) \
 	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
-	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
-	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
-	$(udp_sendr_led_SOURCES)
+	$(udp_recv_camera_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -366,7 +371,9 @@ udp_recv_bigodes_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bigo
 udp_recv_hmc5883l_SOURCES = src/lib/udp_receiver.c src/lib/compass.c src/bin/udp_recv/udp_recv_hmc5883l.c
 udp_recv_bussola_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bussola_cell.c
 udp_recv_gps_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_gps_cell.c
+udp_recv_camera_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_camera.c
 udp_send_SOURCES = src/bin/utils/udp_send.c
+udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c
 pixy_test_SOURCES = src/lib/thread_spawn.c src/lib/pixy_cam.c src/bin/utils/pixy_test.c
 azimuth_SOURCES = src/lib/gps_coord.c src/bin/utils/azimuth.c
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
@@ -384,7 +391,6 @@ compass_diff_SOURCES = src/lib/compass.c src/bin/utils/compass_diff.c
 gpsd_client_SOURCES = src/lib/thread_gpsd_client.c src/lib/thread_spawn.c \
 	src/bin/utils/gpsd_client.c
 
-udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c
 OPTIMIZE = -O3 -flto
 LDADD = -lpthread -lm -lpixyusb -lboost_thread -lboost_system -lboost_chrono -lstdc++ -lusb-1.0 -lgps
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
@@ -595,6 +601,13 @@ src/bin/udp_recv/udp_recv_bussola_cell.$(OBJEXT):  \
 udp_recv_bussola_cell$(EXEEXT): $(udp_recv_bussola_cell_OBJECTS) $(udp_recv_bussola_cell_DEPENDENCIES) $(EXTRA_udp_recv_bussola_cell_DEPENDENCIES) 
 	@rm -f udp_recv_bussola_cell$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(udp_recv_bussola_cell_OBJECTS) $(udp_recv_bussola_cell_LDADD) $(LIBS)
+src/bin/udp_recv/udp_recv_camera.$(OBJEXT):  \
+	src/bin/udp_recv/$(am__dirstamp) \
+	src/bin/udp_recv/$(DEPDIR)/$(am__dirstamp)
+
+udp_recv_camera$(EXEEXT): $(udp_recv_camera_OBJECTS) $(udp_recv_camera_DEPENDENCIES) $(EXTRA_udp_recv_camera_DEPENDENCIES) 
+	@rm -f udp_recv_camera$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_recv_camera_OBJECTS) $(udp_recv_camera_LDADD) $(LIBS)
 src/bin/udp_recv/udp_recv_gps_cell.$(OBJEXT):  \
 	src/bin/udp_recv/$(am__dirstamp) \
 	src/bin/udp_recv/$(DEPDIR)/$(am__dirstamp)
@@ -653,6 +666,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_bigodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_bussola_cell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_camera.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_gps_cell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hc_sr04.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hmc5883l.Po@am__quote@

@@ -11,9 +11,8 @@
 
 int main() {
     gpio_dma_init();
-    gpio_dma_enable_i2c_id();
-    thread_spawn(bigodes_thread,  NULL);
-    //thread_spawn(leds_thread,  NULL);
+    //thread_spawn(bigodes_thread,  NULL);
+    thread_spawn(leds_thread,  NULL);
     //thread_spawn(hc_sr04_thread,  NULL);
     //thread_spawn(hmc5883l_thread, NULL);
     for (;;)

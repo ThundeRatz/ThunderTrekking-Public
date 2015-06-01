@@ -45,7 +45,10 @@ radio_isr.o: radio_isr.c
 usart.o: usart.c
 	$(COMPILE)
 
-main.o: main.c init.h radio_isr.h usart.h
+main.o: main.c init.h radio_isr.h usart.h mixagem.h
+	$(COMPILE)
+
+mixagem.o: mixagem.c
 	$(COMPILE)
 
 %.o: %.c

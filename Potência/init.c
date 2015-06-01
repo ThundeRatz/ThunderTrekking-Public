@@ -8,7 +8,7 @@ void init(void) {
     MCUSR &= ~(1<<WDRF);	// Limpa flags do WDT
     WDTCSR |= (1 << WDCE) | (1 << WDE);
 
-	DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB5);
+	DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2);
     DDRC = (1 << PC1);
     DDRD = (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7);
     PORTB |= (1 << PB0);

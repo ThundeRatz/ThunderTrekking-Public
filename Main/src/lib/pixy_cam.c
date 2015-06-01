@@ -28,12 +28,12 @@ void pixy_cam_init() {
 		pixy_error(error_code);
 		exit(-1);
 	}
-	
+
 	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
 		pixy_error(error_code);
 	else
-		printf("Pixy firmware %hu.%hu-%hu\n", major, minor, build);
-	
+		printf("Pixy firmware %hu.%hu.%hu\n", major, minor, build);
+
 	thread_spawn(pixy_thread, NULL);
 }
 
@@ -47,10 +47,10 @@ static void __attribute__((noreturn)) *pixy_thread(__attribute__((unused)) void 
 	for (;;) {
 		if (nanosleep(&block_wait_time, NULL))
 			perror("nanosleep");
-		
+
 		if (pixy_blocks_are_new()) {
 			number_objects = pixy_get_blocks(len(blocks), blocks);
-			
+
 			if (!number_objects)
 				pixy_clear();
 			else {

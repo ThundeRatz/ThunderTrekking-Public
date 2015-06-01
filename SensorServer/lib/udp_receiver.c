@@ -15,7 +15,7 @@ int udp_receiver_init(uint16_t port) {
 		perror("socket");
 		return -1;
 	}
-	
+
 	memset((char *) &local, 0, sizeof(local));
 	local.sin_family = AF_INET;	//IPv4
 	local.sin_addr.s_addr = INADDR_ANY;
@@ -25,7 +25,7 @@ int udp_receiver_init(uint16_t port) {
 		perror("bind");
 		return -1;
 	}
-	
+
 	return udp_socket;
 }
 
@@ -36,7 +36,7 @@ int udp_receiver_init_nonblock(uint16_t port) {
 		perror("socket");
 		return -1;
 	}
-	
+
 	memset((char *) &local, 0, sizeof(local));
 	local.sin_family = AF_INET;	//IPv4
 	local.sin_addr.s_addr = INADDR_ANY;
@@ -46,6 +46,6 @@ int udp_receiver_init_nonblock(uint16_t port) {
 		perror("bind");
 		return -1;
 	}
-	
+
 	return udp_socket;
 }

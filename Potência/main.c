@@ -26,7 +26,8 @@ int __attribute__((noreturn)) main(void) {
 		static int8_t speed_left, speed_right;
 
         _delay_us(ACEL);
-		if (1) {//(channel_3 > 110) {
+		
+		if (channel_3 > 110) {
 			uint16_t mixado;
 			STATUS_ON;
 			USART_Stop();

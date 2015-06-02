@@ -9,9 +9,9 @@
 #include "ports.h"
 
 // Portas dos LEDs
-#define LED_R   13
+#define LED_R   26
 #define LED_G   19
-#define LED_B   26
+#define LED_B   13 // Non eexiste
 
 #define MS	1000000
 
@@ -50,21 +50,35 @@ void __attribute__((noreturn)) *leds_thread(__attribute__((unused)) void *ignore
             per = (led[3] + 1)*125;          // Periodo em MS
             duty1 = (per * (led[4] + 1))/4;  // Tempo aceso
             duty2 = (per * (3 - led[4]))/4;  // Tempo apagado
-            const struct timespec periodo1 = {.tv_sec = 0, .tv_nsec = duty1 * MS};
-            const struct timespec periodo2 = {.tv_sec = 0, .tv_nsec = duty2 * MS};
+            struct timespec periodo1;
+            struct timespec periodo2;
+            if (duty1 >= 1000) {
+                periodo1.tv_sec = 1; periodo1.tv_nsec = 0;
+            } else {
+                periodo1.tv_sec = 0; periodo1.tv_nsec = duty1 * MS;
+            }
+            if (duty2 >= 1000) {
+                periodo2.tv_sec = 1; periodo2.tv_nsec = 0;
+            } else {
+                periodo2.tv_sec = 0; periodo2.tv_nsec = duty2 * MS;
+            }
 
             pacote_antigo = pacote;
             while (pacote == pacote_antigo) {
                 gpio_dma_set(LED_R, led[0]);
                 gpio_dma_set(LED_G, led[1]);
                 gpio_dma_set(LED_B, led[2]);
+                printf("RGB: %d %d %d\n", led[0], led[1], led[2]);
                 if (nanosleep(&periodo1, NULL))
                     perror("leds - nanosleep");
+                printf("Tempo: %d\n", duty1);
                 gpio_dma_set(LED_R, 0);
                 gpio_dma_set(LED_G, 0);
                 gpio_dma_set(LED_B, 0);
                 if (nanosleep(&periodo2, NULL))
                     perror("leds - nanosleep");
+                printf("RGB: %d %d %d\n", 0, 0, 0);
+                printf("Tempo: %d\n\n", duty2);
 
                 if (udp_receiver_recv(socket, &pacote, sizeof(pacote)) == -1) {
         			const struct timespec sleep_error = {.tv_sec = 0, .tv_nsec = 500 * MS};

@@ -19,18 +19,9 @@ volatile int8_t channel_1, channel_2;
 
 ISR(WDT_vect){
     
-    //para gradativamente
-    while (OCR0A != 0 && OCR0B != 0 && OCR1A != 0 && OCR1B != 0){
-        if (OCR0A > 0)
-            OCR0A--;
-        if (OCR0B > 0)
-            OCR0B--;
-        if (OCR1A > 0)
-            OCR1A--;
-        if (OCR1B > 0)
-            OCR1B--;
-        _delay_us(ACEL);
-    }
+    channel_2 = 0;
+    channel_1 = 0;
+    _delay_us(ACEL);
 }
 
 int map(int formerValue, int formerMin, int formerMax, int newMin, int newMax)

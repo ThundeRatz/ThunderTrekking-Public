@@ -39,16 +39,19 @@ $(BINARY): $(OBJECTS)
 init.o: init.c usart.h
 	$(COMPILE)
 
-radio_isr.o: radio_isr.c
+radio_isr.o: radio_isr.c watchdog.h
 	$(COMPILE)
 
-usart.o: usart.c
+usart.o: usart.c watchdog.h
 	$(COMPILE)
 
-main.o: main.c init.h radio_isr.h usart.h mixagem.h
+main.o: main.c init.h radio_isr.h usart.h mixagem.h watchdog.h
 	$(COMPILE)
 
-mixagem.o: mixagem.c
+mixagem.o: mixagem.c watchdog.h
+	$(COMPILE)
+
+watchdog.o: watchdog.c watchdog.h
 	$(COMPILE)
 
 %.o: %.c

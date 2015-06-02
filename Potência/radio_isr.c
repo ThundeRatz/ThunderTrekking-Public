@@ -4,6 +4,7 @@
 #include <avr/wdt.h>
 
 #include "main.h"
+#include "watchdog.h"
 
 #define MIN			128
 #define MAX			255
@@ -25,7 +26,7 @@ ISR(INT0_vect) {
 		TCCR2B |= (1 << CS22) | (1 << CS20);	// Inicia o Timer 2 (CLKio / 64)
 		return;
 	}
-	wdt_reset();
+	wdt_pass(WDT_CH1);
 	uint8_t reading = TCNT2;
 	TCCR2B = 0;
 	if (TIFR2 & (1 << TOV2)) {	// Overflow
@@ -56,6 +57,7 @@ ISR(INT1_vect) {
 		TCCR2B |= (1 << CS22) | (1 << CS20);	// Inicia o Timer 2 (CLKio / 64)
 		return;
 	}
+	wdt_pass(WDT_CH2);
 	uint8_t reading = TCNT2;
 	TCCR2B = 0;
 	if (TIFR2 & (1 << TOV2)) {	// Overflow
@@ -86,6 +88,7 @@ ISR(PCINT0_vect) {
 		TCCR2B |= (1 << CS22) | (1 << CS20);
 		return;
 	}
+	wdt_pass(WDT_CH3);
 	uint8_t reading = TCNT2;
 	TCCR2B = 0;
 	if (TIFR2 & (1 << TOV2)) {

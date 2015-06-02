@@ -2,15 +2,15 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/wdt.h>
 #include <util/delay.h>
 
 #include "init.h"
 #include "radio_isr.h"
 #include "usart.h"
 #include "mixagem.h"
+#include "watchdog.h"
 
-#define ACEL			1314
+#define ACEL			2141
 
 #define STATUS_TOOGLE	PORTB ^= (1<<PB4)
 #define STATUS_ON		PORTB |= (1<<PB4)
@@ -26,7 +26,8 @@ int __attribute__((noreturn)) main(void) {
 		static int8_t speed_left, speed_right;
 
         _delay_us(ACEL);
-		
+		wdt_check_reset();
+
 		if (channel_3 > 110) {
 			uint16_t mixado;
 			STATUS_ON;

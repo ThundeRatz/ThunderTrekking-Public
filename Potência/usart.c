@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/wdt.h>
 
+#include "watchdog.h"
 #include "main.h"
 
 #define RIGHT		(1 << 7)
@@ -41,16 +41,23 @@ inline uint8_t USART_Receive(void) {
 }
 
 ISR(USART_RX_vect) {
-	uint8_t data = USART_Receive();
-	wdt_reset();
-	if (data & RIGHT)
-		if (data & REVERSE)
-			channel_1 = -(data & DATA_MASK);
+	static uint8_t new_data, old_data = 0;
+	new_data = USART_Receive();
+#pragma GCC diagnostic ignored "-Wsign-compare"
+	if (new_data != ~old_data)
+#pragma GCC diagnostic pop
+		return;
+	if (old_data & RIGHT) {
+		wdt_pass(WDT_CH1);
+		if (old_data & REVERSE)
+			channel_1 = -(old_data & DATA_MASK);
 		else
-			channel_1 = data & DATA_MASK;
-	else
-		if (data & REVERSE)
-			channel_2 = -(data & DATA_MASK);
+			channel_1 = old_data & DATA_MASK;
+	} else {
+		wdt_pass(WDT_CH2);
+		if (old_data & REVERSE)
+			channel_2 = -(old_data & DATA_MASK);
 		else
-			channel_2 = data & DATA_MASK;
+			channel_2 = old_data & DATA_MASK;
+	}
 }

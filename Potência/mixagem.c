@@ -24,6 +24,8 @@ uint16_t mixagem(int8_t coorX, int8_t coorY)
 
     int MODULO = (int)(MAX(MOD(coorX), MOD(coorY)));
 
+	if (MODULO < 5)
+		return 0;
     /*m[0] = velocidade no motor esquerdo
       m[1] = velocidade no motor direito
 

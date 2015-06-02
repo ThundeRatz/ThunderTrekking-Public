@@ -1,6 +1,8 @@
 #define COMPASS_P	5
 
 #define JOYSTICK_NONBLOCK
+#define ERRO_MAX M_PI/36 //20º
+#define VELOCIDADE_MAX 120
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,27 +77,23 @@ static void executa_evento(int evento_atual) {
 		//printf("%.6lf %.6lf -> %.6lf %.6lf - dist %lf Alvo: %lf, atual: %lf\n", gps_get()->latitude, gps_get()->longitude, eventos[evento_atual].pos.latitude, eventos[evento_atual].pos.longitude, gps_distance(gps_get(), &eventos[evento_atual].pos), azimuth(gps_get(), &eventos[evento_atual].pos), direcao_atual);
 		correcao = compass_diff(azimuth(gps_get(), &eventos[evento_atual].pos), direcao_atual);
 		printf("Diff %lf\n", correcao);
-		if (correcao > 0) {
-			/*if (correcao > M_PI / 2) {
-				printf("Erro grande, girando direita\n");
-				motor_l = 150;
-				motor_r = -100;
-			} else {*/
-				printf("Compass PID: dir %lf\n", 255 - COMPASS_P * correcao);
-				motor_l = 200;
-				motor_r = 200 - COMPASS_P * correcao;
-			//}
-		} else {
-			/*if (correcao < -M_PI / 2) {
-				printf("Erro grande, girando esquerda\n");
-				motor_l = -100;
-				motor_r = 150;
-			} else {*/
-				printf("Compass PID: esq %lf\n", 255 + COMPASS_P * correcao);
-				motor_l = 200 + COMPASS_P * correcao;
-				motor_r = 200;
-			//}
-		}
+        
+        
+		if (correcao > ERRO_MAX) {
+                printf("Girando para a direita");
+                motor_l = VELOCIDADE_MAX;
+                motor_r = -VELOCIDADE_MAX;
+		} else if (correcao < -ERRO_MAX){
+                printf("Girando para a esquerda");
+                motor_l = -VELOCIDADE_MAX;
+                motor_r = VELOCIDADE_MAX;
+        } else{
+                printf("Seguindo reto");
+                motor_l = VELOCIDADE_MAX;
+                motor_r = VELOCIDADE_MAX;
+        }
+        
+        // tentar fazer zigue zague
 
 		if (gps_distance(gps_get(), &eventos[evento_atual].pos) < eventos[evento_atual].margem_gps) {
 			if (eventos[evento_atual].tem_cone) {

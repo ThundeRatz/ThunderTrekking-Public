@@ -1,7 +1,7 @@
 #define COMPASS_P	5
 
 #define JOYSTICK_NONBLOCK
-#define ERRO_MAX M_PI/36 //20º
+#define ERRO_MAX M_PI/36 // 20º
 #define VELOCIDADE_MAX 120
 
 #include <stdio.h>

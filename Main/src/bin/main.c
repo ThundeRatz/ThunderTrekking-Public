@@ -3,6 +3,7 @@
 #define JOYSTICK_NONBLOCK
 #define ERRO_MAX M_PI/36 // 20º
 #define VELOCIDADE_MAX 120
+#define FATOR 2/3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,7 +71,7 @@ static void executa_evento(int evento_atual) {
 	//pid_init(&pid_direcao, 5, 0, 2);
 
 	for (;;) {
-		double correcao;
+		double correcao, correcao_anterior;
 		//direcao += pid_update(&pid_direcao, compass_diff(azimuth(gps_get(), &eventos[evento_atual].pos), direcao));
 
 		//correcao = compass_diff(direcao_atual, direcao);
@@ -93,7 +94,25 @@ static void executa_evento(int evento_atual) {
                 motor_r = VELOCIDADE_MAX;
         }
         
-        // tentar fazer zigue zague
+        // faz zigue zague
+        /*
+        correcao_anterior = correcao;
+        if (correcao > ERRO_MAX) {
+            printf("Girando para a direita");
+            motor_l = VELOCIDADE_MAX;
+            motor_r = -VELOCIDADE_MAX;
+        } else if (correcao < -ERRO_MAX){
+            printf("Girando para a esquerda");
+            motor_l = -VELOCIDADE_MAX;
+            motor_r = VELOCIDADE_MAX;
+        } else if (correcao < correcao_anterior){
+            motor_l = FATOR*VELOCIDADE_MAX;
+            motor_r = VELOCIDADE_MAX;
+        } else if (correcao > correcao_anterior){
+            motor_l = VELOCIDADE_MAX;
+            motor_r = FATOR*VELOCIDADE_MAX;
+        }
+        */
 
 		if (gps_distance(gps_get(), &eventos[evento_atual].pos) < eventos[evento_atual].margem_gps) {
 			if (eventos[evento_atual].tem_cone) {

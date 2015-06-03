@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <avr/wdt.h>
 
 enum {
@@ -7,10 +8,10 @@ enum {
 	WDT_END
 };
 
-extern uint8_t watchdog_status;
+extern uint8_t __watchdog_status, watchdog_ok;
 
 void wdt_check_reset();
 
 static inline void wdt_pass(uint8_t id) {
-	watchdog_status |= 1 << id;
+	__watchdog_status |= 1 << id;
 }

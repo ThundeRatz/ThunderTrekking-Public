@@ -16,7 +16,6 @@ void init(void) {
     PORTD |= (1 << PD7) | (1 << PD4);
 
     wdt_reset();
-	//wdt_enable(WDTO_250MS);
     WDTCSR = (1 << WDCE) | (1 << WDIE) | (1 << WDP1) | (1 << WDP0);
 
     // Interrupção INT0/1 em subida e descida

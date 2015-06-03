@@ -2,7 +2,7 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
-	gpsd_client udp_sendr_led
+	gpsd_client udp_sendr_led controle
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
 
@@ -32,6 +32,10 @@ main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/udp_receiver.c src/lib/thread_sonar.c src/lib/joystick.c \
 	src/lib/pixy_cam.c src/bin/main.c
 main_LDADD = -lpthread -lm $(PIXY)
+
+controle_SOURCES = src/bin/controle.c src/lib/thread_spawn.c \
+	src/lib/thread_motors.c src/lib/serial.c
+controle_LDADD = -lpthread
 
 compass_diff_SOURCES = src/lib/compass.c src/bin/utils/compass_diff.c
 compass_diff_LDADD = -lm

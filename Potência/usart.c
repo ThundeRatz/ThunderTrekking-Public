@@ -41,23 +41,28 @@ inline uint8_t USART_Receive(void) {
 }
 
 ISR(USART_RX_vect) {
-	static uint8_t new_data, old_data = 0;
-	new_data = USART_Receive();
-#pragma GCC diagnostic ignored "-Wsign-compare"
-	if (new_data != ~old_data)
-#pragma GCC diagnostic pop
+	static uint8_t data, receiving = 0, command;
+	data = USART_Receive();
+
+	if ((data != 0xAA && data != 0xAB) || !receiving) {
+		receiving = 1;
+		command = data;
 		return;
-	if (old_data & RIGHT) {
+	}
+
+	// Na transmissão e em pacote de integridade
+	if ((data & 1) == __builtin_parity(command))
+	if (command & RIGHT) {
 		wdt_pass(WDT_CH1);
-		if (old_data & REVERSE)
-			channel_1 = -(old_data & DATA_MASK);
+		if (command & REVERSE)
+			channel_1 = -(command & DATA_MASK);
 		else
-			channel_1 = old_data & DATA_MASK;
+			channel_1 = command & DATA_MASK;
 	} else {
 		wdt_pass(WDT_CH2);
-		if (old_data & REVERSE)
-			channel_2 = -(old_data & DATA_MASK);
+		if (command & REVERSE)
+			channel_2 = -(command & DATA_MASK);
 		else
-			channel_2 = old_data & DATA_MASK;
+			channel_2 = command & DATA_MASK;
 	}
 }

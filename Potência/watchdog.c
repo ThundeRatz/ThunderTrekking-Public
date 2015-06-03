@@ -2,7 +2,6 @@
 #include <avr/interrupt.h>
 
 #include "watchdog.h"
-#include "main.h"
 
 uint8_t __watchdog_status, watchdog_ok;
 
@@ -15,7 +14,5 @@ void wdt_check_reset() {
 }
 
 ISR(WDT_vect){
-    channel_2 = 0;
-    channel_1 = 0;
 	watchdog_ok = 0;
 }

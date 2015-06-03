@@ -11,6 +11,7 @@
 #include "watchdog.h"
 
 #define ACEL			2141
+#define DEADZONE		5
 
 #define STATUS_TOOGLE	PORTB ^= (1<<PB4)
 #define STATUS_ON		PORTB |= (1<<PB4)
@@ -20,6 +21,7 @@ volatile int8_t channel_1, channel_2;
 
 int __attribute__((noreturn)) main(void) {
 	init();
+	USART_Init();
     for (;;) {
 		static uint8_t revert_left = 0, revert_right = 0,
 			speed;
@@ -46,7 +48,8 @@ int __attribute__((noreturn)) main(void) {
 			speed_right = channel_2;
 		}
 
-        if (watchdog_ok)
+		if (watchdog_ok && (speed_left < -DEADZONE || speed_left > DEADZONE ||
+			speed_right < -DEADZONE || speed_right > DEADZONE))
             speed = 4 * (speed_left < 0 ? -speed_left : speed_left);
         else
             speed = 0;
@@ -74,7 +77,8 @@ int __attribute__((noreturn)) main(void) {
 				revert_left = (speed_left < 0);
         }
 
-        if (watchdog_ok)
+		if (watchdog_ok && (speed_left < -DEADZONE || speed_left > DEADZONE ||
+			speed_right < -DEADZONE || speed_right > DEADZONE))
             speed = 4 * (speed_right < 0 ? -speed_right : speed_right);
         else
             speed = 0;

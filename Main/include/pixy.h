@@ -73,8 +73,8 @@ extern "C"
 
     uint16_t type;
     uint16_t signature;
-    uint16_t x;
-    uint16_t y;
+    int16_t x;
+    int16_t y;
     uint16_t width;
     uint16_t height;
     int16_t  angle;

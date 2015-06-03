@@ -4,6 +4,7 @@
 #include <avr/wdt.h>
 
 #include "main.h"
+#include "watchdog.h"
 
 #define MIN			128
 #define MAX			255
@@ -25,6 +26,7 @@ ISR(INT0_vect) {
 		TCCR2B |= (1 << CS22) | (1 << CS20);	// Inicia o Timer 2 (CLKio / 64)
 		return;
 	}
+	wdt_pass(WDT_CH1);
 	uint8_t reading = TCNT2;
 	TCCR2B = 0;
 	if (TIFR2 & (1 << TOV2)) {	// Overflow
@@ -34,7 +36,6 @@ ISR(INT0_vect) {
 	}
 #if MAX < 255
 	if (reading > MAX) {
-		reading = MAX - MIN;
 		channel_1 = MAX - MIN - MID_RANGE;
 		return;
 	}
@@ -46,7 +47,8 @@ ISR(INT0_vect) {
 	}
 #endif
 	channel_1 = reading - MIN - MID_RANGE;
-	wdt_reset();
+	if (channel_1 == -64)
+		channel_1++;
 }
 
 ISR(INT1_vect) {
@@ -55,6 +57,7 @@ ISR(INT1_vect) {
 		TCCR2B |= (1 << CS22) | (1 << CS20);	// Inicia o Timer 2 (CLKio / 64)
 		return;
 	}
+	wdt_pass(WDT_CH2);
 	uint8_t reading = TCNT2;
 	TCCR2B = 0;
 	if (TIFR2 & (1 << TOV2)) {	// Overflow
@@ -64,7 +67,6 @@ ISR(INT1_vect) {
 	}
 #if MAX < 255
 	if (reading > MAX) {
-		reading = MAX - MIN;
 		channel_2 = MAX - MIN - MID_RANGE;
 		return;
 	}
@@ -76,6 +78,8 @@ ISR(INT1_vect) {
 	}
 #endif
 	channel_2 = reading - MIN - MID_RANGE;
+	if (channel_2 == -64)
+		channel_2++;
 }
 
 ISR(PCINT0_vect) {
@@ -84,19 +88,12 @@ ISR(PCINT0_vect) {
 		TCCR2B |= (1 << CS22) | (1 << CS20);
 		return;
 	}
+	wdt_pass(WDT_CH3);
 	uint8_t reading = TCNT2;
 	TCCR2B = 0;
 	if (TIFR2 & (1 << TOV2)) {
 		TIFR2 |= (1 << TOV2);
 		reading = MAX;
 	}
-#if MAX < 255
-	else if (reading > MAX)
-		reading = MAX;
-#endif
-#if MIN > 0
-	else if (reading < MIN)
-		reading = MIN;
-#endif
-	channel_3 = reading - MIN - MID_RANGE;
+	channel_3 = reading / 2;
 }

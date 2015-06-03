@@ -1,3 +1,5 @@
+#define u_short unsigned short
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

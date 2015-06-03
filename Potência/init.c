@@ -5,8 +5,8 @@
 #include "usart.h"
 
 void init(void) {
+    cli();
     MCUSR &= ~(1<<WDRF);	// Limpa flags do WDT
-    WDTCSR |= (1 << WDCE) | (1 << WDE);
 
 	DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2);
     DDRC = (1 << PC1);
@@ -16,7 +16,8 @@ void init(void) {
     PORTD |= (1 << PD7) | (1 << PD4);
 
     wdt_reset();
-	wdt_enable(WDTO_250MS);
+	//wdt_enable(WDTO_250MS);
+    WDTCSR = (1 << WDCE) | (1 << WDIE) | (1 << WDP1) | (1 << WDP0);
 
     // Interrupção INT0/1 em subida e descida
     EICRA |= (1 << ISC00) | (1 << ISC10);

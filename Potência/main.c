@@ -18,27 +18,6 @@
 
 volatile int8_t channel_1, channel_2;
 
-<<<<<<< HEAD
-ISR(WDT_vect){
-    
-    channel_2 = 0;
-    channel_1 = 0;
-    _delay_us(ACEL);
-}
-
-int map(int formerValue, int formerMin, int formerMax, int newMin, int newMax)
-{
-	int newValue;
-
-	newValue = (formerValue - formerMin) * (newMax - newMin);
-	newValue /= (formerMax - formerMin);
-	newValue += newMin;
-
-	return newValue;
-}
-
-=======
->>>>>>> develop
 int __attribute__((noreturn)) main(void) {
 	init();
     for (;;) {
@@ -67,7 +46,10 @@ int __attribute__((noreturn)) main(void) {
 			speed_right = channel_2;
 		}
 
-		speed = 4 * (speed_left < 0 ? -speed_left : speed_left);
+        if (watchdog_ok)
+            speed = 4 * (speed_left < 0 ? -speed_left : speed_left);
+        else
+            speed = 0;
 
         if ((speed_left < 0) == revert_left) {
             if (speed_left < 0) {
@@ -92,7 +74,11 @@ int __attribute__((noreturn)) main(void) {
 				revert_left = (speed_left < 0);
         }
 
-		speed = 4 * (speed_right < 0 ? -speed_right : speed_right);
+        if (watchdog_ok)
+            speed = 4 * (speed_right < 0 ? -speed_right : speed_right);
+        else
+            speed = 0;
+
 		if (speed < 10)
 			speed = 0;
         else if (speed > 250)

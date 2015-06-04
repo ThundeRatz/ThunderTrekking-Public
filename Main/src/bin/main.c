@@ -2,7 +2,7 @@
 
 #define JOYSTICK_NONBLOCK
 #define ERRO_MAX M_PI/36 // 20º
-#define VELOCIDADE_MAX 120
+#define VELOCIDADE_MAX 50
 #define FATOR 2/3
 
 #include <stdio.h>
@@ -37,10 +37,7 @@ typedef struct {
 
 evento eventos[] = {
 	{.pos = {.latitude = 37.5473595, .longitude = -122.302314833333}},
-	{.pos = {.latitude = 37.546799333333, .longitude = -122.302291833333}, .margem_gps = 10 / 1000, .tem_cone = 1, .desvio = 0},
-	{.pos = {.latitude = 37.548270833333, .longitude = -122.302276666667}, .margem_gps = 10 / 1000, .tem_cone = 1, .desvio = 0},
-	{.pos = {.latitude = 37.546314166667, .longitude = -122.302970833333}, .margem_gps = 10 / 1000, .tem_cone = 1, .desvio = 0},
-	{.pos = {.latitude = 37.546550833333, .longitude = -122.3014755}, .margem_gps = 10 / 1000, .tem_cone = 1, .desvio = 0},
+	{.pos = {.latitude = -23.64720499, .longitude = -46.57241754}, .margem_gps = 10 / 1000, .tem_cone = 1, .desvio = 0},
 };
 
 void espera_trigger();
@@ -76,23 +73,24 @@ static void executa_evento(int evento_atual) {
 
 		//correcao = compass_diff(direcao_atual, direcao);
 		//printf("%.6lf %.6lf -> %.6lf %.6lf - dist %lf Alvo: %lf, atual: %lf\n", gps_get()->latitude, gps_get()->longitude, eventos[evento_atual].pos.latitude, eventos[evento_atual].pos.longitude, gps_distance(gps_get(), &eventos[evento_atual].pos), azimuth(gps_get(), &eventos[evento_atual].pos), direcao_atual);
-		correcao = compass_diff(azimuth(gps_get(), &eventos[evento_atual].pos), direcao_atual);
+		correcao = compass_diff(azimuth(&eventos[evento_atual].pos, gps_get()), direcao_atual);
 		printf("Diff %lf\n", correcao);
         
-        
 		if (correcao > ERRO_MAX) {
-                printf("Girando para a direita");
+                printf("Girando para a direita\n");
+				
                 motor_l = VELOCIDADE_MAX;
                 motor_r = -VELOCIDADE_MAX;
 		} else if (correcao < -ERRO_MAX){
-                printf("Girando para a esquerda");
+                printf("Girando para a esquerda\n");
                 motor_l = -VELOCIDADE_MAX;
                 motor_r = VELOCIDADE_MAX;
-        } else{
-                printf("Seguindo reto");
+        } else {
+                printf("Seguindo reto\n");
                 motor_l = VELOCIDADE_MAX;
                 motor_r = VELOCIDADE_MAX;
         }
+		motor(motor_l, motor_r);
         
         // faz zigue zague
         /*

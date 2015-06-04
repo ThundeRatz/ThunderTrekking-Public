@@ -55,18 +55,19 @@ ISR(USART_RX_vect) {
 	// Na transmissão e em pacote de integridade
 	if ((data & 1) == __builtin_parity(command)) {
 		if (command & RIGHT) {
-			wdt_pass(WDT_CH1);
+			wdt_pass(WDT_USART1);
 			if (command & REVERSE)
 				usart_channel_1 = -(command & DATA_MASK);
 			else
 				usart_channel_1 = command & DATA_MASK;
 		} else {
-			wdt_pass(WDT_CH2);
+			wdt_pass(WDT_USART2);
 			if (command & REVERSE)
 				usart_channel_2 = -(command & DATA_MASK);
 			else
 				usart_channel_2 = command & DATA_MASK;
 		}
+
 	}
 	receiving = 0;
 }

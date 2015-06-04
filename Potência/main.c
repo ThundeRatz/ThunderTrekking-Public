@@ -10,9 +10,9 @@
 #include "mixagem.h"
 #include "watchdog.h"
 
-#define ACEL			2141
-#define DEADZONE		5
-#define WATCHDOG_MAX    80
+#define DERIV_DELAY		4150
+#define DEADZONE		1
+#define WATCHDOG_MAX    75
 
 #define STATUS_TOOGLE	PORTB ^= (1<<PB4)
 #define STATUS_ON		PORTB |= (1<<PB4)
@@ -26,7 +26,7 @@ int __attribute__((noreturn)) main(void) {
 			speed, watchdog_counter = 0;
 		static int8_t speed_left, speed_right;
 
-        _delay_us(ACEL);
+        _delay_us(DERIV_DELAY);
 		if (wdt_check_reset())
             watchdog_counter = 0;
         else
@@ -37,6 +37,8 @@ int __attribute__((noreturn)) main(void) {
 			uint16_t mixado;
 			STATUS_ON;
 			USART_Stop();
+			wdt_pass(WDT_USART1);
+			wdt_pass(WDT_USART2);
 
 			mixado = mixagem(channel_1, channel_2);
 			// mixagem

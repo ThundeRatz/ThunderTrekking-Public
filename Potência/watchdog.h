@@ -4,7 +4,7 @@
 #include <avr/wdt.h>
 
 enum {
-	WDT_CH1, WDT_CH2, WDT_CH3,
+	WDT_CH1, WDT_CH2, WDT_CH3, WDT_USART1, WDT_USART2,
 	WDT_END
 };
 

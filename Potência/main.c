@@ -18,17 +18,16 @@
 #define STATUS_ON		PORTB |= (1<<PB4)
 #define STATUS_OFF		PORTB &= ~(1<<PB4)
 
-volatile int8_t channel_1, channel_2;
-
 int __attribute__((noreturn)) main(void) {
 	init();
+	radio_start();
     for (;;) {
 		static uint8_t revert_left = 0, revert_right = 0,
 			speed, watchdog_counter = 0;
 		static int8_t speed_left, speed_right;
 
         _delay_us(ACEL);
-		if (wdt_check_reset()) 
+		if (wdt_check_reset())
             watchdog_counter = 0;
         else
             if (watchdog_counter < WATCHDOG_MAX)
@@ -38,7 +37,6 @@ int __attribute__((noreturn)) main(void) {
 			uint16_t mixado;
 			STATUS_ON;
 			USART_Stop();
-			radio_start();
 
 			mixado = mixagem(channel_1, channel_2);
 			// mixagem
@@ -46,10 +44,13 @@ int __attribute__((noreturn)) main(void) {
 			speed_right = mixado & 0xffff;
 		} else {
 			STATUS_OFF;
-			radio_stop();
 			USART_Start();
-			speed_left = channel_1;
-			speed_right = channel_2;
+			if (channel_2 > 50) {
+				speed_left = usart_channel_1;
+				speed_right = usart_channel_2;
+			} else {
+				speed_left = speed_right = 0;
+			}
 		}
 
 		if (watchdog_counter < WATCHDOG_MAX && (speed_left < -DEADZONE || speed_left > DEADZONE ||

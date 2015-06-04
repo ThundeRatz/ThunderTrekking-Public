@@ -39,10 +39,10 @@ $(BINARY): $(OBJECTS)
 init.o: init.c usart.h
 	$(COMPILE)
 
-radio_isr.o: radio_isr.c main.h watchdog.h
+radio_isr.o: radio_isr.c watchdog.h
 	$(COMPILE)
 
-usart.o: usart.c watchdog.h main.h
+usart.o: usart.c watchdog.h
 	$(COMPILE)
 
 main.o: main.c init.h radio_isr.h usart.h mixagem.h watchdog.h

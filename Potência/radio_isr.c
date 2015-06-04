@@ -3,13 +3,13 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
-#include "main.h"
 #include "watchdog.h"
 
 #define MIN			128
 #define MAX			255
 #define MID_RANGE	64
 
+volatile int8_t channel_1, channel_2;
 volatile uint8_t channel_3;
 
 void radio_start() {

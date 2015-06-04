@@ -3,11 +3,12 @@
 #include <avr/interrupt.h>
 
 #include "watchdog.h"
-#include "main.h"
 
 #define RIGHT		(1 << 7)
 #define REVERSE		(1 << 6)
 #define DATA_MASK	0x3f
+
+volatile int8_t usart_channel_1, usart_channel_2;
 
 void USART_Init() {
 	UCSR0A = (1 << U2X0);
@@ -56,15 +57,15 @@ ISR(USART_RX_vect) {
 		if (command & RIGHT) {
 			wdt_pass(WDT_CH1);
 			if (command & REVERSE)
-				channel_1 = -(command & DATA_MASK);
+				usart_channel_1 = -(command & DATA_MASK);
 			else
-				channel_1 = command & DATA_MASK;
+				usart_channel_1 = command & DATA_MASK;
 		} else {
 			wdt_pass(WDT_CH2);
 			if (command & REVERSE)
-				channel_2 = -(command & DATA_MASK);
+				usart_channel_2 = -(command & DATA_MASK);
 			else
-				channel_2 = command & DATA_MASK;
+				usart_channel_2 = command & DATA_MASK;
 		}
 	}
 	receiving = 0;

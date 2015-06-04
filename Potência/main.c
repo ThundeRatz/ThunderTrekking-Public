@@ -12,6 +12,7 @@
 
 #define ACEL			2141
 #define DEADZONE		5
+#define WATCHDOG_MAX    80
 
 #define STATUS_TOOGLE	PORTB ^= (1<<PB4)
 #define STATUS_ON		PORTB |= (1<<PB4)
@@ -23,11 +24,15 @@ int __attribute__((noreturn)) main(void) {
 	init();
     for (;;) {
 		static uint8_t revert_left = 0, revert_right = 0,
-			speed;
+			speed, watchdog_counter = 0;
 		static int8_t speed_left, speed_right;
 
         _delay_us(ACEL);
-		wdt_check_reset();
+		if (wdt_check_reset()) 
+            watchdog_counter = 0;
+        else
+            if (watchdog_counter < WATCHDOG_MAX)
+                watchdog_counter++;
 
 		if (channel_3 > 110) {
 			uint16_t mixado;
@@ -47,7 +52,7 @@ int __attribute__((noreturn)) main(void) {
 			speed_right = channel_2;
 		}
 
-		if (watchdog_ok && (speed_left < -DEADZONE || speed_left > DEADZONE ||
+		if (watchdog_counter < WATCHDOG_MAX && (speed_left < -DEADZONE || speed_left > DEADZONE ||
 			speed_right < -DEADZONE || speed_right > DEADZONE))
             speed = 4 * (speed_left < 0 ? -speed_left : speed_left);
         else
@@ -76,7 +81,7 @@ int __attribute__((noreturn)) main(void) {
 				revert_left = (speed_left < 0);
         }
 
-		if (watchdog_ok && (speed_left < -DEADZONE || speed_left > DEADZONE ||
+		if (watchdog_counter < WATCHDOG_MAX && (speed_left < -DEADZONE || speed_left > DEADZONE ||
 			speed_right < -DEADZONE || speed_right > DEADZONE))
             speed = 4 * (speed_right < 0 ? -speed_right : speed_right);
         else

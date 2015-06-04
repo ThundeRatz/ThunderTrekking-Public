@@ -28,19 +28,26 @@ int main() {
 		printf("x: %4hd y: %4hd w: %4hu h: %4hu a: %4hu\n", object.x, object.y,
 			object.width, object.height, object.angle);
 
-		if (status == PARADO && sonar_l/CONVERTE>130)
+		if (status == PARADO && (sonar_l/CONVERTE > 130 || sonar_r/CONVERTE > 130))
 			status = ANDANDO;
 
-		if (status == ANDANDO && sonar_)
-
-		if (largest_block.x<=0){
-			corretor = MAX_Vel + largest_block.x;
-			motor(corretor,MAX_Vel);
-		}
-		if (largest_block.x>0){
-			corretor = MAX_Vel - largest_block.x;
-			motor(MAX_Vel,corretor);
-		}
+		if (status == ANDANDO && (sonar_l/CONVERTE < 70 || sonar_r/CONVERTE < 70))
+			status = PARADO;
+			
+		if (status == ANDANDO){
+			if (largest_block.x<=0) {
+				corretor = MAX_Vel + largest_block.x;
+				motor (corretor , MAX_Vel);
+			} else if (largest_block.x>0) {
+				corretor = MAX_Vel - largest_block.x;
+				motor (MAX_Vel , corretor);
+			} 
+			
+			if (largest_block.height == 0 && largest_block.width == 0) { 
+				motor (0,0);
+			} 
+		} else
+			motor(0,0);
 	}
 
 	return 0;

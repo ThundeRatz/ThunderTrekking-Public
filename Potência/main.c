@@ -21,7 +21,6 @@ volatile int8_t channel_1, channel_2;
 
 int __attribute__((noreturn)) main(void) {
 	init();
-	USART_Init();
     for (;;) {
 		static uint8_t revert_left = 0, revert_right = 0,
 			speed;

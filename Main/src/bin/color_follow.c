@@ -33,19 +33,19 @@ int main() {
 
 		if (status == ANDANDO && (sonar_l/CONVERTE < 70 || sonar_r/CONVERTE < 70))
 			status = PARADO;
-			
-		if (status == ANDANDO){
-			if (largest_block.x<=0) {
-				corretor = MAX_Vel + largest_block.x;
+
+		if (status == ANDANDO) {
+			if (object.x <= 0) {
+				corretor = MAX_Vel + object.x;
 				motor (corretor , MAX_Vel);
-			} else if (largest_block.x>0) {
-				corretor = MAX_Vel - largest_block.x;
+			} else if (object.x > 0) {
+				corretor = MAX_Vel - object.x;
 				motor (MAX_Vel , corretor);
-			} 
-			
-			if (largest_block.height == 0 && largest_block.width == 0) { 
-				motor (0,0);
-			} 
+			}
+
+			if (object.height == 0 && object.width == 0) {
+				motor(0,0);
+			}
 		} else
 			motor(0,0);
 	}

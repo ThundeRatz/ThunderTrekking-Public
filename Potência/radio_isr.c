@@ -83,7 +83,7 @@ ISR(INT1_vect) {
 }
 
 ISR(PCINT0_vect) {
-	if (PINB & (1 << PINB5)) {
+	if (PINB & (1 << PINB3)) {
 		TCNT2 = 0;
 		TCCR2B |= (1 << CS22) | (1 << CS20);
 		return;

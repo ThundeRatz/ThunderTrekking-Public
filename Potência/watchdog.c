@@ -14,5 +14,6 @@ void wdt_check_reset() {
 }
 
 ISR(WDT_vect){
+	WDTCSR = (1 << WDCE) | (1 << WDIE) | (1 << WDP1) | (1 << WDP0);
 	watchdog_ok = 0;
 }

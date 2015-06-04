@@ -74,8 +74,8 @@ static void __attribute__((noreturn)) *pixy_thread(__attribute__((unused)) void 
 				}
 				status_try(pthread_mutex_lock(&pixy_updating), "pthread_mutex_lock");
 				memcpy(&largest_block, &blocks[largest], sizeof(largest_block));
-				largest_block.x-=PIXY_MAX_X/2;
-				largest_block.y-=PIXY_MAX_Y/2;
+				largest_block.x -= (PIXY_MAX_X + 1) / 2;
+				largest_block.y -= (PIXY_MAX_Y + 1) / 2;
 
 				status_try(pthread_mutex_unlock(&pixy_updating), "pthread_mutex_lock");
 			}

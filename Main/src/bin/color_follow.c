@@ -6,7 +6,7 @@
 
 #define MS			1000000
 #define MAX_Vel     100
-#define CONVERTE	58000
+#defina CONVERTE    58000
 
 enum {
 	PARADO, ANDANDO
@@ -14,7 +14,7 @@ enum {
 
 int main() {
 	const struct timespec block_wait_time = {.tv_sec = 0, .tv_nsec = 10 * MS};
-	int status = PARADO, corretor;
+	int status = PARADO;
 
 	pixy_cam_init();
 	thread_spawn(thread_sonar, NULL);

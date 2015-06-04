@@ -50,19 +50,22 @@ ISR(USART_RX_vect) {
 		return;
 	}
 
+
 	// Na transmissão e em pacote de integridade
-	if ((data & 1) == __builtin_parity(command))
-	if (command & RIGHT) {
-		wdt_pass(WDT_CH1);
-		if (command & REVERSE)
-			channel_1 = -(command & DATA_MASK);
-		else
-			channel_1 = command & DATA_MASK;
-	} else {
-		wdt_pass(WDT_CH2);
-		if (command & REVERSE)
-			channel_2 = -(command & DATA_MASK);
-		else
-			channel_2 = command & DATA_MASK;
+	if ((data & 1) == __builtin_parity(command)) {
+		if (command & RIGHT) {
+			wdt_pass(WDT_CH1);
+			if (command & REVERSE)
+				channel_1 = -(command & DATA_MASK);
+			else
+				channel_1 = command & DATA_MASK;
+		} else {
+			wdt_pass(WDT_CH2);
+			if (command & REVERSE)
+				channel_2 = -(command & DATA_MASK);
+			else
+				channel_2 = command & DATA_MASK;
+		}
 	}
+	receiving = 0;
 }

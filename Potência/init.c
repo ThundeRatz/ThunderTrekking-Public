@@ -16,13 +16,16 @@ void init(void) {
     PORTD |= (1 << PD7) | (1 << PD4);
 
     wdt_reset();
-    WDTCSR = (1 << WDCE) | (1 << WDIE) | (1 << WDP1) | (1 << WDP0);
+    //wdt_enable(WDTO_2S);
+    WDTCSR = (1 << WDCE);
+    WDTCSR = (1 << WDIE) | (1 << WDP1) | (1 << WDP0);
+    //WDTCSR = (1 << WDCE) | (1 << WDIE) | (1 << WDP2) | (1 << WDP1);// | (1 << WDP1) | (1 << WDP0);
 
     // Interrupção INT0/1 em subida e descida
     EICRA |= (1 << ISC00) | (1 << ISC10);
-    // PCIE0 em PB5 (SCK, PCINT5)
+    // PCIE0 em PB3 (MOSI, PCINT3)
     PCICR |= (1 << PCIE0);
-    PCMSK0 |= (1 << PCINT5);
+    PCMSK0 |= (1 << PCINT3);
 
 	// Inicializa o contador 0 para gerar PWM
 	TCCR0A = (1 << COM0A1) | (1 << COM0B1) | (1 << WGM00);	// PWM phase correct com 8 bits

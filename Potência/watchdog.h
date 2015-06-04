@@ -8,9 +8,9 @@ enum {
 	WDT_END
 };
 
-extern uint8_t __watchdog_status, watchdog_ok;
+extern uint8_t __watchdog_status;
 
-void wdt_check_reset();
+uint8_t wdt_check_reset();
 
 static inline void wdt_pass(uint8_t id) {
 	__watchdog_status |= 1 << id;

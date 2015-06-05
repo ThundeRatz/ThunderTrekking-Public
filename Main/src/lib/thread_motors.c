@@ -64,7 +64,7 @@ void __attribute__((noreturn)) *motors_thread(__attribute__((unused)) void *igno
 	for (;;) {
 		uint8_t message;
 		nanosleep(&sleep_time, NULL);
-		message = speed_left < 0 ? 1 << 6 | (-(speed_left / 4) & 0x3f) : (speed_left / 4) & 0x3f;
+		message = (1<< 7) | (speed_left < 0 ? 1 << 6 | (-(speed_left / 4) & 0x3f) : (speed_left / 4) & 0x3f);
 		if (write(fd, &message, 1) == -1) {
 			perror("write");
 			close(fd);
@@ -81,7 +81,7 @@ void __attribute__((noreturn)) *motors_thread(__attribute__((unused)) void *igno
 		//printf("%hhu\n", message);
 		if (write(fd, &message, 1) == -1)
 			perror("write");
-		message = (1 << 7) | (speed_right < 0 ? 1 << 6 | (-(speed_right / 4) & 0x3f) : (speed_right / 4) & 0x3f);
+		message = speed_right < 0 ? 1 << 6 | (-(speed_right / 4) & 0x3f) : ((speed_right / 4) & 0x3f);
 		if (write(fd, &message, 1) == -1)
 			perror("write");
 		message = 0xAA | __builtin_parity(message);

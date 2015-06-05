@@ -18,7 +18,6 @@ int main() {
 		printf("t: %4hu sig: %4hu x: %4hd y: %4hd w: %4hu h: %4hu a: %4hu\n",
 			object.type, object.signature, object.x, object.y, object.width,
 			object.height, object.angle);
->>>>>>> feature-leds
 	}
 
 	return 0;

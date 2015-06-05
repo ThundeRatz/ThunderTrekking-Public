@@ -11,7 +11,7 @@
 // Portas dos LEDs
 #define LED_R   26
 #define LED_G   19
-#define LED_B   13 // Non eexiste
+#define LED_B   6 // Non eexiste
 
 #define MS	1000000
 

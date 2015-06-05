@@ -10,6 +10,8 @@ int main(int argc, char **argv) {
 	struct sockaddr_in remote;
 	char ip[41];
 	hc_sr04_udp_packet_t data;
+	long long unsigned int soma0 = 0, soma1 = 1;
+	int n = 0;
 	
 	if (argc > 1)
 		sscanf(argv[1], "%d", &show_only_id);
@@ -27,8 +29,14 @@ int main(int argc, char **argv) {
 				if (show_only_id < 0 || show_only_id == data.id)
 					printf("%hhu: %llu\n", data.id, ((long long unsigned) data.distance) / 1000 / 58);
 			} else {
-				if (show_only_id < 0 || show_only_id == data.id)
+				if (show_only_id < 0 || show_only_id == data.id) {
 					printf("%s: %hhu: %llu\n", ip, data.id, ((long long unsigned) data.distance) / 1000 / 58);
+					if (data.id == 0)
+						soma0 += data.distance/1000/58;
+					if (data.id == 1)
+						soma1 += data.distance/1000/58;
+					n++;
+				}
 			}
 			break;
 			
@@ -39,6 +47,10 @@ int main(int argc, char **argv) {
 			default:
 			printf("Unexpected message size\n");
 			break;
+		}
+		if (n == 10) {
+			printf("Media: 0: %llu 1: %llu\n", 2*soma0/n, 2*soma1/n);
+			n = soma1 = soma0 = 0;
 		}
 	}
 }

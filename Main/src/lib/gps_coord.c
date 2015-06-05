@@ -33,20 +33,24 @@ double gps_distance(const gps_coord_t *from, const gps_coord_t *to) {
 			delta_lat = TO_RAD(to->latitude - from->latitude),
 			delta_long = TO_RAD(to->longitude - from->longitude);
 	double a, dist_angular;
-	
+
 	a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
 	dist_angular = 2 * atan2(sqrt(a), sqrt(1 - a));
-	
+
 	return EARTH_R * dist_angular;
 }
 
 // Forward Azimuth (angulação inicial)
 double azimuth(const gps_coord_t *from, const gps_coord_t *to) {
-	double	y = sin(to->longitude - from->longitude) * cos(to->latitude),
-			x = cos(from->latitude) * sin(to->latitude) - sin(from->latitude) * cos(to->latitude) * cos(to->longitude - from->longitude);
+	double	y = sin(TO_RAD(to->longitude) - TO_RAD(from->longitude)) * cos(TO_RAD(to->latitude)),
+			x = cos(TO_RAD(from->latitude)) * sin(TO_RAD(to->latitude)) -
+			sin(TO_RAD(from->latitude)) * cos(TO_RAD(to->latitude)) *
+			cos(TO_RAD(to->longitude) - TO_RAD(from->longitude));
 	return atan2(y, x);
+	//return atan2(to->latitude - from->latitude, to->longitude - from->longitude);
 }
 
+#warning testar essa
 void final_position(gps_coord_t *position, double dist, double bearing) {
 	double dist_angular = dist / EARTH_R, latitude_inicial = position->latitude;
 	position->latitude = asin(sin(latitude_inicial) * cos(dist_angular) +

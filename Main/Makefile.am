@@ -2,7 +2,7 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
-	gpsd_client udp_sendr_led controle
+	gpsd_client udp_sendr_led controle color_follow
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
 
@@ -30,7 +30,7 @@ main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
 	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
 	src/lib/udp_receiver.c src/lib/thread_sonar.c src/lib/joystick.c \
-	src/lib/pixy_cam.c src/bin/main.c
+	src/lib/pixy_cam.c src/bin/main.c src/lib/leds.c src/lib/udp_sender.c
 main_LDADD = -lpthread -lm $(PIXY)
 
 controle_SOURCES = src/bin/controle.c src/lib/thread_spawn.c \
@@ -44,7 +44,13 @@ gpsd_client_SOURCES = src/lib/thread_gpsd_client.c src/lib/thread_spawn.c \
 	src/bin/utils/gpsd_client.c
 gpsd_client_LDADD = -lgps -lpthread
 
-udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c
+udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c src/lib/leds.c \
+						src/lib/thread_spawn.c
+udp_sendr_led_LDADD = -lpthread 
+
+color_follow_SOURCES = src/bin/color_follow.c src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_sonar.c \
+		src/lib/pixy_cam.c src/lib/udp_receiver.c src/lib/serial.c
+color_follow_LDADD = -lpthread $(PIXY)
 
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \

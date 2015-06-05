@@ -6,7 +6,7 @@
 #include "ports.h"
 #include "udp_packets.h"
 
-uint64_t sonar_l = 200, sonar_r = 200;
+uint64_t sonar_l = 600 * 58000, sonar_r = 600 * 58000;
 
 void __attribute__((noreturn)) *sonar_thread(__attribute__((unused)) void *ignored) {
 	int udp_socket;

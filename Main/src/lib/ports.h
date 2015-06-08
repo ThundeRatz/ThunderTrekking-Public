@@ -10,6 +10,7 @@
 
 #define UDP_GPS_CELL		8888
 #define UDP_BUSSOLA_CELL	8889
-#define UDP_CAMERA			8890
+//#define UDP_CAMERA			8890
+#define UDP_PROXIMITY		8890
 
 #endif

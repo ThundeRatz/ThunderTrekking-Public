@@ -31,10 +31,12 @@ int main(int argc, char **argv) {
 			} else {
 				if (show_only_id < 0 || show_only_id == data.id) {
 					printf("%s: %hhu: %llu\n", ip, data.id, ((long long unsigned) data.distance) / 1000 / 58);
-					if (data.id == 0)
+					if (data.id == 0) {
 						soma0 += data.distance/1000/58;
-					if (data.id == 1)
+					}
+					if (data.id == 1) {
 						soma1 += data.distance/1000/58;
+					}
 					n++;
 				}
 			}

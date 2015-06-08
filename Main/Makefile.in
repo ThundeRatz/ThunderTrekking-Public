@@ -91,7 +91,8 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	udp_recv_gps_cell$(EXEEXT) udp_send$(EXEEXT) main$(EXEEXT) \
 	pixy_test$(EXEEXT) azimuth$(EXEEXT) distance$(EXEEXT) \
 	compass_diff$(EXEEXT) gpsd_client$(EXEEXT) \
-	udp_sendr_led$(EXEEXT) controle$(EXEEXT) color_follow$(EXEEXT)
+	udp_sendr_led$(EXEEXT) controle$(EXEEXT) color_follow$(EXEEXT) \
+	udp_recv_contato$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -112,10 +113,17 @@ am_azimuth_OBJECTS = src/lib/gps_coord.$(OBJEXT) \
 	src/bin/utils/azimuth.$(OBJEXT)
 azimuth_OBJECTS = $(am_azimuth_OBJECTS)
 azimuth_DEPENDENCIES =
-am_color_follow_OBJECTS = src/bin/color_follow.$(OBJEXT) \
+am_color_follow_OBJECTS = src/lib/file_lock.$(OBJEXT) \
+	src/lib/compass.$(OBJEXT) src/lib/serial.$(OBJEXT) \
 	src/lib/thread_spawn.$(OBJEXT) src/lib/thread_motors.$(OBJEXT) \
-	src/lib/thread_sonar.$(OBJEXT) src/lib/pixy_cam.$(OBJEXT) \
-	src/lib/udp_receiver.$(OBJEXT) src/lib/serial.$(OBJEXT)
+	src/lib/thread_gps.$(OBJEXT) src/lib/i2c.$(OBJEXT) \
+	src/lib/gps_coord.$(OBJEXT) src/lib/thread_hmc5883l.$(OBJEXT) \
+	src/lib/pid.$(OBJEXT) src/lib/udp_receiver.$(OBJEXT) \
+	src/lib/thread_sonar.$(OBJEXT) src/lib/joystick.$(OBJEXT) \
+	src/lib/pixy_cam.$(OBJEXT) src/lib/leds.$(OBJEXT) \
+	src/lib/udp_sender.$(OBJEXT) \
+	src/lib/thread_proximity.$(OBJEXT) \
+	src/bin/color_follow.$(OBJEXT)
 color_follow_OBJECTS = $(am_color_follow_OBJECTS)
 am__DEPENDENCIES_1 =
 color_follow_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -145,7 +153,8 @@ am_main_OBJECTS = src/lib/file_lock.$(OBJEXT) \
 	src/lib/pid.$(OBJEXT) src/lib/udp_receiver.$(OBJEXT) \
 	src/lib/thread_sonar.$(OBJEXT) src/lib/joystick.$(OBJEXT) \
 	src/lib/pixy_cam.$(OBJEXT) src/bin/main.$(OBJEXT) \
-	src/lib/leds.$(OBJEXT) src/lib/udp_sender.$(OBJEXT)
+	src/lib/leds.$(OBJEXT) src/lib/udp_sender.$(OBJEXT) \
+	src/lib/thread_proximity.$(OBJEXT)
 main_OBJECTS = $(am_main_OBJECTS)
 main_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_pixy_test_OBJECTS = src/lib/thread_spawn.$(OBJEXT) \
@@ -160,6 +169,10 @@ am_udp_recv_bussola_cell_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
 	src/bin/udp_recv/udp_recv_bussola_cell.$(OBJEXT)
 udp_recv_bussola_cell_OBJECTS = $(am_udp_recv_bussola_cell_OBJECTS)
 udp_recv_bussola_cell_LDADD = $(LDADD)
+am_udp_recv_contato_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
+	src/bin/udp_recv/udp_recv_contato.$(OBJEXT)
+udp_recv_contato_OBJECTS = $(am_udp_recv_contato_OBJECTS)
+udp_recv_contato_LDADD = $(LDADD)
 am_udp_recv_gps_cell_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
 	src/bin/udp_recv/udp_recv_gps_cell.$(OBJEXT)
 udp_recv_gps_cell_OBJECTS = $(am_udp_recv_gps_cell_OBJECTS)
@@ -213,16 +226,18 @@ SOURCES = $(azimuth_SOURCES) $(color_follow_SOURCES) \
 	$(compass_diff_SOURCES) $(controle_SOURCES) \
 	$(distance_SOURCES) $(gpsd_client_SOURCES) $(main_SOURCES) \
 	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
-	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_gps_cell_SOURCES) \
-	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
-	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
+	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_contato_SOURCES) \
+	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
+	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
+	$(udp_sendr_led_SOURCES)
 DIST_SOURCES = $(azimuth_SOURCES) $(color_follow_SOURCES) \
 	$(compass_diff_SOURCES) $(controle_SOURCES) \
 	$(distance_SOURCES) $(gpsd_client_SOURCES) $(main_SOURCES) \
 	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
-	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_gps_cell_SOURCES) \
-	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
-	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
+	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_contato_SOURCES) \
+	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
+	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
+	$(udp_sendr_led_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -361,6 +376,7 @@ udp_recv_hmc5883l_SOURCES = src/lib/udp_receiver.c src/lib/compass.c src/bin/udp
 udp_recv_hmc5883l_LDADD = -lm
 udp_recv_bussola_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bussola_cell.c
 udp_recv_gps_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_gps_cell.c
+udp_recv_contato_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_contato.c
 udp_send_SOURCES = src/bin/utils/udp_send.c
 pixy_test_SOURCES = src/lib/thread_spawn.c src/lib/pixy_cam.c src/bin/utils/pixy_test.c
 pixy_test_LDADD = $(PIXY) -lpthread
@@ -372,7 +388,8 @@ main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
 	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
 	src/lib/udp_receiver.c src/lib/thread_sonar.c src/lib/joystick.c \
-	src/lib/pixy_cam.c src/bin/main.c src/lib/leds.c src/lib/udp_sender.c
+	src/lib/pixy_cam.c src/bin/main.c src/lib/leds.c src/lib/udp_sender.c \
+	src/lib/thread_proximity.c
 
 main_LDADD = -lpthread -lm $(PIXY)
 controle_SOURCES = src/bin/controle.c src/lib/thread_spawn.c \
@@ -389,10 +406,14 @@ udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c s
 						src/lib/thread_spawn.c
 
 udp_sendr_led_LDADD = -lpthread 
-color_follow_SOURCES = src/bin/color_follow.c src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_sonar.c \
-		src/lib/pixy_cam.c src/lib/udp_receiver.c src/lib/serial.c
+color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
+	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
+	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
+	src/lib/udp_receiver.c src/lib/thread_sonar.c src/lib/joystick.c \
+	src/lib/pixy_cam.c src/lib/leds.c src/lib/udp_sender.c \
+	src/lib/thread_proximity.c src/bin/color_follow.c
 
-color_follow_LDADD = -lpthread $(PIXY)
+color_follow_LDADD = -lpthread $(PIXY) -lm
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
@@ -512,6 +533,38 @@ src/bin/utils/azimuth.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 azimuth$(EXEEXT): $(azimuth_OBJECTS) $(azimuth_DEPENDENCIES) $(EXTRA_azimuth_DEPENDENCIES) 
 	@rm -f azimuth$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(azimuth_OBJECTS) $(azimuth_LDADD) $(LIBS)
+src/lib/file_lock.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/serial.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_spawn.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_motors.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_gps.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/i2c.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_hmc5883l.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/pid.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_sonar.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/joystick.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/pixy_cam.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/leds.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/udp_sender.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_proximity.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/bin/$(am__dirstamp):
 	@$(MKDIR_P) src/bin
 	@: > src/bin/$(am__dirstamp)
@@ -520,24 +573,10 @@ src/bin/$(DEPDIR)/$(am__dirstamp):
 	@: > src/bin/$(DEPDIR)/$(am__dirstamp)
 src/bin/color_follow.$(OBJEXT): src/bin/$(am__dirstamp) \
 	src/bin/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_spawn.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_motors.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_sonar.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/pixy_cam.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/serial.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 
 color_follow$(EXEEXT): $(color_follow_OBJECTS) $(color_follow_DEPENDENCIES) $(EXTRA_color_follow_DEPENDENCIES) 
 	@rm -f color_follow$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(color_follow_OBJECTS) $(color_follow_LDADD) $(LIBS)
-src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/bin/utils/compass_diff.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 
@@ -564,24 +603,8 @@ src/bin/utils/gpsd_client.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 gpsd_client$(EXEEXT): $(gpsd_client_OBJECTS) $(gpsd_client_DEPENDENCIES) $(EXTRA_gpsd_client_DEPENDENCIES) 
 	@rm -f gpsd_client$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(gpsd_client_OBJECTS) $(gpsd_client_LDADD) $(LIBS)
-src/lib/file_lock.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_gps.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/i2c.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_hmc5883l.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/pid.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/joystick.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/bin/main.$(OBJEXT): src/bin/$(am__dirstamp) \
 	src/bin/$(DEPDIR)/$(am__dirstamp)
-src/lib/leds.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/udp_sender.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 
 main$(EXEEXT): $(main_OBJECTS) $(main_DEPENDENCIES) $(EXTRA_main_DEPENDENCIES) 
 	@rm -f main$(EXEEXT)
@@ -612,6 +635,13 @@ src/bin/udp_recv/udp_recv_bussola_cell.$(OBJEXT):  \
 udp_recv_bussola_cell$(EXEEXT): $(udp_recv_bussola_cell_OBJECTS) $(udp_recv_bussola_cell_DEPENDENCIES) $(EXTRA_udp_recv_bussola_cell_DEPENDENCIES) 
 	@rm -f udp_recv_bussola_cell$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(udp_recv_bussola_cell_OBJECTS) $(udp_recv_bussola_cell_LDADD) $(LIBS)
+src/bin/udp_recv/udp_recv_contato.$(OBJEXT):  \
+	src/bin/udp_recv/$(am__dirstamp) \
+	src/bin/udp_recv/$(DEPDIR)/$(am__dirstamp)
+
+udp_recv_contato$(EXEEXT): $(udp_recv_contato_OBJECTS) $(udp_recv_contato_DEPENDENCIES) $(EXTRA_udp_recv_contato_DEPENDENCIES) 
+	@rm -f udp_recv_contato$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(udp_recv_contato_OBJECTS) $(udp_recv_contato_LDADD) $(LIBS)
 src/bin/udp_recv/udp_recv_gps_cell.$(OBJEXT):  \
 	src/bin/udp_recv/$(am__dirstamp) \
 	src/bin/udp_recv/$(DEPDIR)/$(am__dirstamp)
@@ -669,6 +699,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_bigodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_bussola_cell.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_contato.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_gps_cell.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hc_sr04.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hmc5883l.Po@am__quote@
@@ -692,6 +723,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/thread_gpsd_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/thread_hmc5883l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/thread_motors.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/thread_proximity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/thread_sonar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/thread_spawn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/udp_receiver.Po@am__quote@

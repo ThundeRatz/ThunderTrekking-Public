@@ -29,10 +29,10 @@ void pixy_cam_init() {
 		exit(-1);
 	}
 
-	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
-		pixy_error(error_code);
-	else
-		printf("Pixy firmware %hu.%hu.%hu\n", major, minor, build);
+//	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
+//		pixy_error(error_code);
+//	else
+//		printf("Pixy firmware %hu.%hu.%hu\n", major, minor, build);
 
 	thread_spawn(pixy_thread, NULL);
 }
@@ -67,7 +67,8 @@ static void __attribute__((noreturn)) *pixy_thread(__attribute__((unused)) void 
 				largest_size = 0;
 				for (i = 0; i < number_objects; i++) {
 					if (blocks[i].type == PIXY_BLOCKTYPE_NORMAL &&
-						blocks[i].width * blocks[i].height > largest_size) {
+						blocks[i].width * blocks[i].height > largest_size &&
+						blocks[i].width <= blocks[i].height*2) {
 						largest_size = blocks[i].width * blocks[i].height;
 						largest = i;
 					}

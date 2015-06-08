@@ -7,8 +7,8 @@
 #include "ports.h"
 
 int main() {
-	int udp_socket;
-	uint8_t freq, duty, tempo, cor;
+	int udp_socket, tempo;
+	uint8_t freq, duty, cor, data;
 	
 	if ((udp_socket = udp_sender_init(UDP_LEDS)) == -1) {
 		perror("udp_receiver_init");
@@ -16,7 +16,9 @@ int main() {
 	}
 	
 	for (;;) {
-		scanf("%hhu %hhu %hhu %hhu", &cor, &freq, &duty, &tempo);
-		led_set(cor ,freq, duty, tempo);
+		scanf("%hhu %hhu %hhu %d", &cor, &freq, &duty, &tempo);
+		//led_set(cor ,freq, duty, tempo);
+		data = 255;
+		udp_sender_send(udp_socket, &data, sizeof(data));
 	}
 }

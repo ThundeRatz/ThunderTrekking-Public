@@ -95,6 +95,7 @@ void __attribute__((noreturn)) *motors_thread(__attribute__((unused)) void *igno
 #endif
 
 void motor(int left, int right) {
+	printf("motores: %d %d\n", left, right);
 	if (left >= 255)
 		speed_left = max_speed;
 	else if (left <= -255)

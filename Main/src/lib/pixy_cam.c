@@ -28,12 +28,12 @@ void pixy_cam_init() {
 		pixy_error(error_code);
 		exit(-1);
 	}
-	
-	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
-		pixy_error(error_code);
-	else
-		printf("Pixy firmware %hu.%hu-%hu\n", major, minor, build);
-	
+
+//	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
+//		pixy_error(error_code);
+//	else
+//		printf("Pixy firmware %hu.%hu.%hu\n", major, minor, build);
+
 	thread_spawn(pixy_thread, NULL);
 }
 
@@ -47,10 +47,10 @@ static void __attribute__((noreturn)) *pixy_thread(__attribute__((unused)) void 
 	for (;;) {
 		if (nanosleep(&block_wait_time, NULL))
 			perror("nanosleep");
-		
+
 		if (pixy_blocks_are_new()) {
 			number_objects = pixy_get_blocks(len(blocks), blocks);
-			
+
 			if (!number_objects)
 				pixy_clear();
 			else {
@@ -67,13 +67,17 @@ static void __attribute__((noreturn)) *pixy_thread(__attribute__((unused)) void 
 				largest_size = 0;
 				for (i = 0; i < number_objects; i++) {
 					if (blocks[i].type == PIXY_BLOCKTYPE_NORMAL &&
-						blocks[i].width * blocks[i].height > largest_size) {
+						blocks[i].width * blocks[i].height > largest_size &&
+						blocks[i].width <= blocks[i].height*2) {
 						largest_size = blocks[i].width * blocks[i].height;
 						largest = i;
 					}
 				}
 				status_try(pthread_mutex_lock(&pixy_updating), "pthread_mutex_lock");
 				memcpy(&largest_block, &blocks[largest], sizeof(largest_block));
+				largest_block.x -= (PIXY_MAX_X + 1) / 2;
+				largest_block.y -= (PIXY_MAX_Y + 1) / 2;
+
 				status_try(pthread_mutex_unlock(&pixy_updating), "pthread_mutex_lock");
 			}
 		} else

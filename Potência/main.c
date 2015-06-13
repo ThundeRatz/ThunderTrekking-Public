@@ -10,7 +10,7 @@
 #include "mixagem.h"
 #include "watchdog.h"
 
-#define DERIV_DELAY		4150
+#define DERIV_DELAY		4450
 #define DEADZONE		1
 #define WATCHDOG_MAX    75
 
@@ -42,8 +42,8 @@ int __attribute__((noreturn)) main(void) {
 
 			mixado = mixagem(channel_1, channel_2);
 			// mixagem
-			speed_left = mixado >> 8;
-			speed_right = mixado & 0xffff;
+			speed_left = (mixado >> 8) / 2;
+			speed_right = (mixado & 0xffff) / 2;
 		} else {
 			STATUS_OFF;
 			USART_Start();

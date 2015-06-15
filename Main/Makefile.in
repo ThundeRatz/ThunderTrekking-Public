@@ -92,7 +92,7 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	pixy_test$(EXEEXT) azimuth$(EXEEXT) distance$(EXEEXT) \
 	compass_diff$(EXEEXT) gpsd_client$(EXEEXT) \
 	udp_sendr_led$(EXEEXT) controle$(EXEEXT) color_follow$(EXEEXT) \
-	udp_recv_contato$(EXEEXT)
+	udp_recv_contato$(EXEEXT) azimuth_new$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -113,6 +113,10 @@ am_azimuth_OBJECTS = src/lib/gps_coord.$(OBJEXT) \
 	src/bin/utils/azimuth.$(OBJEXT)
 azimuth_OBJECTS = $(am_azimuth_OBJECTS)
 azimuth_DEPENDENCIES =
+am_azimuth_new_OBJECTS = src/lib/GPS.$(OBJEXT) \
+	src/bin/utils/azimuth_new.$(OBJEXT)
+azimuth_new_OBJECTS = $(am_azimuth_new_OBJECTS)
+azimuth_new_DEPENDENCIES =
 am_color_follow_OBJECTS = src/lib/file_lock.$(OBJEXT) \
 	src/lib/compass.$(OBJEXT) src/lib/serial.$(OBJEXT) \
 	src/lib/thread_spawn.$(OBJEXT) src/lib/thread_motors.$(OBJEXT) \
@@ -222,22 +226,35 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(azimuth_SOURCES) $(color_follow_SOURCES) \
-	$(compass_diff_SOURCES) $(controle_SOURCES) \
-	$(distance_SOURCES) $(gpsd_client_SOURCES) $(main_SOURCES) \
-	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
-	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_contato_SOURCES) \
-	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
-	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
-	$(udp_sendr_led_SOURCES)
-DIST_SOURCES = $(azimuth_SOURCES) $(color_follow_SOURCES) \
-	$(compass_diff_SOURCES) $(controle_SOURCES) \
-	$(distance_SOURCES) $(gpsd_client_SOURCES) $(main_SOURCES) \
-	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
-	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_contato_SOURCES) \
-	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
-	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
-	$(udp_sendr_led_SOURCES)
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
+SOURCES = $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
+	$(controle_SOURCES) $(distance_SOURCES) $(gpsd_client_SOURCES) \
+	$(main_SOURCES) $(pixy_test_SOURCES) \
+	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
+	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
+DIST_SOURCES = $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
+	$(controle_SOURCES) $(distance_SOURCES) $(gpsd_client_SOURCES) \
+	$(main_SOURCES) $(pixy_test_SOURCES) \
+	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
+	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -295,6 +312,9 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
+CXX = @CXX@
+CXXDEPMODE = @CXXDEPMODE@
+CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -302,7 +322,6 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EXEEXT = @EXEEXT@
-GCC_VERSION = @GCC_VERSION@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -332,6 +351,7 @@ abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
+ac_ct_CXX = @ac_ct_CXX@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -382,6 +402,8 @@ pixy_test_SOURCES = src/lib/thread_spawn.c src/lib/pixy_cam.c src/bin/utils/pixy
 pixy_test_LDADD = $(PIXY) -lpthread
 azimuth_SOURCES = src/lib/gps_coord.c src/bin/utils/azimuth.c
 azimuth_LDADD = -lm
+azimuth_new_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth_new.cc
+azimuth_new_LDADD = -lm
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
 distance_LDADD = -lm
 main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
@@ -405,7 +427,7 @@ gpsd_client_LDADD = -lgps -lpthread
 udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c src/lib/leds.c \
 						src/lib/thread_spawn.c
 
-udp_sendr_led_LDADD = -lpthread 
+udp_sendr_led_LDADD = -lpthread
 color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
 	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
@@ -418,11 +440,12 @@ OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
 
+AM_CXXFLAGS = $(AM_CFLAGS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .cc .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -533,6 +556,14 @@ src/bin/utils/azimuth.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 azimuth$(EXEEXT): $(azimuth_OBJECTS) $(azimuth_DEPENDENCIES) $(EXTRA_azimuth_DEPENDENCIES) 
 	@rm -f azimuth$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(azimuth_OBJECTS) $(azimuth_LDADD) $(LIBS)
+src/lib/GPS.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/bin/utils/azimuth_new.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+
+azimuth_new$(EXEEXT): $(azimuth_new_OBJECTS) $(azimuth_new_DEPENDENCIES) $(EXTRA_azimuth_new_DEPENDENCIES) 
+	@rm -f azimuth_new$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(azimuth_new_OBJECTS) $(azimuth_new_LDADD) $(LIBS)
 src/lib/file_lock.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
@@ -705,11 +736,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hmc5883l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_sendr/$(DEPDIR)/udp_sendr_led.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth_new.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/compass_diff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/distance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/gpsd_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pixy_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/udp_send.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPS.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/compass.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/file_lock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/gps_coord.Po@am__quote@
@@ -744,6 +777,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cc.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cc.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

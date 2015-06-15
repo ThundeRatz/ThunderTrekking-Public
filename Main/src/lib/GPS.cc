@@ -11,6 +11,7 @@
 #define TO_RAD(x)		((x) * M_PI / 180.)
 
 namespace Trekking {
+	GPS::GPS() {}
 	GPS::GPS(double latitude, double longitude) : latitude(latitude), longitude(longitude) {}
 
 	// Cálculo pelo método haversine.
@@ -43,7 +44,6 @@ namespace Trekking {
 				sin(TO_RAD(latitude)) * cos(TO_RAD(to.latitude)) *
 				cos(TO_RAD(to.longitude) - TO_RAD(longitude));
 		return atan2(y, x);
-		//return atan2(to->latitude - from->latitude, to->longitude - from->longitude);
 	}
 
 	void GPS::final_position(GPS &return_position, double dist, double bearing) {
@@ -61,6 +61,7 @@ namespace Trekking {
 		longitude += atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
 			cos(dist_angular) - sin(initial_latitude) * sin(latitude));
 	}
+
 	// haversine(x) = sin(x / 2) ^ 2;
 	double GPS::haversine(double a) {
 		double sin_a2 = sin(a / 2);

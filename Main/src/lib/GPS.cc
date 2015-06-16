@@ -70,10 +70,12 @@ namespace Trekking {
 	}
 
 	void GPS::blocking_update() {
+#warning zerar valid e checar pacote
 		gpsd_client.read();
 	}
 
 	void GPS::update() {
+#warning zerar valid e checar pacote
 		if (gpsd_client.waiting(0))
 			gpsd_client.read();
 	}

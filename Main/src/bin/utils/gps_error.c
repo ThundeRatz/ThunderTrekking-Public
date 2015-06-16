@@ -29,7 +29,7 @@ static int n;
 static const struct timespec gps_wait = {.tv_sec = 1, .tv_nsec = 0 * MS};
 
 gps_coord_t testes[] = {
-	//{.latitude = -23.55392375, .longitude = -46.72891395},  //Mesa elétrica
+	{.latitude = -23.55392375, .longitude = -46.72891395},  //Mesa elétrica
 	{.latitude = -23.55387477, .longitude = -46.72899905},  //Interruptor
 	{.latitude = -23.55344336, .longitude = -46.72915281},  //Hidrante
 	//{.latitude = -23.64701287, .longitude = -46.57263634},
@@ -74,7 +74,7 @@ int main()
 	// Se nao, ver como usar o angulo da bussola e outras funcoes para melhorar o erro
 	dist.latitude = testes[0].latitude - media.latitude; //eventos[0].pos.latitude
 	dist.longitude = testes[0].longitude - media.longitude; //eventos[0].pos.longitude
-	printf("Diferenca calculada: %f %f\n", dist.latitude, dist.longitude);
+	printf("Diferenca calculada: %f %f\n\n", dist.latitude, dist.longitude);
 	
 	// OBS.: criar novas variaveis para guardar as novas posicoes para deixar as medidas
 	// iniciais constantes, como eventos_novo ou algo assim, e usar essas variaveis na 
@@ -91,20 +91,22 @@ int main()
 	// Mostra as novas distancias, ver se se aproxima de 0
 	// Ver se o angulo para as outras coordenadas e valido
 	// Ver se a distancia se aproxima de 0 perto das outras coordenadas
-	for (;;) {
-		printf("\nPosicao atual: %.8f %.8f\n", gps_get()->latitude, gps_get()->longitude);
+	//for (;;) {
+		//printf("\nPosicao atual: %.8f %.8f\n", gps_get()->latitude, gps_get()->longitude);
 		for (i = 0; i < len(testes); i++) {
-			printf("--- Posicao %d\n", i);
+			/*printf("--- Posicao %d\n", i);
 			printf("Coordenadas: %.8f %.8f\n", testes[i].latitude, testes[i].longitude); //eventos[i].pos.latitude, eventos[i].pos.longitude
 			printf("Azimuth: %f\n", azimuth(gps_get(), &testes[i])); //&eventos[i].pos)
 			printf("Distancia: %f\n", gps_distance(gps_get(), &testes[i]));
 			printf("Direção atual: %f\n", direcao_atual);
-			printf("Diff %lf\n", compass_diff(azimuth(gps_get(), &testes[i]), direcao_atual)); //&eventos[i].pos)
+			printf("Diff %lf\n", compass_diff(azimuth(gps_get(), &testes[i]), direcao_atual)); //&eventos[i].pos)*/
+			printf(".latitude = %.8f, .longitude = %.8f\n", testes[i].latitude, testes[i].longitude);
 		}
 //		nanosleep(&gps_wait, NULL);
 //		nanosleep(&gps_wait, NULL);
 //		nanosleep(&gps_wait, NULL);
 //		nanosleep(&gps_wait, NULL);
 		// Possivel colocar um nanosleep aqui pra facilitar a leitura dos dados
-	}
+	//}
+	return 0;
 }

@@ -7,7 +7,7 @@ EASY_THREAD(gps_serial_thread) {
 	int gps = gps_open("localhost", DEFAULT_GPSD_PORT, &gpsdata);
 
 	if (gps == -1) {
-		perror("gps_open");
+		// usar gps_errstr aqui
 		pthread_exit(NULL);
 	}
 

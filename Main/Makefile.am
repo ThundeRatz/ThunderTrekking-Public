@@ -2,7 +2,7 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
-	gpsd_client udp_sendr_led controle color_follow udp_recv_contato gps_error
+	gpsd_client udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
 
@@ -24,6 +24,9 @@ pixy_test_LDADD = $(PIXY) -lpthread
 
 azimuth_SOURCES = src/lib/gps_coord.c src/bin/utils/azimuth.c
 azimuth_LDADD = -lm
+
+azimuth_new_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth_new.cc
+azimuth_new_LDADD = -lm -lgps
 
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
 distance_LDADD = -lm
@@ -54,7 +57,7 @@ gpsd_client_LDADD = -lgps -lpthread
 
 udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c src/lib/leds.c \
 						src/lib/thread_spawn.c
-udp_sendr_led_LDADD = -lpthread 
+udp_sendr_led_LDADD = -lpthread
 
 color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
@@ -67,6 +70,7 @@ color_follow_LDADD = -lpthread $(PIXY) -lm
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
+AM_CXXFLAGS = $(AM_CFLAGS)
 
 .PHONY: scripts
 

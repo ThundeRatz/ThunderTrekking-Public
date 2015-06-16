@@ -2,7 +2,11 @@
 // e exemplos de várias fórmulas para cálculo de deslocamentos, ângulos,
 // menores distâncias e outros em coordenadas esféricas
 
+#include <iostream>
+
+#include <stdlib.h>
 #include <math.h>
+#include <libgpsmm.h>
 
 #include "GPS.hh"
 
@@ -11,6 +15,9 @@
 #define TO_RAD(x)		((x) * M_PI / 180.)
 
 namespace Trekking {
+	static gpsmm gpsd_client("localhost", DEFAULT_GPSD_PORT);
+	static int initialized = 0;
+
 	GPS::GPS() {}
 	GPS::GPS(double latitude, double longitude) : latitude(latitude), longitude(longitude) {}
 
@@ -60,6 +67,26 @@ namespace Trekking {
 			cos(latitude) * sin(dist_angular) * cos(bearing));
 		longitude += atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
 			cos(dist_angular) - sin(initial_latitude) * sin(latitude));
+	}
+
+	void GPS::blocking_update() {
+		gpsd_client.read();
+	}
+
+	void GPS::update() {
+		if (gpsd_client.waiting(0))
+			gpsd_client.read();
+	}
+
+	void GPS::init() {
+		if (!initialized) {
+			initialized = 1;
+			gpsd_client.clear_fix();
+			if (!gpsd_client.is_open()) {
+				std::cout << "gpsmm() initialization failed" << std::endl;
+				exit(-1);
+			}
+		}
 	}
 
 	// haversine(x) = sin(x / 2) ^ 2;

@@ -26,7 +26,7 @@ azimuth_SOURCES = src/lib/gps_coord.c src/bin/utils/azimuth.c
 azimuth_LDADD = -lm
 
 azimuth_new_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth_new.cc
-azimuth_new_LDADD = -lm
+azimuth_new_LDADD = -lm -lgps
 
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
 distance_LDADD = -lm

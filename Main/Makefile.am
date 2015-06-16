@@ -2,8 +2,9 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
-	gpsd_client udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error
-
+	gpsd_client udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
+	PID
+	
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
 
 udp_recv_bigodes_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bigodes.c
@@ -66,6 +67,8 @@ color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/pixy_cam.c src/lib/leds.c src/lib/udp_sender.c \
 	src/lib/thread_proximity.c src/bin/color_follow.c
 color_follow_LDADD = -lpthread $(PIXY) -lm
+
+PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.c src/lib/compass.c
 
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \

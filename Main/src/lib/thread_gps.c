@@ -11,7 +11,7 @@
 
 #define status_perror(__msg, __errno)	do {if ((__errno)) {char __errmsg[50]; fprintf(stderr, "%s: %s\n", __msg, strerror_r(__errno, __errmsg, sizeof(__errmsg)));}} while (0)
 
-static gps_coord_t gps;
+static gps_coord_t gps = {.latitude = 0., .longitude = 0.};
 
 void __attribute__((noreturn)) *gps_thread(__attribute__((unused)) void *ignored) {
 	int udp_socket;
@@ -25,8 +25,13 @@ void __attribute__((noreturn)) *gps_thread(__attribute__((unused)) void *ignored
 		gps_coord_t gps_novo;
 		switch (udp_receiver_recv(udp_socket, &gps_novo, sizeof(gps_novo))) {
 			case sizeof(gps_novo):
-			gps.latitude = 0.2 * gps.latitude + 0.8 * gps_novo.latitude;
-			gps.longitude = 0.2 * gps.longitude + 0.8 * gps_novo.longitude;
+			if (gps.latitude != 0 || gps.longitude != 0) {
+				gps.latitude = 0.2 * gps.latitude + 0.8 * gps_novo.latitude;
+				gps.longitude = 0.2 * gps.longitude + 0.8 * gps_novo.longitude;
+			} else {
+				gps.latitude = gps_novo.latitude;
+				gps.longitude =  gps_novo.longitude;
+			}
 			break;
 
 			case -1:

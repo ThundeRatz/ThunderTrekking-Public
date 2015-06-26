@@ -90,9 +90,16 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	udp_recv_hmc5883l$(EXEEXT) udp_recv_bussola_cell$(EXEEXT) \
 	udp_recv_gps_cell$(EXEEXT) udp_send$(EXEEXT) main$(EXEEXT) \
 	pixy_test$(EXEEXT) azimuth$(EXEEXT) distance$(EXEEXT) \
+<<<<<<< HEAD
 	compass_diff$(EXEEXT) udp_sendr_led$(EXEEXT) controle$(EXEEXT) \
 	color_follow$(EXEEXT) udp_recv_contato$(EXEEXT) \
 	azimuth_new$(EXEEXT) gpsd_client_new$(EXEEXT)
+=======
+	compass_diff$(EXEEXT) gpsd_client$(EXEEXT) \
+	udp_sendr_led$(EXEEXT) controle$(EXEEXT) color_follow$(EXEEXT) \
+	udp_recv_contato$(EXEEXT) azimuth_new$(EXEEXT) \
+	gps_error$(EXEEXT) PID$(EXEEXT)
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -109,6 +116,10 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am_PID_OBJECTS = src/bin/utils/pid.$(OBJEXT) src/lib/PID.$(OBJEXT) \
+	src/lib/thread_hmc5883l.$(OBJEXT) src/lib/compass.$(OBJEXT)
+PID_OBJECTS = $(am_PID_OBJECTS)
+PID_LDADD = $(LDADD)
 am_azimuth_OBJECTS = src/lib/gps_coord.$(OBJEXT) \
 	src/bin/utils/azimuth.$(OBJEXT)
 azimuth_OBJECTS = $(am_azimuth_OBJECTS)
@@ -144,11 +155,26 @@ am_distance_OBJECTS = src/lib/gps_coord.$(OBJEXT) \
 	src/bin/utils/distance.$(OBJEXT)
 distance_OBJECTS = $(am_distance_OBJECTS)
 distance_DEPENDENCIES =
+<<<<<<< HEAD
 am_gpsd_client_new_OBJECTS = src/bin/utils/GPSdClient.$(OBJEXT) \
 	src/lib/GPSMonitor.$(OBJEXT) src/lib/GPS.$(OBJEXT) \
 	src/lib/TooManyInstances.$(OBJEXT)
 gpsd_client_new_OBJECTS = $(am_gpsd_client_new_OBJECTS)
 gpsd_client_new_DEPENDENCIES =
+=======
+am_gps_error_OBJECTS = src/lib/gps_coord.$(OBJEXT) \
+	src/bin/utils/gps_error.$(OBJEXT) \
+	src/lib/thread_spawn.$(OBJEXT) src/lib/thread_gps.$(OBJEXT) \
+	src/lib/thread_hmc5883l.$(OBJEXT) src/lib/compass.$(OBJEXT) \
+	src/lib/udp_receiver.$(OBJEXT) src/lib/pid.$(OBJEXT)
+gps_error_OBJECTS = $(am_gps_error_OBJECTS)
+gps_error_DEPENDENCIES =
+am_gpsd_client_OBJECTS = src/lib/thread_gpsd_client.$(OBJEXT) \
+	src/lib/thread_spawn.$(OBJEXT) \
+	src/bin/utils/gpsd_client.$(OBJEXT)
+gpsd_client_OBJECTS = $(am_gpsd_client_OBJECTS)
+gpsd_client_DEPENDENCIES =
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 am_main_OBJECTS = src/lib/file_lock.$(OBJEXT) \
 	src/lib/compass.$(OBJEXT) src/lib/serial.$(OBJEXT) \
 	src/lib/thread_spawn.$(OBJEXT) src/lib/thread_motors.$(OBJEXT) \
@@ -239,8 +265,9 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+SOURCES = $(PID_SOURCES) $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
 	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
+<<<<<<< HEAD
 	$(controle_SOURCES) $(distance_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
 	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
@@ -257,6 +284,23 @@ DIST_SOURCES = $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
 	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
 	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
 	$(udp_sendr_led_SOURCES)
+=======
+	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
+	$(gpsd_client_SOURCES) $(main_SOURCES) $(pixy_test_SOURCES) \
+	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
+	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
+DIST_SOURCES = $(PID_SOURCES) $(azimuth_SOURCES) \
+	$(azimuth_new_SOURCES) $(color_follow_SOURCES) \
+	$(compass_diff_SOURCES) $(controle_SOURCES) \
+	$(distance_SOURCES) $(gps_error_SOURCES) \
+	$(gpsd_client_SOURCES) $(main_SOURCES) $(pixy_test_SOURCES) \
+	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
+	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -408,6 +452,11 @@ azimuth_new_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth_new.cc
 azimuth_new_LDADD = -lm -lgps
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
 distance_LDADD = -lm
+gps_error_SOURCES = src/lib/gps_coord.c src/bin/utils/gps_error.c src/lib/thread_spawn.c \
+					src/lib/thread_gps.c src/lib/thread_hmc5883l.c src/lib/compass.c \
+					src/lib/udp_receiver.c src/lib/pid.c
+
+gps_error_LDADD = -lpthread -lm
 main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
 	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
@@ -438,10 +487,14 @@ color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_proximity.c src/bin/color_follow.c
 
 color_follow_LDADD = -lpthread $(PIXY) -lm
+<<<<<<< HEAD
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
 	src/lib/GPS.cc src/lib/TooManyInstances.cc
 
 gpsd_client_new_LDADD = -lgps -lm
+=======
+PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.c src/lib/compass.c
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
@@ -542,20 +595,32 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-src/lib/$(am__dirstamp):
-	@$(MKDIR_P) src/lib
-	@: > src/lib/$(am__dirstamp)
-src/lib/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) src/lib/$(DEPDIR)
-	@: > src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/gps_coord.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/bin/utils/$(am__dirstamp):
 	@$(MKDIR_P) src/bin/utils
 	@: > src/bin/utils/$(am__dirstamp)
 src/bin/utils/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/bin/utils/$(DEPDIR)
 	@: > src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+src/bin/utils/pid.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+src/lib/$(am__dirstamp):
+	@$(MKDIR_P) src/lib
+	@: > src/lib/$(am__dirstamp)
+src/lib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/lib/$(DEPDIR)
+	@: > src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/PID.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_hmc5883l.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+
+PID$(EXEEXT): $(PID_OBJECTS) $(PID_DEPENDENCIES) $(EXTRA_PID_DEPENDENCIES) 
+	@rm -f PID$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(PID_OBJECTS) $(PID_LDADD) $(LIBS)
+src/lib/gps_coord.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/bin/utils/azimuth.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 
@@ -572,8 +637,6 @@ azimuth_new$(EXEEXT): $(azimuth_new_OBJECTS) $(azimuth_new_DEPENDENCIES) $(EXTRA
 	$(AM_V_CXXLD)$(CXXLINK) $(azimuth_new_OBJECTS) $(azimuth_new_LDADD) $(LIBS)
 src/lib/file_lock.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/serial.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/thread_spawn.$(OBJEXT): src/lib/$(am__dirstamp) \
@@ -583,8 +646,6 @@ src/lib/thread_motors.$(OBJEXT): src/lib/$(am__dirstamp) \
 src/lib/thread_gps.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/i2c.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_hmc5883l.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/pid.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
@@ -632,7 +693,19 @@ src/bin/utils/distance.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 distance$(EXEEXT): $(distance_OBJECTS) $(distance_DEPENDENCIES) $(EXTRA_distance_DEPENDENCIES) 
 	@rm -f distance$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(distance_OBJECTS) $(distance_LDADD) $(LIBS)
+<<<<<<< HEAD
 src/bin/utils/GPSdClient.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+=======
+src/bin/utils/gps_error.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+
+gps_error$(EXEEXT): $(gps_error_OBJECTS) $(gps_error_DEPENDENCIES) $(EXTRA_gps_error_DEPENDENCIES) 
+	@rm -f gps_error$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(gps_error_OBJECTS) $(gps_error_LDADD) $(LIBS)
+src/lib/thread_gpsd_client.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/bin/utils/gpsd_client.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 src/lib/GPSMonitor.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
@@ -748,11 +821,21 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth_new.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/compass_diff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/distance.Po@am__quote@
+<<<<<<< HEAD
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pixy_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/udp_send.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPS.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPSMonitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/TooManyInstances.Po@am__quote@
+=======
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/gps_error.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/gpsd_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pid.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pixy_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/udp_send.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPS.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/PID.Po@am__quote@
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/compass.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/file_lock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/gps_coord.Po@am__quote@

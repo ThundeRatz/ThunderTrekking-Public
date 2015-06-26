@@ -2,9 +2,15 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
+<<<<<<< HEAD
 	udp_sendr_led controle color_follow udp_recv_contato azimuth_new \
 	gpsd_client_new
 
+=======
+	gpsd_client udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
+	PID
+	
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
 
 udp_recv_bigodes_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bigodes.c
@@ -30,6 +36,11 @@ azimuth_new_LDADD = -lm -lgps
 
 distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
 distance_LDADD = -lm
+
+gps_error_SOURCES = src/lib/gps_coord.c src/bin/utils/gps_error.c src/lib/thread_spawn.c \
+					src/lib/thread_gps.c src/lib/thread_hmc5883l.c src/lib/compass.c \
+					src/lib/udp_receiver.c src/lib/pid.c
+gps_error_LDADD = -lpthread -lm
 
 main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
@@ -62,9 +73,13 @@ color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
 	src/lib/thread_proximity.c src/bin/color_follow.c
 color_follow_LDADD = -lpthread $(PIXY) -lm
 
+<<<<<<< HEAD
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
 	src/lib/GPS.cc src/lib/TooManyInstances.cc
 gpsd_client_new_LDADD = -lgps -lm
+=======
+PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.c src/lib/compass.c
+>>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
 
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \

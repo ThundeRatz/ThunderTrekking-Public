@@ -45,21 +45,23 @@ namespace Trekking {
 				cos(TO_RAD(to.longitude) - TO_RAD(longitude));
 		return atan2(y, x);
 	}
-
+#warning testar essa
 	void GPS::final_position(GPS &return_position, double dist, double bearing) {
-		double dist_angular = dist / EARTH_R;
-		return_position.latitude = asin(sin(latitude) * cos(dist_angular) +
-			cos(latitude) * sin(dist_angular) * cos(bearing));
-		return_position.longitude += atan2(sin(bearing) * sin(dist_angular) * cos(latitude),
-			cos(dist_angular) - sin(latitude) * sin(return_position.latitude));
+		double dist_angular = dist / EARTH_R, final_latitude;
+		final_latitude = asin(sin(TO_RAD(latitude)) * cos(dist_angular) +
+			cos(TO_RAD(latitude)) * sin(dist_angular) * cos(bearing));
+		return_position.latitude = TO_DEGREES(final_latitude);
+		return_position.longitude += TO_DEGREES(atan2(sin(bearing) * sin(dist_angular) * cos(TO_RAD(latitude)),
+			cos(dist_angular) - sin(TO_RAD(latitude)) * sin(final_latitude)));
 	}
-
+#warning testar essa
 	void GPS::move_towards(double dist, double bearing) {
-		double dist_angular = dist / EARTH_R, initial_latitude = latitude;
-		latitude = asin(sin(latitude) * cos(dist_angular) +
-			cos(latitude) * sin(dist_angular) * cos(bearing));
-		longitude += atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
-			cos(dist_angular) - sin(initial_latitude) * sin(latitude));
+		double dist_angular = dist / EARTH_R, initial_latitude = TO_RAD(latitude);
+		latitude = asin(sin(TO_RAD(latitude)) * cos(dist_angular) +
+			cos(TO_RAD(latitude)) * sin(dist_angular) * cos(bearing));
+		longitude += TO_DEGREES(atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
+			cos(dist_angular) - sin(initial_latitude) * sin(TO_RAD(latitude))));
+		latitude = TO_DEGREES(latitude);
 	}
 
 	// haversine(x) = sin(x / 2) ^ 2;

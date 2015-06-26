@@ -70,9 +70,7 @@ gpsd_client_new_LDADD = -lgps -lm
 PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc
 
 OPTIMIZE = -O3 -flto
-AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
-	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
-AM_CXXFLAGS = $(AM_CFLAGS) -std=c++14
+AM_CXXFLAGS = -I$(srcdir)/include -I$(srcdir)/src/lib $(OPTIMIZE)
 
 .PHONY: scripts
 

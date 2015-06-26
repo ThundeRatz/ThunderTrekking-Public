@@ -12,6 +12,7 @@ namespace Trekking {
 			gpsd_client.clear_fix();
 			if (!gpsd_client.is_open()) {
 				std::cout << "gpsmm() initialization failed" << std::endl;
+				exit(0);
 			}
 		} else
 			throw new TooManyInstances;

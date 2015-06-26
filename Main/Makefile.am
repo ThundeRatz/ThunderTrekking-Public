@@ -2,89 +2,77 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
-<<<<<<< HEAD
-	udp_sendr_led controle color_follow udp_recv_contato azimuth_new \
-	gpsd_client_new
+	udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
+	gpsd_client_new PID
 
-=======
-	gpsd_client udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
-	PID
-	
->>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
-udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_hc_sr04.c
+udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
-udp_recv_bigodes_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bigodes.c
+udp_recv_bigodes_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_bigodes.cc
 
-udp_recv_hmc5883l_SOURCES = src/lib/udp_receiver.c src/lib/compass.c src/bin/udp_recv/udp_recv_hmc5883l.c
+udp_recv_hmc5883l_SOURCES = src/lib/udp_receiver.cc src/lib/compass.cc src/bin/udp_recv/udp_recv_hmc5883l.cc
 udp_recv_hmc5883l_LDADD = -lm
 
-udp_recv_bussola_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_bussola_cell.c
+udp_recv_bussola_cell_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_bussola_cell.cc
 
-udp_recv_gps_cell_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_gps_cell.c
-udp_recv_contato_SOURCES = src/lib/udp_receiver.c src/bin/udp_recv/udp_recv_contato.c
+udp_recv_gps_cell_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_gps_cell.cc
+udp_recv_contato_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_contato.cc
 
-udp_send_SOURCES = src/bin/utils/udp_send.c
+udp_send_SOURCES = src/bin/utils/udp_send.cc
 
-pixy_test_SOURCES = src/lib/thread_spawn.c src/lib/pixy_cam.c src/bin/utils/pixy_test.c
+pixy_test_SOURCES = src/lib/thread_spawn.cc src/lib/pixy_cam.cc src/bin/utils/pixy_test.cc
 pixy_test_LDADD = $(PIXY) -lpthread
 
-azimuth_SOURCES = src/lib/gps_coord.c src/bin/utils/azimuth.c
+azimuth_SOURCES = src/lib/gps_coord.cc src/bin/utils/azimuth.cc
 azimuth_LDADD = -lm
 
 azimuth_new_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth_new.cc
 azimuth_new_LDADD = -lm -lgps
 
-distance_SOURCES = src/lib/gps_coord.c src/bin/utils/distance.c
+distance_SOURCES = src/lib/gps_coord.cc src/bin/utils/distance.cc
 distance_LDADD = -lm
 
-gps_error_SOURCES = src/lib/gps_coord.c src/bin/utils/gps_error.c src/lib/thread_spawn.c \
-					src/lib/thread_gps.c src/lib/thread_hmc5883l.c src/lib/compass.c \
-					src/lib/udp_receiver.c src/lib/pid.c
+gps_error_SOURCES = src/lib/gps_coord.cc src/bin/utils/gps_error.cc src/lib/thread_spawn.cc \
+					src/lib/thread_gps.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc \
+					src/lib/udp_receiver.cc src/lib/pid.cc
 gps_error_LDADD = -lpthread -lm
 
-main_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
-	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
-	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
-	src/lib/udp_receiver.c src/lib/thread_sonar.c src/lib/joystick.c \
-	src/lib/pixy_cam.c src/bin/main.c src/lib/leds.c src/lib/udp_sender.c \
-	src/lib/thread_proximity.c
+main_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \
+	src/lib/thread_spawn.cc src/lib/thread_motors.cc src/lib/thread_gps.cc \
+	src/lib/i2c.cc src/lib/gps_coord.cc src/lib/thread_hmc5883l.cc src/lib/pid.cc \
+	src/lib/udp_receiver.cc src/lib/thread_sonar.cc src/lib/joystick.cc \
+	src/lib/pixy_cam.cc src/bin/main.cc src/lib/leds.cc src/lib/udp_sender.cc \
+	src/lib/thread_proximity.cc
 main_LDADD = -lpthread -lm $(PIXY)
 
-controle_SOURCES = src/bin/controle.c src/lib/thread_spawn.c \
-	src/lib/thread_motors.c src/lib/serial.c
+controle_SOURCES = src/bin/controle.cc src/lib/thread_spawn.cc \
+	src/lib/thread_motors.cc src/lib/serial.cc
 controle_LDADD = -lpthread
 
-compass_diff_SOURCES = src/lib/compass.c src/bin/utils/compass_diff.c
+compass_diff_SOURCES = src/lib/compass.cc src/bin/utils/compass_diff.cc
 compass_diff_LDADD = -lm
 
-# gpsd_client_SOURCES = src/lib/thread_gpsd_client.c src/lib/thread_spawn.c \
-#	src/bin/utils/gpsd_client.c
-# gpsd_client_LDADD = -lgps -lpthread
-
-udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.c src/lib/udp_sender.c src/lib/leds.c \
-						src/lib/thread_spawn.c
+udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.cc src/lib/udp_sender.cc src/lib/leds.cc \
+						src/lib/thread_spawn.cc
 udp_sendr_led_LDADD = -lpthread
 
-color_follow_SOURCES = src/lib/file_lock.c src/lib/compass.c src/lib/serial.c \
-	src/lib/thread_spawn.c src/lib/thread_motors.c src/lib/thread_gps.c \
-	src/lib/i2c.c src/lib/gps_coord.c src/lib/thread_hmc5883l.c src/lib/pid.c \
-	src/lib/udp_receiver.c src/lib/thread_sonar.c src/lib/joystick.c \
-	src/lib/pixy_cam.c src/lib/leds.c src/lib/udp_sender.c \
-	src/lib/thread_proximity.c src/bin/color_follow.c
+color_follow_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \
+	src/lib/thread_spawn.cc src/lib/thread_motors.cc src/lib/thread_gps.cc \
+	src/lib/i2c.cc src/lib/gps_coord.cc src/lib/thread_hmc5883l.cc src/lib/pid.cc \
+	src/lib/udp_receiver.cc src/lib/thread_sonar.cc src/lib/joystick.cc \
+	src/lib/pixy_cam.cc src/lib/leds.cc src/lib/udp_sender.cc \
+	src/lib/thread_proximity.cc src/bin/color_follow.cc
 color_follow_LDADD = -lpthread $(PIXY) -lm
 
-<<<<<<< HEAD
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
 	src/lib/GPS.cc src/lib/TooManyInstances.cc
 gpsd_client_new_LDADD = -lgps -lm
-=======
-PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.c src/lib/compass.c
->>>>>>> a425cb6bf9f8c37d3b52e6b89c0081e60e41a4e4
+
+PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc
 
 OPTIMIZE = -O3 -flto
 AM_CFLAGS = -Wall -Wextra -I. -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(OPTIMIZE)
-AM_CXXFLAGS = $(AM_CFLAGS)
+AM_CXXFLAGS = $(AM_CFLAGS) -std=c++14
 
 .PHONY: scripts
 

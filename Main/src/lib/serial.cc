@@ -1,6 +1,6 @@
 #define _DEFAULT_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -47,7 +47,7 @@ static int cmp_uints(const void *cmp1, const void *cmp2) {
 inline static int baud_bsearch(const int *baud) {
 	unsigned int *found = NULL;
 	
-	found = bsearch(baud, &baud_list, nitens(baud_list), sizeof(baud_list[0]), cmp_uints);
+	found = (unsigned int *) bsearch(baud, &baud_list, nitens(baud_list), sizeof(baud_list[0]), cmp_uints);
 	if (!found)
 		return -1;
 	return found - baud_list;

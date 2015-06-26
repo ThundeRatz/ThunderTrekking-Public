@@ -18,10 +18,7 @@
 #include "thread_gps.h"
 #include "thread_motors.h"
 #include "pid.h"
-#warning atualizar isso
-extern "C" {
 #include "compass.h"
-}
 #include "file_lock.h"
 #include "joystick.h"
 #include "thread_proximity.h"

@@ -8,11 +8,10 @@ namespace Trekking {
 	public:
 		gps_data_t *gpsd_data;
 		GPSMonitor();
-		void blocking_update();
-		void update();
+		int blocking_update();
+		int update();
 
 	private:
-		static gpsmm gpsd_client;
-		static int instances;
+		gpsmm gpsd_client;
 	};
 }

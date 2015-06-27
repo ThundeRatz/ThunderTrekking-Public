@@ -1,5 +1,5 @@
 AC_INIT([Trekking], [0.1], [tiago.shibata@gmail.com])
-: ${CXXFLAGS="-Wall -Wextra -std=c++14"}
+: ${CXXFLAGS="-O3 -flto"}
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_PROG_CXX(g++)
 AC_CONFIG_HEADERS([config.h])

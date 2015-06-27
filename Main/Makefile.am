@@ -64,13 +64,13 @@ color_follow_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc
 color_follow_LDADD = -lpthread $(PIXY) -lm
 
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
-	src/lib/GPS.cc src/lib/TooManyInstances.cc
+	src/lib/GPS.cc
 gpsd_client_new_LDADD = -lgps -lm
 
 PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc
 
-OPTIMIZE = -O3 -flto
-AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib $(OPTIMIZE)
+AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib \
+	-Wall -Wextra -std=c++14
 
 .PHONY: scripts
 

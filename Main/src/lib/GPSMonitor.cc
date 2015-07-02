@@ -10,6 +10,7 @@ namespace Trekking {
 			exit(0);
 		}
 		gpsd_client.clear_fix();
+		gpsd_client.stream(WATCH_ENABLE | WATCH_JSON);
 	}
 
 	int GPSMonitor::blocking_update() {

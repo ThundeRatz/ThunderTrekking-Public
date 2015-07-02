@@ -1,3 +1,7 @@
+#if GPSD_API_MAJOR_VERSION != 6
+#error GPSd API 6 required
+#endif
+
 #include <iostream>
 #include <libgpsmm.h>
 

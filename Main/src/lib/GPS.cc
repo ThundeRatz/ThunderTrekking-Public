@@ -69,4 +69,16 @@ namespace Trekking {
 		double sin_a2 = sin(a / 2);
 		return sin_a2 * sin_a2;
 	}
+
+	GPS GPS::operator/ (int a) {
+		latitude /= a;
+		longitude /= a;
+		return *this;
+	}
+
+	GPS GPS::operator= (int a) {
+		latitude = a;
+		longitude = a;
+		return *this;
+	}
 }

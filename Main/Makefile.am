@@ -33,7 +33,7 @@ distance_LDADD = -lm
 
 gps_error_SOURCES = src/lib/gps_coord.cc src/bin/utils/gps_error.cc src/lib/thread_spawn.cc \
 					src/lib/thread_gps.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc \
-					src/lib/udp_receiver.cc src/lib/pid.cc
+					src/lib/udp_receiver.cc src/lib/pid.cc src/lib/GPS.cc
 gps_error_LDADD = -lpthread -lm
 
 main_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \

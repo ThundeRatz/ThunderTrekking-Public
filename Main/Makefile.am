@@ -67,7 +67,10 @@ gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
 	src/lib/GPS.cc
 gpsd_client_new_LDADD = -lgps -lm
 
-PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc
+PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc \
+	src/lib/udp_receiver.cc src/lib/pid.cc src/lib/thread_spawn.cc src/lib/thread_motors.cc \
+	src/lib/serial.cc
+PID_LDADD = -lpthread
 
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-Wall -Wextra -std=c++14

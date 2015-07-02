@@ -111,9 +111,12 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_PID_OBJECTS = src/bin/utils/pid.$(OBJEXT) src/lib/PID.$(OBJEXT) \
-	src/lib/thread_hmc5883l.$(OBJEXT) src/lib/compass.$(OBJEXT)
+	src/lib/thread_hmc5883l.$(OBJEXT) src/lib/compass.$(OBJEXT) \
+	src/lib/udp_receiver.$(OBJEXT) src/lib/pid.$(OBJEXT) \
+	src/lib/thread_spawn.$(OBJEXT) src/lib/thread_motors.$(OBJEXT) \
+	src/lib/serial.$(OBJEXT)
 PID_OBJECTS = $(am_PID_OBJECTS)
-PID_LDADD = $(LDADD)
+PID_DEPENDENCIES =
 am_azimuth_OBJECTS = src/lib/gps_coord.$(OBJEXT) \
 	src/bin/utils/azimuth.$(OBJEXT)
 azimuth_OBJECTS = $(am_azimuth_OBJECTS)
@@ -443,7 +446,11 @@ gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
 	src/lib/GPS.cc
 
 gpsd_client_new_LDADD = -lgps -lm
-PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc
+PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src/lib/compass.cc \
+	src/lib/udp_receiver.cc src/lib/pid.cc src/lib/thread_spawn.cc src/lib/thread_motors.cc \
+	src/lib/serial.cc
+
+PID_LDADD = -lpthread
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-Wall -Wextra -std=c++14
 
@@ -562,6 +569,16 @@ src/lib/thread_hmc5883l.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/pid.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_spawn.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/thread_motors.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/serial.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
 
 PID$(EXEEXT): $(PID_OBJECTS) $(PID_DEPENDENCIES) $(EXTRA_PID_DEPENDENCIES) 
 	@rm -f PID$(EXEEXT)
@@ -584,19 +601,9 @@ azimuth_new$(EXEEXT): $(azimuth_new_OBJECTS) $(azimuth_new_DEPENDENCIES) $(EXTRA
 	$(AM_V_CXXLD)$(CXXLINK) $(azimuth_new_OBJECTS) $(azimuth_new_LDADD) $(LIBS)
 src/lib/file_lock.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/serial.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_spawn.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/thread_motors.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/thread_gps.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/i2c.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/pid.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/thread_sonar.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)

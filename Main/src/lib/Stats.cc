@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "Stats.h"
+#include "Stats.hh"
 
 namespace Trekking {
 	Stats::Stats() : _mean(0.), samples(0), q(0.) {}

@@ -78,4 +78,4 @@ AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcd
 .PHONY: scripts
 
 scripts:
-	cp -r $(srcdir)/scripts/* .
+	cp -rf $(srcdir)/scripts/* .

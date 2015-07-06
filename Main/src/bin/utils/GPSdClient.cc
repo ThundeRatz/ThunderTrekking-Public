@@ -24,6 +24,10 @@ int main() {
             if (gps.gpsd_data == NULL)
                 cout << "NULL gpsd_data" << endl;
             else {
+#if GPSD_API_MAJOR_VERSION != 6
+#warning GPSd API 6 required, not compiling
+                cout << "GPSd API 6 required" << endl;
+#else
                 string set_fields[] = {
                     "?",
                     "ONLINE_SET",
@@ -151,6 +155,7 @@ int main() {
 
                 gps.gpsd_data->set = 0;
             }
+#endif
         } else {
             const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
             cout << "blocking_update error" << endl;

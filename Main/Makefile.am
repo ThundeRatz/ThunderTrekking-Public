@@ -79,7 +79,13 @@ spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-Wall -Wextra -std=c++14
 
-.PHONY: scripts
-
 scripts:
 	cp -rf $(srcdir)/scripts/* .
+.PHONY: scripts
+
+clean_scripts:
+	ls $(srcdir)/scripts | xargs rm -f
+.PHONY: clean_scripts
+
+all: scripts
+clean: clean_scripts

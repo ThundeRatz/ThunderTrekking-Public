@@ -1203,10 +1203,15 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-.PHONY: scripts
-
 scripts:
 	cp -rf $(srcdir)/scripts/* .
+.PHONY: scripts
+
+clean_scripts:
+	ls $(srcdir)/scripts | xargs rm
+.PHONY: scripts
+
+all: scripts
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

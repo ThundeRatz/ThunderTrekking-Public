@@ -24,7 +24,7 @@ namespace Trekking {
 		fd_value = open(("/sys/class/gpio/gpio" + to_string(gpio) + "/value").c_str(), O_RDWR);
 		if (fd_value == -1) {
 			perror("open");
-			throw new runtime_error("open failed");
+			throw runtime_error("open failed");
 		}
 		poll_targets.events = POLLPRI;
 		poll_targets.fd = fd_value;
@@ -38,7 +38,7 @@ namespace Trekking {
 		write_to_file("/sys/class/gpio/export", to_string(gpio));
 		if (exported())
 			return;
-		throw new runtime_error("GPIO export failed");
+		throw runtime_error("GPIO export failed");
 	}
 
 	int GPIO::poll(int timeout) {
@@ -69,7 +69,7 @@ namespace Trekking {
 			break;
 
 			default:
-			throw new runtime_error("GPIO direction: invalid argument");
+			throw runtime_error("GPIO direction: invalid argument");
 			break;
 		}
 	}
@@ -97,7 +97,7 @@ namespace Trekking {
 			break;
 
 			default:
-			throw new runtime_error("GPIO edge: invalid argument");
+			throw runtime_error("GPIO edge: invalid argument");
 			break;
 		}
 	}
@@ -105,7 +105,7 @@ namespace Trekking {
 	void GPIO::operator=(int value) {
 		if (write(fd_value, value ? "1" : "0", 1) == -1) {
 			perror("GPIO write");
-			throw new runtime_error("GPIO write failed");
+			throw runtime_error("GPIO write failed");
 		}
 	}
 
@@ -113,11 +113,11 @@ namespace Trekking {
 		char buffer;
 		if (read(fd_value, &buffer, 1) == -1) {
 			perror("GPIO read");
-			throw new runtime_error("GPIO read failed");
+			throw runtime_error("GPIO read failed");
 		}
 		if (lseek(fd_value, SEEK_SET, 0) == -1) {
 			perror("GPIO lseek");
-			throw new runtime_error("GPIO lseek failed");
+			throw runtime_error("GPIO lseek failed");
 		}
 		return buffer == '1';
 	}
@@ -136,7 +136,7 @@ namespace Trekking {
 				return 0;
 			else {
 				perror("stat");
-				throw new runtime_error("stat error");
+				throw runtime_error("stat error");
 			}
 		}
 		return st.st_mode & S_IFDIR;

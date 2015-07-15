@@ -93,7 +93,8 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	compass_diff$(EXEEXT) udp_sendr_led$(EXEEXT) controle$(EXEEXT) \
 	color_follow$(EXEEXT) udp_recv_contato$(EXEEXT) \
 	azimuth_new$(EXEEXT) gps_error$(EXEEXT) \
-	gpsd_client_new$(EXEEXT) PID$(EXEEXT) GPIO_test$(EXEEXT)
+	gpsd_client_new$(EXEEXT) PID$(EXEEXT) GPIO_test$(EXEEXT) \
+	spherical_to_plane$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -184,6 +185,11 @@ am_pixy_test_OBJECTS = src/lib/thread_spawn.$(OBJEXT) \
 	src/lib/pixy_cam.$(OBJEXT) src/bin/utils/pixy_test.$(OBJEXT)
 pixy_test_OBJECTS = $(am_pixy_test_OBJECTS)
 pixy_test_DEPENDENCIES = $(am__DEPENDENCIES_1)
+am_spherical_to_plane_OBJECTS =  \
+	src/bin/utils/spherical_to_plane.$(OBJEXT) \
+	src/lib/GPS.$(OBJEXT)
+spherical_to_plane_OBJECTS = $(am_spherical_to_plane_OBJECTS)
+spherical_to_plane_LDADD = $(LDADD)
 am_udp_recv_bigodes_OBJECTS = src/lib/udp_receiver.$(OBJEXT) \
 	src/bin/udp_recv/udp_recv_bigodes.$(OBJEXT)
 udp_recv_bigodes_OBJECTS = $(am_udp_recv_bigodes_OBJECTS)
@@ -251,21 +257,21 @@ SOURCES = $(GPIO_test_SOURCES) $(PID_SOURCES) $(azimuth_SOURCES) \
 	$(compass_diff_SOURCES) $(controle_SOURCES) \
 	$(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
-	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
-	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_contato_SOURCES) \
-	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
-	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
-	$(udp_sendr_led_SOURCES)
+	$(pixy_test_SOURCES) $(spherical_to_plane_SOURCES) \
+	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
+	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
 DIST_SOURCES = $(GPIO_test_SOURCES) $(PID_SOURCES) $(azimuth_SOURCES) \
 	$(azimuth_new_SOURCES) $(color_follow_SOURCES) \
 	$(compass_diff_SOURCES) $(controle_SOURCES) \
 	$(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
-	$(pixy_test_SOURCES) $(udp_recv_bigodes_SOURCES) \
-	$(udp_recv_bussola_cell_SOURCES) $(udp_recv_contato_SOURCES) \
-	$(udp_recv_gps_cell_SOURCES) $(udp_recv_hc_sr04_SOURCES) \
-	$(udp_recv_hmc5883l_SOURCES) $(udp_send_SOURCES) \
-	$(udp_sendr_led_SOURCES)
+	$(pixy_test_SOURCES) $(spherical_to_plane_SOURCES) \
+	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
+	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
+	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
+	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -458,6 +464,7 @@ PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src
 
 PID_LDADD = -lpthread
 GPIO_test_SOURCES = src/bin/utils/GPIO_test.cc src/lib/GPIO.cc
+spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib \
 	-Wall -Wextra -std=c++14
 
@@ -688,6 +695,13 @@ src/bin/utils/pixy_test.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 pixy_test$(EXEEXT): $(pixy_test_OBJECTS) $(pixy_test_DEPENDENCIES) $(EXTRA_pixy_test_DEPENDENCIES) 
 	@rm -f pixy_test$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(pixy_test_OBJECTS) $(pixy_test_LDADD) $(LIBS)
+src/bin/utils/spherical_to_plane.$(OBJEXT):  \
+	src/bin/utils/$(am__dirstamp) \
+	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+
+spherical_to_plane$(EXEEXT): $(spherical_to_plane_OBJECTS) $(spherical_to_plane_DEPENDENCIES) $(EXTRA_spherical_to_plane_DEPENDENCIES) 
+	@rm -f spherical_to_plane$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(spherical_to_plane_OBJECTS) $(spherical_to_plane_LDADD) $(LIBS)
 src/bin/udp_recv/$(am__dirstamp):
 	@$(MKDIR_P) src/bin/udp_recv
 	@: > src/bin/udp_recv/$(am__dirstamp)
@@ -786,6 +800,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/gps_error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pid.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pixy_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/spherical_to_plane.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/udp_send.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPIO.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPS.Po@am__quote@

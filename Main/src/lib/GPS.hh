@@ -12,6 +12,8 @@ namespace Trekking {
 		void move_towards(double dist, double bearing);
 		void blocking_update();
 		void update();
+		GPS operator/ (int);
+		GPS operator= (int);
 	private:
 		void init();
 		double haversine(double a);

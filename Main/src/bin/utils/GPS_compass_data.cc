@@ -112,7 +112,7 @@ int main() {
         perror("sigaction");
 
     json.SetIndent('\t', 1);
-    json.StartArray();
+    json.StartObject();
 
     thread gps(gps_thread);
 
@@ -141,6 +141,6 @@ int main() {
         }
 
     gps.join();
-    json.EndArray();
+    json.EndObject();
     return 0;
 }

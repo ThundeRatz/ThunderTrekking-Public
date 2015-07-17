@@ -20,7 +20,7 @@ int main() {
     Trekking::GPSMonitor gps;
 
     for (;;) {
-        if (!gps.blocking_update()) {
+        if (gps.blocking_update()) {
             if (gps.gpsd_data == NULL)
                 cout << "NULL gpsd_data" << endl;
             else {

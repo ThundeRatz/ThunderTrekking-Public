@@ -94,7 +94,7 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	color_follow$(EXEEXT) udp_recv_contato$(EXEEXT) \
 	azimuth_new$(EXEEXT) gps_error$(EXEEXT) \
 	gpsd_client_new$(EXEEXT) PID$(EXEEXT) GPIO_test$(EXEEXT) \
-	spherical_to_plane$(EXEEXT)
+	spherical_to_plane$(EXEEXT) GPS_compass_data$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -115,6 +115,12 @@ am_GPIO_test_OBJECTS = src/bin/utils/GPIO_test.$(OBJEXT) \
 	src/lib/GPIO.$(OBJEXT)
 GPIO_test_OBJECTS = $(am_GPIO_test_OBJECTS)
 GPIO_test_LDADD = $(LDADD)
+am_GPS_compass_data_OBJECTS =  \
+	src/bin/utils/GPS_compass_data.$(OBJEXT) \
+	src/lib/udp_receiver.$(OBJEXT) src/lib/GPSMonitor.$(OBJEXT) \
+	src/lib/GPS.$(OBJEXT) src/lib/compass.$(OBJEXT)
+GPS_compass_data_OBJECTS = $(am_GPS_compass_data_OBJECTS)
+GPS_compass_data_DEPENDENCIES =
 am_PID_OBJECTS = src/bin/utils/pid.$(OBJEXT) src/lib/PID.$(OBJEXT) \
 	src/lib/thread_hmc5883l.$(OBJEXT) src/lib/compass.$(OBJEXT) \
 	src/lib/udp_receiver.$(OBJEXT) src/lib/pid.$(OBJEXT) \
@@ -252,20 +258,20 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(GPIO_test_SOURCES) $(PID_SOURCES) $(azimuth_SOURCES) \
-	$(azimuth_new_SOURCES) $(color_follow_SOURCES) \
-	$(compass_diff_SOURCES) $(controle_SOURCES) \
-	$(distance_SOURCES) $(gps_error_SOURCES) \
+SOURCES = $(GPIO_test_SOURCES) $(GPS_compass_data_SOURCES) \
+	$(PID_SOURCES) $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
+	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
 	$(pixy_test_SOURCES) $(spherical_to_plane_SOURCES) \
 	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
 	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
 	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
 	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
-DIST_SOURCES = $(GPIO_test_SOURCES) $(PID_SOURCES) $(azimuth_SOURCES) \
-	$(azimuth_new_SOURCES) $(color_follow_SOURCES) \
-	$(compass_diff_SOURCES) $(controle_SOURCES) \
-	$(distance_SOURCES) $(gps_error_SOURCES) \
+DIST_SOURCES = $(GPIO_test_SOURCES) $(GPS_compass_data_SOURCES) \
+	$(PID_SOURCES) $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
+	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
 	$(pixy_test_SOURCES) $(spherical_to_plane_SOURCES) \
 	$(udp_recv_bigodes_SOURCES) $(udp_recv_bussola_cell_SOURCES) \
@@ -465,8 +471,14 @@ PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src
 PID_LDADD = -lpthread
 GPIO_test_SOURCES = src/bin/utils/GPIO_test.cc src/lib/GPIO.cc
 spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
-AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I$(srcdir)/include -I$(srcdir)/src/lib \
-	-Wall -Wextra -std=c++14
+GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
+	src/lib/udp_receiver.cc src/lib/GPSMonitor.cc src/lib/GPS.cc src/lib/compass.cc
+
+GPS_compass_data_LDADD = -lgps -lpthread
+
+# -DRAPIDJSON_SSE42 para x86
+AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
+	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -583,15 +595,26 @@ src/lib/GPIO.$(OBJEXT): src/lib/$(am__dirstamp) \
 GPIO_test$(EXEEXT): $(GPIO_test_OBJECTS) $(GPIO_test_DEPENDENCIES) $(EXTRA_GPIO_test_DEPENDENCIES) 
 	@rm -f GPIO_test$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(GPIO_test_OBJECTS) $(GPIO_test_LDADD) $(LIBS)
+src/bin/utils/GPS_compass_data.$(OBJEXT):  \
+	src/bin/utils/$(am__dirstamp) \
+	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/GPSMonitor.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/GPS.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+
+GPS_compass_data$(EXEEXT): $(GPS_compass_data_OBJECTS) $(GPS_compass_data_DEPENDENCIES) $(EXTRA_GPS_compass_data_DEPENDENCIES) 
+	@rm -f GPS_compass_data$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(GPS_compass_data_OBJECTS) $(GPS_compass_data_LDADD) $(LIBS)
 src/bin/utils/pid.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 src/lib/PID.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/thread_hmc5883l.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/compass.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/pid.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
@@ -613,8 +636,6 @@ src/bin/utils/azimuth.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 azimuth$(EXEEXT): $(azimuth_OBJECTS) $(azimuth_DEPENDENCIES) $(EXTRA_azimuth_DEPENDENCIES) 
 	@rm -f azimuth$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(azimuth_OBJECTS) $(azimuth_LDADD) $(LIBS)
-src/lib/GPS.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/bin/utils/azimuth_new.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 
@@ -677,8 +698,6 @@ gps_error$(EXEEXT): $(gps_error_OBJECTS) $(gps_error_DEPENDENCIES) $(EXTRA_gps_e
 	$(AM_V_CXXLD)$(CXXLINK) $(gps_error_OBJECTS) $(gps_error_LDADD) $(LIBS)
 src/bin/utils/GPSdClient.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
-src/lib/GPSMonitor.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
 
 gpsd_client_new$(EXEEXT): $(gpsd_client_new_OBJECTS) $(gpsd_client_new_DEPENDENCIES) $(EXTRA_gpsd_client_new_DEPENDENCIES) 
 	@rm -f gpsd_client_new$(EXEEXT)
@@ -792,6 +811,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hmc5883l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_sendr/$(DEPDIR)/udp_sendr_led.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPIO_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPS_compass_data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPSdClient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth_new.Po@am__quote@
@@ -1111,7 +1131,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1184,8 +1204,8 @@ uninstall-am: uninstall-binPROGRAMS
 .MAKE: all install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am clean \
-	clean-binPROGRAMS clean-cscope clean-generic cscope \
-	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+	clean-binPROGRAMS clean-cscope clean-generic clean-local \
+	cscope cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
 	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
 	distcheck distclean distclean-compile distclean-generic \
 	distclean-hdr distclean-tags distcleancheck distdir \
@@ -1208,10 +1228,11 @@ scripts:
 .PHONY: scripts
 
 clean_scripts:
-	ls $(srcdir)/scripts | xargs rm
-.PHONY: scripts
+	ls $(srcdir)/scripts | xargs rm -f
+.PHONY: clean_scripts
 
 all: scripts
+clean-local: clean_scripts
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

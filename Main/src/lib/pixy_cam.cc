@@ -23,16 +23,18 @@ static void __attribute__((noreturn)) *pixy_thread(__attribute__((unused)) void 
 
 void pixy_cam_init() {
 	int error_code;
-	uint16_t major, minor, build;
 	if ((error_code = pixy_init())) {
 		pixy_error(error_code);
 		exit(-1);
 	}
 
-//	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
-//		pixy_error(error_code);
-//	else
-//		printf("Pixy firmware %hu.%hu.%hu\n", major, minor, build);
+#ifdef DEBUG
+	uint16_t major, minor, build;
+	if ((error_code = pixy_get_firmware_version(&major, &minor, &build)))
+		pixy_error(error_code);
+	else
+		printf("Pixy firmware %hu.%hu.%hu\n", major, minor, build);
+#endif
 
 	thread_spawn(pixy_thread, NULL);
 }

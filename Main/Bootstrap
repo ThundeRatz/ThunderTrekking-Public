@@ -3,3 +3,5 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 rm -rf build/
 autoreconf -if
 mkdir -p build/
+cd build/
+../configure --enable-silent-rules

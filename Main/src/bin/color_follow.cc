@@ -41,8 +41,8 @@ int main() {
 //                      perror("nanosleep");
 //	}
 
-	
-	
+
+
 	for (;;) {
 		pixy_block_t object;
 		if (nanosleep(&block_wait_time, NULL))
@@ -70,11 +70,11 @@ int main() {
 			return 1;
 		}
 
-		if (object.x < 0) {
+		if ((object.x - (PIXY_MAX_X - PIXY_MIN_X + 1) / 2) < 0) {
 			corretor = MAX_Vel + object.x/2;
 			motor(corretor, MAX_Vel);
 			printf("motor(%d, %d)\n", corretor, MAX_Vel);
-		} else if (object.x > 0) {
+		} else if ((object.x - (PIXY_MAX_X - PIXY_MIN_X + 1) / 2) > 0) {
 			corretor = MAX_Vel - object.x/2;
 			motor(MAX_Vel, corretor);
 			printf("motor(%d, %d)\n", MAX_Vel, corretor);

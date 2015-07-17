@@ -4,7 +4,6 @@
 
 #include "udp_receiver.h"
 #include "ports.h"
-#include "pid.h"
 #include "compass.h"
 
 double direcao_atual = 0;
@@ -21,7 +20,7 @@ void __attribute__((noreturn)) *hmc5883l_thread(__attribute__((unused)) void *ig
 	for (;;) {
 		switch (udp_receiver_recv(udp_socket, data, sizeof(data))) {
 			case sizeof(data):
-			direcao_atual = pass_filter(direcao_atual, compass_orientation(data[0], data[2]), 0.8);
+			direcao_atual = compass_orientation(data[0], data[2]);
 			break;
 
 			case -1:

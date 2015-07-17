@@ -13,20 +13,20 @@ namespace Trekking {
 		gpsd_client.stream(WATCH_ENABLE | WATCH_JSON);
 	}
 
-	int GPSMonitor::blocking_update() {
+	bool GPSMonitor::blocking_update() {
 		gpsd_data = gpsd_client.read();
 		if (gpsd_data == NULL)
-			return -1;
+			return false;
 		if (gpsd_data->fix.mode == MODE_2D || gpsd_data->fix.mode == MODE_3D) {
 			latitude = gpsd_data->fix.latitude;
 			longitude = gpsd_data->fix.longitude;
 		}
-		return 0;
+		return true;
 	}
 
-	int GPSMonitor::update() {
+	bool GPSMonitor::update() {
 		if (gpsd_client.waiting(0))
 			return blocking_update();
-		return -1;
+		return false;
 	}
 }

@@ -10,8 +10,6 @@ namespace Trekking {
 		double azimuth_to(const GPS &to);
 		void final_position(GPS &return_position, double dist, double bearing);
 		void move_towards(double dist, double bearing);
-		void blocking_update();
-		void update();
 		GPS operator/ (int);
 		GPS operator= (int);
 	private:

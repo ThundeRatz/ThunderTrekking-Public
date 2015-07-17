@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = sensor_server$(EXEEXT)
+bin_PROGRAMS = sensor_server$(EXEEXT) GPIO_test$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -103,6 +103,11 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am_GPIO_test_OBJECTS = bin/utils/GPIO_test.$(OBJEXT) \
+	lib/GPIO.$(OBJEXT)
+GPIO_test_OBJECTS = $(am_GPIO_test_OBJECTS)
+GPIO_test_LDADD = $(LDADD)
+GPIO_test_DEPENDENCIES =
 am_sensor_server_OBJECTS = lib/thread_leds.$(OBJEXT) \
 	lib/gpio_dma.$(OBJEXT) lib/hmc5883l.$(OBJEXT) \
 	lib/thread_bigodes.$(OBJEXT) lib/thread_hmc5883l.$(OBJEXT) \
@@ -140,8 +145,21 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(sensor_server_SOURCES)
-DIST_SOURCES = $(sensor_server_SOURCES)
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
+SOURCES = $(GPIO_test_SOURCES) $(sensor_server_SOURCES)
+DIST_SOURCES = $(GPIO_test_SOURCES) $(sensor_server_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -278,14 +296,16 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 sensor_server_SOURCES = lib/thread_leds.c lib/gpio_dma.c lib/hmc5883l.c lib/thread_bigodes.c lib/thread_hmc5883l.c lib/thread_spawn.c lib/udp_receiver.c lib/udp_sender.c lib/thread_hc_sr04.c lib/i2c.c bin/sensor_server.c
+GPIO_test_SOURCES = bin/utils/GPIO_test.cc lib/GPIO.cc
 OPTIMIZE = -O3 -flto
 LDADD = -lpthread -lm
 AM_CFLAGS = -Wall -Wextra -I$(srcdir)/include -I$(srcdir)/lib -fdiagnostics-color=auto -std=c11 -D_GNU_SOURCE -g
+AM_CXXFLAGS = -Wall -Wextra -I$(srcdir)/include -I$(srcdir)/lib -fdiagnostics-color=auto -std=c++11 -D_GNU_SOURCE -g
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .cc .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -376,12 +396,25 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+bin/utils/$(am__dirstamp):
+	@$(MKDIR_P) bin/utils
+	@: > bin/utils/$(am__dirstamp)
+bin/utils/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) bin/utils/$(DEPDIR)
+	@: > bin/utils/$(DEPDIR)/$(am__dirstamp)
+bin/utils/GPIO_test.$(OBJEXT): bin/utils/$(am__dirstamp) \
+	bin/utils/$(DEPDIR)/$(am__dirstamp)
 lib/$(am__dirstamp):
 	@$(MKDIR_P) lib
 	@: > lib/$(am__dirstamp)
 lib/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) lib/$(DEPDIR)
 	@: > lib/$(DEPDIR)/$(am__dirstamp)
+lib/GPIO.$(OBJEXT): lib/$(am__dirstamp) lib/$(DEPDIR)/$(am__dirstamp)
+
+GPIO_test$(EXEEXT): $(GPIO_test_OBJECTS) $(GPIO_test_DEPENDENCIES) $(EXTRA_GPIO_test_DEPENDENCIES) 
+	@rm -f GPIO_test$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(GPIO_test_OBJECTS) $(GPIO_test_LDADD) $(LIBS)
 lib/thread_leds.$(OBJEXT): lib/$(am__dirstamp) \
 	lib/$(DEPDIR)/$(am__dirstamp)
 lib/gpio_dma.$(OBJEXT): lib/$(am__dirstamp) \
@@ -417,12 +450,15 @@ sensor_server$(EXEEXT): $(sensor_server_OBJECTS) $(sensor_server_DEPENDENCIES) $
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f bin/*.$(OBJEXT)
+	-rm -f bin/utils/*.$(OBJEXT)
 	-rm -f lib/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@bin/$(DEPDIR)/sensor_server.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bin/utils/$(DEPDIR)/GPIO_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@lib/$(DEPDIR)/GPIO.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@lib/$(DEPDIR)/gpio_dma.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@lib/$(DEPDIR)/hmc5883l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@lib/$(DEPDIR)/i2c.Po@am__quote@
@@ -449,6 +485,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cc.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cc.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -707,6 +759,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f bin/$(DEPDIR)/$(am__dirstamp)
 	-rm -f bin/$(am__dirstamp)
+	-rm -f bin/utils/$(DEPDIR)/$(am__dirstamp)
+	-rm -f bin/utils/$(am__dirstamp)
 	-rm -f lib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f lib/$(am__dirstamp)
 
@@ -719,7 +773,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf bin/$(DEPDIR) lib/$(DEPDIR)
+	-rm -rf bin/$(DEPDIR) bin/utils/$(DEPDIR) lib/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -767,7 +821,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf bin/$(DEPDIR) lib/$(DEPDIR)
+	-rm -rf bin/$(DEPDIR) bin/utils/$(DEPDIR) lib/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -1,6 +1,8 @@
 #ifndef __PORTS_H__
 #define __PORTS_H__
 
+#warning Mudar para 44000 para frente, são mais livres
+
 #define IP					"127.0.0.1"
 #define UDP_BIGODE			1414
 #define UDP_HMC5883L		1415

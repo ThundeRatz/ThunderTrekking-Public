@@ -93,7 +93,7 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	compass_diff$(EXEEXT) udp_sendr_led$(EXEEXT) controle$(EXEEXT) \
 	color_follow$(EXEEXT) udp_recv_contato$(EXEEXT) \
 	azimuth_new$(EXEEXT) gps_error$(EXEEXT) \
-	gpsd_client_new$(EXEEXT) PID$(EXEEXT) GPIO_test$(EXEEXT) \
+	gpsd_client_new$(EXEEXT) PID$(EXEEXT) \
 	spherical_to_plane$(EXEEXT) GPS_compass_data$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -111,10 +111,6 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_GPIO_test_OBJECTS = src/bin/utils/GPIO_test.$(OBJEXT) \
-	src/lib/GPIO.$(OBJEXT)
-GPIO_test_OBJECTS = $(am_GPIO_test_OBJECTS)
-GPIO_test_LDADD = $(LDADD)
 am_GPS_compass_data_OBJECTS =  \
 	src/bin/utils/GPS_compass_data.$(OBJEXT) \
 	src/lib/udp_receiver.$(OBJEXT) src/lib/GPSMonitor.$(OBJEXT) \
@@ -258,8 +254,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(GPIO_test_SOURCES) $(GPS_compass_data_SOURCES) \
-	$(PID_SOURCES) $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+SOURCES = $(GPS_compass_data_SOURCES) $(PID_SOURCES) \
+	$(azimuth_SOURCES) $(azimuth_new_SOURCES) \
 	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
 	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
@@ -268,8 +264,8 @@ SOURCES = $(GPIO_test_SOURCES) $(GPS_compass_data_SOURCES) \
 	$(udp_recv_contato_SOURCES) $(udp_recv_gps_cell_SOURCES) \
 	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
 	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
-DIST_SOURCES = $(GPIO_test_SOURCES) $(GPS_compass_data_SOURCES) \
-	$(PID_SOURCES) $(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+DIST_SOURCES = $(GPS_compass_data_SOURCES) $(PID_SOURCES) \
+	$(azimuth_SOURCES) $(azimuth_new_SOURCES) \
 	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
 	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
@@ -469,7 +465,6 @@ PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src
 	src/lib/serial.cc
 
 PID_LDADD = -lpthread
-GPIO_test_SOURCES = src/bin/utils/GPIO_test.cc src/lib/GPIO.cc
 spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
 	src/lib/udp_receiver.cc src/lib/GPSMonitor.cc src/lib/GPS.cc src/lib/compass.cc
@@ -581,7 +576,8 @@ src/bin/utils/$(am__dirstamp):
 src/bin/utils/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/bin/utils/$(DEPDIR)
 	@: > src/bin/utils/$(DEPDIR)/$(am__dirstamp)
-src/bin/utils/GPIO_test.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+src/bin/utils/GPS_compass_data.$(OBJEXT):  \
+	src/bin/utils/$(am__dirstamp) \
 	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 src/lib/$(am__dirstamp):
 	@$(MKDIR_P) src/lib
@@ -589,15 +585,6 @@ src/lib/$(am__dirstamp):
 src/lib/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/lib/$(DEPDIR)
 	@: > src/lib/$(DEPDIR)/$(am__dirstamp)
-src/lib/GPIO.$(OBJEXT): src/lib/$(am__dirstamp) \
-	src/lib/$(DEPDIR)/$(am__dirstamp)
-
-GPIO_test$(EXEEXT): $(GPIO_test_OBJECTS) $(GPIO_test_DEPENDENCIES) $(EXTRA_GPIO_test_DEPENDENCIES) 
-	@rm -f GPIO_test$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(GPIO_test_OBJECTS) $(GPIO_test_LDADD) $(LIBS)
-src/bin/utils/GPS_compass_data.$(OBJEXT):  \
-	src/bin/utils/$(am__dirstamp) \
-	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
 src/lib/udp_receiver.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/GPSMonitor.$(OBJEXT): src/lib/$(am__dirstamp) \
@@ -810,7 +797,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hc_sr04.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_recv/$(DEPDIR)/udp_recv_hmc5883l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/udp_sendr/$(DEPDIR)/udp_sendr_led.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPIO_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPS_compass_data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPSdClient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth.Po@am__quote@
@@ -822,7 +808,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pixy_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/spherical_to_plane.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/udp_send.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPIO.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPS.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPSMonitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/PID.Po@am__quote@
@@ -1227,12 +1212,12 @@ scripts:
 	cp -rf $(srcdir)/scripts/* .
 .PHONY: scripts
 
-clean_scripts:
+clean-scripts:
 	ls $(srcdir)/scripts | xargs rm -f
-.PHONY: clean_scripts
+.PHONY: clean-scripts
 
 all: scripts
-clean-local: clean_scripts
+clean-local: clean-scripts
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

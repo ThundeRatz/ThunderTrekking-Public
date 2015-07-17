@@ -3,7 +3,7 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
 	udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
-	gpsd_client_new PID GPIO_test spherical_to_plane GPS_compass_data
+	gpsd_client_new PID spherical_to_plane GPS_compass_data
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
@@ -72,8 +72,6 @@ PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src
 	src/lib/serial.cc
 PID_LDADD = -lpthread
 
-GPIO_test_SOURCES = src/bin/utils/GPIO_test.cc src/lib/GPIO.cc
-
 spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
 
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
@@ -88,9 +86,9 @@ scripts:
 	cp -rf $(srcdir)/scripts/* .
 .PHONY: scripts
 
-clean_scripts:
+clean-scripts:
 	ls $(srcdir)/scripts | xargs rm -f
-.PHONY: clean_scripts
+.PHONY: clean-scripts
 
 all: scripts
-clean-local: clean_scripts
+clean-local: clean-scripts

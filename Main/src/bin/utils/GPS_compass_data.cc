@@ -88,7 +88,7 @@ void gps_thread() {
                     // Para testes iniciais do Kalman, vamos manter incertezas e
                     // medidas juntas. Se usarmos um GPS com protocolo estranho
                     // que as forcene separadas, dar aviso
-                    cerr << "SPEED_SET e SPEEDERR_SET fornecidos deparados" << endl
+                    cerr << "SPEED_SET e SPEEDERR_SET fornecidos separados" << endl
                          << "Programa espera SPEED_SET e SPEEDERR_SET do GPS juntos" << endl;
                 }
 

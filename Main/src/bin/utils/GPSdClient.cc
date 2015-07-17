@@ -73,14 +73,18 @@ int main() {
                         cout << "\t" << set_fields[i] << "\n";
 
                 if (gps.gpsd_data->online)
-                    cout << "Last online " << ctime((time_t *) &gps.gpsd_data->online);
+                    cout << "Last online " << gps.gpsd_data->online << endl;
                 else
                     cout << "Offline\n";
 
                 if (gps.gpsd_data->status == STATUS_FIX) {
                     cout << "Fix - " << gps.gpsd_data->satellites_used << " satellites used\n";
                     cout << "visible: " << gps.gpsd_data->satellites_visible << "\n";
-                    cout << "Skyview time: " << ctime((time_t *) &gps.gpsd_data->skyview_time);
+                    cout << "Skyview time: " << gps.gpsd_data->skyview_time << endl;
+#ifdef DEBUG
+                    // Esses dados podem ser usados para ver qualidade de cada
+                    // satélite, mas são deixados de lado por padrão por serem
+                    // bem barulhentos
                     for (unsigned int i = 0; i < sizeof(gps.gpsd_data->skyview) / sizeof(*gps.gpsd_data->skyview); i++)
                         if (gps.gpsd_data->skyview[i].ss != 0. || gps.gpsd_data->skyview[i].used ||
                             gps.gpsd_data->skyview[i].PRN != 0 || gps.gpsd_data->skyview[i].elevation != 0 ||
@@ -95,10 +99,11 @@ int main() {
                             else
                                 cout << "No PRN" << "\n";
                         }
+#endif
 
                     cout << "spherical position error (95% confidence): " << gps.gpsd_data->epe << "\n";
                     cout << "fix" << "\n\t"
-                        << "time (±" << gps.gpsd_data->fix.ept << ") " << ctime((time_t *) &gps.gpsd_data->fix.time) << "\t"
+                        << "time (±" << gps.gpsd_data->fix.ept << ") " << gps.gpsd_data->fix.time << "\n\t"
                         << "mode: " << gps.gpsd_data->fix.mode << " {MODE_NOT_SEEN, MODE_NO_FIX, MODE_2D, MODE_3D}" << "\n\t"
                         << "latitude: " << gps.gpsd_data->fix.latitude << " (±" << gps.gpsd_data->fix.epy << ")\n\t"
                         << "longitude: " << gps.gpsd_data->fix.longitude << " (±" << gps.gpsd_data->fix.epx << ")\n\t"

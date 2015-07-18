@@ -56,52 +56,16 @@ namespace Trekking {
 		poll(-1);
 	}
 
-	void GPIO::direction(Direction direction) {
-		switch (direction) {
-			case GPIO_IN:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/direction", "in");
-			break;
-
-			case GPIO_OUT_LOW:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/direction", "low");
-			break;
-
-			case GPIO_OUT_HIGH:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/direction", "high");
-			break;
-
-			default:
-			throw runtime_error("GPIO direction: invalid argument");
-			break;
-		}
+	void GPIO::direction(string direction) {
+		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/direction", direction);
 	}
 
 	void GPIO::active_low() {
 		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/active_low", "1");
 	}
 
-	void GPIO::edge(Edge edge_type) {
-		switch (edge_type) {
-			case GPIO_EDGE_NONE:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", "none");
-			break;
-
-			case GPIO_EDGE_RISE:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", "rise");
-			break;
-
-			case GPIO_EDGE_FALL:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", "fall");
-			break;
-
-			case GPIO_EDGE_BOTH:
-			write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", "both");
-			break;
-
-			default:
-			throw runtime_error("GPIO edge: invalid argument");
-			break;
-		}
+	void GPIO::edge(string edge_type) {
+		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", edge_type);
 	}
 
 	void GPIO::operator=(int value) {
@@ -111,7 +75,7 @@ namespace Trekking {
 		}
 	}
 
-	int GPIO::get() {
+	GPIO::operator bool const() {
 		char buffer;
 		if (read(fd_value, &buffer, 1) == -1) {
 			perror("GPIO read");

@@ -23,6 +23,9 @@ namespace Trekking {
 				return;
 		} else
 			export_gpio();
+		// Outra opção: se direction for chamado, inicializar fd_value lá se
+		// &direction == &GPIO::GPIO_IN (mas não daria pra ler o valor de pinos
+		// de saída)
 		fd_value = open(("/sys/class/gpio/gpio" + to_string(gpio) + "/value").c_str(), O_RDWR);
 		if (fd_value == -1) {
 			perror("open");
@@ -56,7 +59,7 @@ namespace Trekking {
 		poll(-1);
 	}
 
-	void GPIO::direction(string direction) {
+	void GPIO::direction(const string &direction) {
 		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/direction", direction);
 	}
 
@@ -64,7 +67,7 @@ namespace Trekking {
 		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/active_low", "1");
 	}
 
-	void GPIO::edge(string edge_type) {
+	void GPIO::edge(const string &edge_type) {
 		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", edge_type);
 	}
 
@@ -88,11 +91,10 @@ namespace Trekking {
 		return buffer == '1';
 	}
 
-	void GPIO::write_to_file(string name, string value) {
+	void GPIO::write_to_file(const string& name, const string& value) {
 		fstream file;
 		file.open(name, fstream::out);
 		file << value;
-		file.close();
 	}
 
 	bool GPIO::exported() {

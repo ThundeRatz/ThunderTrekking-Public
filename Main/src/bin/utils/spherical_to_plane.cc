@@ -7,12 +7,10 @@ using namespace std;
 using namespace Trekking;
 
 void read_coordinates(GPS &pos) {
-	int latitude, longitude;
-	cin >> latitude >> longitude;
+	cin >> pos.latitude >> pos.longitude;
+	double latitude, longitude;
 	if (!cin.good())
 		exit(0);
-	pos.latitude = latitude;
-	pos.longitude = longitude;
 }
 
 int main() {

@@ -15,6 +15,12 @@
 					linux,input-type = <1 22>;
 					gpios = <&gpio 21 1>;
 				};
+				button@20 {
+					label = "Front bumper";
+					linux,code = <48>;
+					linux,input-type = <1 22>;
+					gpios = <&gpio 20 1>;
+				};
 			};
 		};
 	};

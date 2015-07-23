@@ -3,7 +3,7 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
 	udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
-	gpsd_client_new PID spherical_to_plane GPS_compass_data
+	gpsd_client_new PID spherical_to_plane GPS_compass_data buttons
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
@@ -77,6 +77,8 @@ spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
 	src/lib/udp_receiver.cc src/lib/GPSMonitor.cc src/lib/GPS.cc src/lib/compass.cc
 GPS_compass_data_LDADD = -lgps -lpthread
+
+buttons_SOURCES = src/bin/utils/buttons.cc src/lib/Button.cc
 
 # -DRAPIDJSON_SSE42 para x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \

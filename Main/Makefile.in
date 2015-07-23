@@ -94,7 +94,8 @@ bin_PROGRAMS = udp_recv_hc_sr04$(EXEEXT) udp_recv_bigodes$(EXEEXT) \
 	color_follow$(EXEEXT) udp_recv_contato$(EXEEXT) \
 	azimuth_new$(EXEEXT) gps_error$(EXEEXT) \
 	gpsd_client_new$(EXEEXT) PID$(EXEEXT) \
-	spherical_to_plane$(EXEEXT) GPS_compass_data$(EXEEXT)
+	spherical_to_plane$(EXEEXT) GPS_compass_data$(EXEEXT) \
+	buttons$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -132,6 +133,10 @@ am_azimuth_new_OBJECTS = src/lib/GPS.$(OBJEXT) \
 	src/bin/utils/azimuth_new.$(OBJEXT)
 azimuth_new_OBJECTS = $(am_azimuth_new_OBJECTS)
 azimuth_new_DEPENDENCIES =
+am_buttons_OBJECTS = src/bin/utils/buttons.$(OBJEXT) \
+	src/lib/Button.$(OBJEXT)
+buttons_OBJECTS = $(am_buttons_OBJECTS)
+buttons_LDADD = $(LDADD)
 am_color_follow_OBJECTS = src/lib/file_lock.$(OBJEXT) \
 	src/lib/compass.$(OBJEXT) src/lib/serial.$(OBJEXT) \
 	src/lib/thread_spawn.$(OBJEXT) src/lib/thread_motors.$(OBJEXT) \
@@ -255,7 +260,7 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(GPS_compass_data_SOURCES) $(PID_SOURCES) \
-	$(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+	$(azimuth_SOURCES) $(azimuth_new_SOURCES) $(buttons_SOURCES) \
 	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
 	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
@@ -265,7 +270,7 @@ SOURCES = $(GPS_compass_data_SOURCES) $(PID_SOURCES) \
 	$(udp_recv_hc_sr04_SOURCES) $(udp_recv_hmc5883l_SOURCES) \
 	$(udp_send_SOURCES) $(udp_sendr_led_SOURCES)
 DIST_SOURCES = $(GPS_compass_data_SOURCES) $(PID_SOURCES) \
-	$(azimuth_SOURCES) $(azimuth_new_SOURCES) \
+	$(azimuth_SOURCES) $(azimuth_new_SOURCES) $(buttons_SOURCES) \
 	$(color_follow_SOURCES) $(compass_diff_SOURCES) \
 	$(controle_SOURCES) $(distance_SOURCES) $(gps_error_SOURCES) \
 	$(gpsd_client_new_SOURCES) $(main_SOURCES) \
@@ -470,6 +475,7 @@ GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
 	src/lib/udp_receiver.cc src/lib/GPSMonitor.cc src/lib/GPS.cc src/lib/compass.cc
 
 GPS_compass_data_LDADD = -lgps -lpthread
+buttons_SOURCES = src/bin/utils/buttons.cc src/lib/Button.cc
 
 # -DRAPIDJSON_SSE42 para x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
@@ -629,6 +635,14 @@ src/bin/utils/azimuth_new.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
 azimuth_new$(EXEEXT): $(azimuth_new_OBJECTS) $(azimuth_new_DEPENDENCIES) $(EXTRA_azimuth_new_DEPENDENCIES) 
 	@rm -f azimuth_new$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(azimuth_new_OBJECTS) $(azimuth_new_LDADD) $(LIBS)
+src/bin/utils/buttons.$(OBJEXT): src/bin/utils/$(am__dirstamp) \
+	src/bin/utils/$(DEPDIR)/$(am__dirstamp)
+src/lib/Button.$(OBJEXT): src/lib/$(am__dirstamp) \
+	src/lib/$(DEPDIR)/$(am__dirstamp)
+
+buttons$(EXEEXT): $(buttons_OBJECTS) $(buttons_DEPENDENCIES) $(EXTRA_buttons_DEPENDENCIES) 
+	@rm -f buttons$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(buttons_OBJECTS) $(buttons_LDADD) $(LIBS)
 src/lib/file_lock.$(OBJEXT): src/lib/$(am__dirstamp) \
 	src/lib/$(DEPDIR)/$(am__dirstamp)
 src/lib/thread_gps.$(OBJEXT): src/lib/$(am__dirstamp) \
@@ -801,6 +815,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/GPSdClient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/azimuth_new.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/buttons.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/compass_diff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/distance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/gps_error.Po@am__quote@
@@ -808,6 +823,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/pixy_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/spherical_to_plane.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bin/utils/$(DEPDIR)/udp_send.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/Button.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPS.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/GPSMonitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/lib/$(DEPDIR)/PID.Po@am__quote@

@@ -86,7 +86,8 @@ KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
 
 # -DRAPIDJSON_SSE42 para x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
-	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14
+	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14 \
+	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib
 
 scripts:
 	cp -rf $(srcdir)/scripts/* .

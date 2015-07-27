@@ -81,4 +81,12 @@ namespace Trekking {
 		longitude = a;
 		return *this;
 	}
+
+	void GPS::to_2d(Point& point, GPS& origin) {
+		double distance, azimuth;
+		azimuth = origin.azimuth_to(*this);
+		distance = origin.distance_to(*this);
+		point.x = distance * sin(azimuth);
+		point.y = distance * cos(azimuth);
+	}
 }

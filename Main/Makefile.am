@@ -3,7 +3,8 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_recv_gps_cell udp_send main pixy_test azimuth distance compass_diff \
 	udp_sendr_led controle color_follow udp_recv_contato azimuth_new gps_error \
-	gpsd_client_new PID spherical_to_plane GPS_compass_data buttons bumpers
+	gpsd_client_new PID spherical_to_plane GPS_compass_data buttons KalmanTeste \
+	log_read_GPS bumpers
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
@@ -82,9 +83,16 @@ buttons_SOURCES = src/bin/utils/buttons.cc src/lib/Button.cc
 
 bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc
 
+KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc src/lib/thread_gps.cc \
+	src/lib/gps_coord.cc src/lib/thread_spawn.cc src/lib/udp_receiver.cc
+KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
+
+log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
+
 # -DRAPIDJSON_SSE42 para x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
-	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14
+	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14 \
+	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib
 
 scripts:
 	cp -rf $(srcdir)/scripts/* .

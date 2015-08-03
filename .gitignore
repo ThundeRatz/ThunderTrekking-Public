@@ -6,3 +6,10 @@ build/
 Imagens/
 config.log
 aclocal.m4
+Makefile.in
+compile
+configure
+depcomp
+install-sh
+missing
+/externals/*

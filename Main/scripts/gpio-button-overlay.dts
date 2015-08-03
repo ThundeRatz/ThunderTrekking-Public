@@ -13,13 +13,13 @@
 					label = "Shutdown GPIO button";
 					linux,code = <116>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 21 1>;
+					gpios = <&gpio 21 0>;
 				};
 				button@20 {
 					label = "Front bumper";
 					linux,code = <48>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 20 1>;
+					gpios = <&gpio 20 0>;
 				};
 			};
 		};

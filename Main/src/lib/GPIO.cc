@@ -14,10 +14,18 @@
 using namespace std;
 
 namespace Trekking {
+	const std::string GPIO::IN = "in";
+	const std::string GPIO::OUT_LOW = "low";
+	const std::string GPIO::OUT_HIGH = "high";
+	const std::string GPIO::EDGE_NONE = "none";
+	const std::string GPIO::EDGE_RISE = "rise";
+	const std::string GPIO::EDGE_FALL = "fall";
+	const std::string GPIO::EDGE_BOTH = "both";
+
 	GPIO::GPIO(int gpio) {
 		this->gpio = gpio;
 		if (exported()) {
-			cout << "GPIO " << gpio << "already exported" << endl;
+			cout << "GPIO " << gpio << " already exported" << endl;
 			if (fcntl(fd_value, F_GETFL) != -1)
 				// Já aberto
 				return;
@@ -78,7 +86,7 @@ namespace Trekking {
 		}
 	}
 
-	GPIO::operator bool const() {
+	GPIO::operator bool() const {
 		char buffer;
 		if (read(fd_value, &buffer, 1) == -1) {
 			perror("GPIO read");

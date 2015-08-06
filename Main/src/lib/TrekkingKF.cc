@@ -12,9 +12,9 @@ namespace Trekking {
 		l = 1; // 0
 		m = 4; // 4
 		setDim(n, l, n, m, m);
-		dt = 1;
-		sigma_a = 1; // TODO Ver aqui
-		sigma_z = 1; // E aqui
+		dt = 0.1;
+		sigma_a = 1.0; // TODO Ver aqui
+		sigma_z = 1.0; // E aqui
 	}
 
 	void TrekkingKF::makeBaseA() {
@@ -87,8 +87,27 @@ namespace Trekking {
 		Q(3,3) = dt*dt * sigma_a*sigma_a;
 	}
 
-	void TrekkingKF::makeR() {
+	void TrekkingKF::makeBaseR() {
 		// TODO Fazer aqui
+		R(0,0) = 1.0;
+		R(0,1) = 0.0;
+		R(0,2) = 0.0;
+		R(0,3) = 0.0;
+
+		R(1,0) = 0.0;
+		R(1,1) = 1.0;
+		R(1,2) = 0.0;
+		R(1,3) = 0.0;
+
+		R(2,0) = 0.0;
+		R(2,1) = 0.0;
+		R(2,2) = 1.0;
+		R(2,3) = 0.0;
+
+		R(3,0) = 0.0;
+		R(3,1) = 0.0;
+		R(3,2) = 0.0;
+		R(3,3) = 1.0;
 	}
 
 	void TrekkingKF::makeBaseV() {

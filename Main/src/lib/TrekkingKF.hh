@@ -12,12 +12,9 @@ namespace Trekking {
 			void makeBaseB();
 			void makeBaseH();
 			void makeBaseQ();
-			void makeR();
+			void makeBaseR();
 			void makeBaseW();
 			void makeBaseV();
-
-			// void makeProcess() {} // Nao tem no KFilter,
-			// void makeMeasure() {} // so no EKfilter
 
 		private:
 			double dt;      //!< Tempo entre duas medidas
@@ -29,4 +26,7 @@ namespace Trekking {
 			int l;          //!< Entrada
 			int m;          //!< Medida, Ruído da Medida
 	};
+
+	typedef TrekkingKF::Vector Vetor;
+	typedef TrekkingKF::Matrix Matriz;
 }

@@ -8,6 +8,7 @@
 #include "thread_gps.h"
 #include "gps_coord.h"
 #include "GPS.hh"
+#include "Point.hh"
 
 #define MS	1000000
 
@@ -20,6 +21,9 @@ int main () {
 	thread_spawn(gps_thread, NULL);
 
 	TrekkingKF filtro;
+	Point posicao;
+	GPS origem, atual;
+
 	const int n = 4;
 	const int m = 4;
 
@@ -32,21 +36,29 @@ int main () {
 	Matriz P0(n, n, _P0);
 	Vetor z(m);
 
+	origem.latitude = gps_get()->latitude;   // eventos[0]
+	origem.longitude = gps_get()->longitude; // eventos[0]
+
+	origem.to_2d(posicao, origem);
+
 	// Estimativas iniciais
-	x(0) = gps_get()->longitude; // TODO Tem que ser planificado
+	x(0) = posicao.y;
 	x(1) = 0.0; // Velocidade inicial no sentido da longitude
-	x(2) = gps_get()->latitude; // Tem que ser planificado
+	x(2) = posicao.x;
 	x(3) = 0.0; // Velocidade incial no sentido da latitude
 
 	filtro.init(x, P0);
 	cout << filtro.getX() << endl;
 
-	double teste = gps_get()->longitude;
-
 	for(;;) {
-		z(0) = gps_get()->longitude;
+		atual.latitude = gps_get()->latitude;   // eventos[0]
+		atual.longitude = gps_get()->longitude; // eventos[0]
+
+		atual.to_2d(posicao, origem);
+
+		z(0) = posicao.y;
 		z(1) = 0.0; // TODO colocar a velocidade aqui
-		z(2) = gps_get()->latitude;
+		z(2) = posicao.x;
 		z(3) = 0.0;
 
 		Vetor u(1, 0.0);
@@ -54,7 +66,6 @@ int main () {
 		filtro.step(u, z);
 
 		cout << filtro.getX() << endl;
-		teste += 1.0*0.1;
 		if (nanosleep(&cycle, NULL))
 			cerr << "nanosleep" << endl;
 	}

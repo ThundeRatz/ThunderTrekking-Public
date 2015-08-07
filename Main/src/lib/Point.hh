@@ -1,3 +1,5 @@
+#pragma once
+
 namespace Trekking {
 	class Point {
 	public:

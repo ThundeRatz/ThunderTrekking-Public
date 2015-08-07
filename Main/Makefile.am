@@ -83,7 +83,8 @@ bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc src/lib/GPIOButton.cc
 bumpers_LDADD = -lpthread
 
 KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc src/lib/thread_gps.cc \
-	src/lib/gps_coord.cc src/lib/thread_spawn.cc src/lib/udp_receiver.cc
+	src/lib/gps_coord.cc src/lib/thread_spawn.cc src/lib/udp_receiver.cc src/lib/Point.cc \
+	src/lib/GPS.cc
 KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
 
 log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc

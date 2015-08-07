@@ -1,16 +1,12 @@
 #include <iostream>
-#include "GPIO.hh"
+#include "GPIOButton.hh"
 
 using namespace Trekking;
 using namespace std;
 
 int main() {
-	GPIO bumper(21);
+	GPIOButton bumper(21);
 
-	bumper.direction(GPIO::IN);
-	bumper.edge(GPIO::EDGE_BOTH);
-	for (;;) {
-		bumper.poll();
+	for (;;)
 		cout << (bumper ? "ON" : "OFF") << endl;
-	}
 }

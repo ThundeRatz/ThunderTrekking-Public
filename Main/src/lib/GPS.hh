@@ -3,6 +3,7 @@
 #include "Point.hh"
 
 namespace Trekking {
+	class Point;
 	class GPS {
 	public:
 		double latitude, longitude;

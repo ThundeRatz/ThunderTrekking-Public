@@ -87,7 +87,7 @@ KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc src/lib
 	src/lib/GPS.cc
 KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
 
-log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
+log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc src/lib/Point.cc
 
 # -DRAPIDJSON_SSE42 para x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \

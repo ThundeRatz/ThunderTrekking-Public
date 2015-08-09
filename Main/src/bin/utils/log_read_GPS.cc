@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "GPS.hh"
+#include "Point.hh"
 
 using namespace std;
 

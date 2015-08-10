@@ -18,10 +18,11 @@ using namespace Trekking;
 static const struct timespec cycle = {.tv_sec = 0, .tv_nsec = 100 * MS};
 
 int main () {
+	cout << fixed << setprecision(8);
 	thread_spawn(gps_thread, NULL);
 
 	TrekkingKF filtro;
-	Point posicao;
+	Point posicao(0, 0);
 	GPS origem, atual;
 
 	const int n = 4;
@@ -39,8 +40,6 @@ int main () {
 	origem.latitude = gps_get()->latitude;   // eventos[0]
 	origem.longitude = gps_get()->longitude; // eventos[0]
 
-	origem.to_2d(posicao, origem);
-
 	// Estimativas iniciais
 	x(0) = posicao.y;
 	x(1) = 0.0; // Velocidade inicial no sentido da longitude
@@ -51,8 +50,8 @@ int main () {
 	cout << filtro.getX() << endl;
 
 	for(;;) {
-		atual.latitude = gps_get()->latitude;   // eventos[0]
-		atual.longitude = gps_get()->longitude; // eventos[0]
+		atual.latitude = gps_get()->latitude;
+		atual.longitude = gps_get()->longitude;
 
 		atual.to_2d(posicao, origem);
 
@@ -66,6 +65,10 @@ int main () {
 		filtro.step(u, z);
 
 		cout << filtro.getX() << endl;
+		posicao.to_3d(atual, origem);
+		cout << "  " << atual.longitude << "                " 
+			 << atual.latitude << endl;
+
 		if (nanosleep(&cycle, NULL))
 			cerr << "nanosleep" << endl;
 	}

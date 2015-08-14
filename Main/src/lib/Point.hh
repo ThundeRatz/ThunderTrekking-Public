@@ -10,6 +10,6 @@ namespace Trekking {
 
 		Point();
 		Point(double x, double y);
-		void to_3d(GPS& final, GPS origin);
+		void to_3d(GPS& final, const GPS& origin);
 	};
 }

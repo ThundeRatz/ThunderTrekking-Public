@@ -73,7 +73,7 @@ PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/thread_hmc5883l.cc src
 	src/lib/serial.cc
 PID_LDADD = -lpthread
 
-spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc
+spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc src/lib/Point.cc
 
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
 	src/lib/udp_receiver.cc src/lib/GPSMonitor.cc src/lib/GPS.cc src/lib/compass.cc

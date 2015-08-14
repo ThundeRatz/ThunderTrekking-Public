@@ -64,10 +64,25 @@ namespace Trekking {
 		latitude = TO_DEGREES(latitude);
 	}
 
+	void GPS::move_towards(const Point& ponto) {
+		double dist, angle;
+		dist = sqrt(ponto.x * ponto.x + ponto.y * ponto.y);
+		angle = M_PI - atan2(ponto.x, fabs(ponto.y)); // Quarto quadrante, colocar os outros depois
+		this->move_towards(dist, angle);
+	}
+
 	// haversine(x) = sin(x / 2) ^ 2;
 	double GPS::haversine(double a) {
 		double sin_a2 = sin(a / 2);
 		return sin_a2 * sin_a2;
+	}
+
+	void GPS::to_2d(Point& point, GPS& origin) {
+		double distance, azimuth;
+		azimuth = origin.azimuth_to(*this);
+		distance = origin.distance_to(*this);
+		point.x = distance * sin(azimuth);
+		point.y = distance * cos(azimuth);
 	}
 
 	GPS GPS::operator/ (int a) {
@@ -80,13 +95,5 @@ namespace Trekking {
 		latitude = a;
 		longitude = a;
 		return *this;
-	}
-
-	void GPS::to_2d(Point& point, GPS& origin) {
-		double distance, azimuth;
-		azimuth = origin.azimuth_to(*this);
-		distance = origin.distance_to(*this);
-		point.x = distance * sin(azimuth);
-		point.y = distance * cos(azimuth);
 	}
 }

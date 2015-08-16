@@ -1,15 +1,15 @@
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
+#include <ctime>
 
 #include "GPS.hh"
+#include "ThreadGPS.hh"
+#include "ThreadSpawn.hh"
+#include "ThreadHmc5883l.hh"
 
-#include <stdio.h>
-#include <time.h>
 #include "ports.h"
 #include "compass.h"
-#include "thread_spawn.h"
-#include "thread_hmc5883l.h"
-#include "thread_gps.h"
 
 #define MS	1000000
 #define len(array)	((&array)[1] - array)
@@ -33,8 +33,8 @@ int main()
 
 	int i;
 	double angle, dist;
-	thread_spawn(gps_thread, NULL);
-	thread_spawn(hmc5883l_thread, NULL);
+	thread_spawn(gps_thread);
+	thread_spawn(hmc5883l_thread);
 
 	// Media das medidas do GPS na posicao atual
 	nanosleep(&gps_wait, NULL);

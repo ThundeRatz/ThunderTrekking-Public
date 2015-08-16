@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "pixy_cam.h"
+#include "ThreadPixy.hh"
 
 #define MS			1000000
 

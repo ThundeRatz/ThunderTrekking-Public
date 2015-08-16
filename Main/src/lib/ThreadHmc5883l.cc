@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <cstring>
 #include <stdint.h>
 
 #include "udp_receiver.h"
@@ -8,12 +8,12 @@
 
 double direcao_atual = 0;
 
-void __attribute__((noreturn)) *hmc5883l_thread(__attribute__((unused)) void *ignored) {
+void __attribute__((noreturn)) hmc5883l_thread() {
 	int udp_socket;
 	int16_t data[3];
 
 	if ((udp_socket = udp_receiver_init(UDP_HMC5883L, sizeof(data))) == -1) {
-		perror("hmc5883l_thread - udp_sender_init");
+		std::cerr << "hmc5883l_thread - udp_sender_init: " << strerror(errno) << std::endl;
 		exit(-1);
 	}
 
@@ -24,11 +24,11 @@ void __attribute__((noreturn)) *hmc5883l_thread(__attribute__((unused)) void *ig
 			break;
 
 			case -1:
-			perror("recvfrom");
+			std::cerr << "recvfrom: " << strerror(errno) << std::endl;
 			break;
 
 			default:
-			printf("Unexpected message size\n");
+			std::cout << "Unexpected message size\n";
 			break;
 		}
 	}

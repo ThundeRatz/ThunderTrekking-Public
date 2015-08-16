@@ -5,7 +5,7 @@
 #include "udp_sender.h"
 #include "leds.h"
 #include "ports.h"
-#include "thread_spawn.h"
+#include "ThreadSpawn.hh"
 
 #define MS	1000000
 

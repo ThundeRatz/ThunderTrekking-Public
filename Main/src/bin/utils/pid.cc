@@ -5,25 +5,26 @@
 //#define VELOCIDADE_MAX 50
 #define FATOR 2/3
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 #include <inttypes.h>
 
+#include "ThreadProximity.hh"
+#include "ThreadHmc5883l.hh"
+#include "ThreadMotors.hh"
+#include "ThreadSpawn.hh"
+#include "ThreadSonar.hh"
+#include "ThreadGPS.hh"
+#include "PID.hh"
+
 #include "gps_coord.h"
-#include "thread_spawn.h"
-#include "thread_hmc5883l.h"
-#include "thread_sonar.h"
-#include "thread_gps.h"
-#include "thread_motors.h"
-#include "pid.h"
-#include "compass.h"
 #include "file_lock.h"
 #include "joystick.h"
-#include "thread_proximity.h"
+#include "compass.h"
 #include "leds.h"
-#include "PID.hh"
+#include "pid.h"
 
 
 #define MAX_Vel        50
@@ -44,10 +45,10 @@ int main() {
 	PID pid(10., 0., 0.);
 
 
-	thread_spawn(motors_thread, NULL);
+	thread_spawn(motors_thread);
 
 
-	thread_spawn(hmc5883l_thread, NULL);
+	thread_spawn(hmc5883l_thread);
 
 	scanf("%lf", &objetivo);
 

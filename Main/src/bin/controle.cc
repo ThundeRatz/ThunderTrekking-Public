@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include "thread_spawn.h"
-#include "thread_motors.h"
+#include "ThreadSpawn.hh"
+#include "ThreadMotors.hh"
 
 int main() {
-	thread_spawn(motors_thread, NULL);
+	thread_spawn(motors_thread);
 
 	for (;;) {
 		int left, right;

@@ -1,11 +1,13 @@
-#include <stdio.h>
+#include <cstdio>
+
 #include <inttypes.h>
 
-#include "pixy_cam.h"
-#include "thread_sonar.h"
-#include "thread_spawn.h"
-#include "thread_motors.h"
-#include "thread_proximity.h"
+#include "ThreadPixy.hh"
+#include "ThreadSonar.hh"
+#include "ThreadSpawn.hh"
+#include "ThreadMotors.hh"
+#include "ThreadProximity.hh"
+
 #include "leds.h"
 
 #define MS			1000000
@@ -19,10 +21,10 @@ enum {
 int main() {
 //	set_max_speed(50);
 	//thread_spawn(gps_thread, NULL);
-	thread_spawn(motors_thread, NULL);
+	thread_spawn(motors_thread);
 	//thread_spawn(hmc5883l_thread, NULL);
 	//thread_spawn(sonar_thread, NULL);
-	thread_spawn(proximity_thread, NULL);
+	thread_spawn(proximity_thread);
 	leds_init();
 	pixy_cam_init();
 	led_set(0, LEDS2000MS, LEDS75PC, 0);

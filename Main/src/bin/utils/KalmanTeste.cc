@@ -2,13 +2,13 @@
 #include <iomanip>
 #include <cmath>
 
+#include "ThreadSpawn.hh"
 #include "TrekkingKF.hh"
-
-#include "thread_spawn.h"
-#include "thread_gps.h"
-#include "gps_coord.h"
-#include "GPS.hh"
+#include "ThreadGPS.hh"
 #include "Point.hh"
+#include "GPS.hh"
+
+#include "gps_coord.h"
 
 #define MS	1000000
 
@@ -19,7 +19,7 @@ static const struct timespec cycle = {.tv_sec = 0, .tv_nsec = 100 * MS};
 
 int main () {
 	cout << fixed << setprecision(8);
-	thread_spawn(gps_thread, NULL);
+	thread_spawn(gps_thread);
 
 	TrekkingKF filtro;
 	Point posicao(0, 0);
@@ -65,8 +65,10 @@ int main () {
 		filtro.step(u, z);
 
 		cout << filtro.getX() << endl;
-		posicao.to_3d(atual, origem);
-		cout << "  " << atual.longitude << "                " 
+		origem.move_towards(posicao);
+		atual = origem;
+		
+		cout << "  " << atual.longitude << "                "
 			 << atual.latitude << endl;
 
 		if (nanosleep(&cycle, NULL))

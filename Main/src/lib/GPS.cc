@@ -60,7 +60,7 @@ namespace Trekking {
 		latitude = asin(sin(TO_RAD(latitude)) * cos(dist_angular) +
 			cos(TO_RAD(latitude)) * sin(dist_angular) * cos(bearing));
 		longitude += TO_DEGREES(atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
-			cos(dist_angular) - sin(initial_latitude) * sin(TO_RAD(latitude))));
+			cos(dist_angular) - sin(initial_latitude) * sin(latitude)));
 		latitude = TO_DEGREES(latitude);
 	}
 

@@ -41,10 +41,15 @@ int main() {
 
 		position.to_2d(ponto, initial_position);
 		cout << " " << ponto.x << "  " << ponto.y << endl;
-		cout << M_PI - atan2(ponto.x, fabs(ponto.y)) << endl;
+		cout << TO_DEGREES(M_PI - atan2(ponto.x, fabs(ponto.y))) << endl;
 
-		initial_position.move_towards(ponto);
+		double dist = sqrt(ponto.x * ponto.x + ponto.y * ponto.y);
+		cout 	<< initial_position.distance_to(position) << endl;
+		cout << dist << endl;
+		double angle = M_PI - atan2(ponto.x, fabs(ponto.y)); // Quarto quadrante, colocar os outros depois
+		initial_position.move_towards(dist, angle);
 		cout << initial_position.latitude << " " << initial_position.longitude << endl;
+		cout << initial_position.distance_to(position) << endl;
 
 		cin.get();
 	}

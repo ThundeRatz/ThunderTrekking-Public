@@ -1,0 +1,9 @@
+.pind.ko.cmd
+Module.symvers
+.pind.mod.o.cmd
+.pind.o.cmd
+.tmp_versions
+.tmp_versions/pind.mod
+pind.mod.c
+modules.order
+pind.ko

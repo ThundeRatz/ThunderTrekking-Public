@@ -25,10 +25,10 @@ namespace Trekking {
 	// consideravelmente do método haversine (ver link).
 	// O uso de haversine (definido acima) evita erros de precisão.
 	double GPS::distance_to(const GPS &to) {
-		double	phy1 = TO_RAD(latitude),
-				phy2 = TO_RAD(to.latitude),
-				delta_lat = TO_RAD(to.latitude - latitude),
-				delta_long = TO_RAD(to.longitude - longitude);
+		double	phy1 = latitude,
+				phy2 = to.latitude,
+				delta_lat = to.latitude - latitude,
+				delta_long = to.longitude - longitude;
 		double a, dist_angular;
 
 		a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
@@ -39,29 +39,28 @@ namespace Trekking {
 
 	// Forward Azimuth (angulação inicial)
 	double GPS::azimuth_to(const GPS &to) {
-		double	y = sin(TO_RAD(to.longitude) - TO_RAD(longitude)) * cos(TO_RAD(to.latitude)),
-				x = cos(TO_RAD(latitude)) * sin(TO_RAD(to.latitude)) -
-				sin(TO_RAD(latitude)) * cos(TO_RAD(to.latitude)) *
-				cos(TO_RAD(to.longitude) - TO_RAD(longitude));
+		double	y = sin(to.longitude - longitude) * cos(to.latitude),
+	  			x = cos(latitude) * sin(to.latitude) -
+				sin(latitude) * cos(to.latitude) *
+				cos(to.longitude - longitude);
 		return atan2(y, x);
 	}
 #warning testar essa
 	void GPS::final_position(GPS &return_position, double dist, double bearing) {
 		double dist_angular = dist / EARTH_R, final_latitude;
-		final_latitude = asin(sin(TO_RAD(latitude)) * cos(dist_angular) +
-			cos(TO_RAD(latitude)) * sin(dist_angular) * cos(bearing));
-		return_position.latitude = TO_DEGREES(final_latitude);
-		return_position.longitude += TO_DEGREES(atan2(sin(bearing) * sin(dist_angular) * cos(TO_RAD(latitude)),
-			cos(dist_angular) - sin(TO_RAD(latitude)) * sin(final_latitude)));
+		final_latitude = asin(sin(latitude) * cos(dist_angular) +
+			cos(latitude) * sin(dist_angular) * cos(bearing));
+		return_position.latitude = final_latitude;
+		return_position.longitude += atan2(sin(bearing) * sin(dist_angular) * cos(latitude),
+			cos(dist_angular) - sin(latitude) * sin(final_latitude));
 	}
 #warning testar essa
 	void GPS::move_towards(double dist, double bearing) {
-		double dist_angular = dist / EARTH_R, initial_latitude = TO_RAD(latitude);
-		latitude = asin(sin(TO_RAD(latitude)) * cos(dist_angular) +
-			cos(TO_RAD(latitude)) * sin(dist_angular) * cos(bearing));
-		longitude += TO_DEGREES(atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
-			cos(dist_angular) - sin(initial_latitude) * sin(latitude)));
-		latitude = TO_DEGREES(latitude);
+		double dist_angular = dist / EARTH_R, initial_latitude = latitude;
+		latitude = asin(sin(latitude) * cos(dist_angular) +
+			cos(latitude) * sin(dist_angular) * cos(bearing));
+		longitude += atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
+			cos(dist_angular) - sin(initial_latitude) * sin(latitude));
 	}
 
 	void GPS::move_towards(const Point& ponto) {

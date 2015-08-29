@@ -11,11 +11,12 @@ using namespace std;
 uint64_t sonar_l = 600 * 58000, sonar_r = 600 * 58000;
 
 void __attribute__((noreturn)) sonar_thread() {
+	char error[32];
 	int udp_socket;
 	hc_sr04_udp_packet_t data;
 
 	if ((udp_socket = udp_receiver_init(UDP_HC_SR04, sizeof(data))) == -1) {
-		cerr << "hmc5883l_thread - udp_sender_init: " << strerror(errno) << endl;
+		cerr << "hmc5883l_thread - udp_sender_init: " << strerror_r(errno, error, sizeof error) << endl;
 		exit(-1);
 	}
 
@@ -29,7 +30,7 @@ void __attribute__((noreturn)) sonar_thread() {
 			break;
 
 			case -1:
-			cerr << "recvfrom: " << strerror(errno) << endl;
+			cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
 			break;
 
 			default:

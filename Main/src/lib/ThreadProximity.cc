@@ -9,10 +9,11 @@ using namespace std;
 float sensor_contato = 999;
 
 void __attribute__((noreturn)) proximity_thread() {
+	char error[32];
 	int udp_socket;
 	udp_socket = udp_receiver_init(UDP_PROXIMITY, sizeof(sensor_contato));
 	if (udp_socket == -1) {
-		cerr << "udp_receiver_init: " << strerror(errno) << endl;
+		cerr << "udp_receiver_init: " << strerror_r(errno, error, sizeof error) << endl;
 		exit(-1);
 	}
 
@@ -22,7 +23,7 @@ void __attribute__((noreturn)) proximity_thread() {
 			break;
 
 			case -1:
-			cerr << "recvfrom: " << strerror(errno) << endl;
+			cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
 			break;
 
 			default:

@@ -14,10 +14,11 @@ static gps_coord_t gps = {.latitude = 0., .longitude = 0.};
 mutex gps_mutex;
 
 void __attribute__((noreturn)) gps_thread() {
+	char error[32];
 	int udp_socket;
 
 	if ((udp_socket = udp_receiver_init(UDP_GPS_CELL, sizeof(gps_coord_t))) == -1) {
-		cerr << "udp_receiver_init: " << strerror(errno) << endl;
+		cerr << "udp_receiver_init: " << strerror_r(errno, error, sizeof error) << endl;
 		exit(-1);
 	}
 
@@ -35,7 +36,7 @@ void __attribute__((noreturn)) gps_thread() {
 			break;
 
 			case -1:
-			cerr << "recvfrom: " << strerror(errno) << endl;
+			cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
 			break;
 
 			default:

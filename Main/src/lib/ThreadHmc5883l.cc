@@ -9,11 +9,12 @@
 double direcao_atual = 0;
 
 void __attribute__((noreturn)) hmc5883l_thread() {
+	char error[32];
 	int udp_socket;
 	int16_t data[3];
 
 	if ((udp_socket = udp_receiver_init(UDP_HMC5883L, sizeof(data))) == -1) {
-		std::cerr << "hmc5883l_thread - udp_sender_init: " << strerror(errno) << std::endl;
+		std::cerr << "hmc5883l_thread - udp_sender_init: " <<strerror_r(errno, error, sizeof error) << std::endl;
 		exit(-1);
 	}
 
@@ -24,7 +25,7 @@ void __attribute__((noreturn)) hmc5883l_thread() {
 			break;
 
 			case -1:
-			std::cerr << "recvfrom: " << strerror(errno) << std::endl;
+			std::cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << std::endl;
 			break;
 
 			default:

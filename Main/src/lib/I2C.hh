@@ -23,10 +23,12 @@ namespace Trekking {
 		~I2C();
 		I2CRegister const operator[](int index) const;
 		I2CRegister operator[](int index);
-		void adquire(int device);
+		void acquire(int device);
 		void release();
 		void dump_info();
 	private:
+		/// @todo há um único mutex para todos os barramentos, vale a pena repensar
+		/// isso se for usar vários.
 		std::mutex mutex;
 		int fd;
 	};

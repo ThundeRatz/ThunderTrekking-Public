@@ -8,6 +8,8 @@ using namespace Eigen;
 using namespace std;
 
 namespace Trekking {
+	Trekking::I2C BNO055::i2c(BNO055_I2C_BUS, BNO055_I2C_BUS_NAME);
+
 	BNO055::BNO055() {
 		struct bno055_t bno055 = {
 			.bus_write = write,
@@ -23,7 +25,6 @@ namespace Trekking {
 		if (bno055_set_operation_mode(OPERATION_MODE_NDOF))
 			throw runtime_error("BNO055 operation mode failed");
 		if (bno055_set_accel_slow_no_motion_durn(0x3f))
-#warning verificar aqui
 			throw runtime_error("BNO055 accel no motion sleep failed");
 	}
 
@@ -44,17 +45,17 @@ namespace Trekking {
 	}
 
 	s8 BNO055::read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt) {
-		i2c.acquire(dev_addr);
+		bno055_i2c.acquire(dev_addr);
 		for (u8 i = 0; i < cnt; i++)
-			*(reg_data + i) = i2c[reg_addr + i];
-		i2c.release();
+			*(reg_data + i) = bno055_i2c[reg_addr + i];
+		bno055_i2c.release();
 	}
 
 	s8 BNO055::write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt) {
-		i2c.acquire(dev_addr);
+		bno055_i2c.acquire(dev_addr);
 		for (u8 i = 0; i < cnt; i++)
-			i2c[reg_addr + i] = *(reg_data + i);
-		i2c.release();
+			bno055_i2c[reg_addr + i] = *(reg_data + i);
+		bno055_i2c.release();
 	}
 
 	void BNO055::delay_ms(u32 ms) {

@@ -88,7 +88,7 @@ namespace Trekking {
 		I2C_CHECK_FEATURE(I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
 	}
 
-	void I2C::adquire(int device) {
+	void I2C::acquire(int device) {
 		mutex.lock();
 		ioctl(fd, I2C_SLAVE, device);
 	}

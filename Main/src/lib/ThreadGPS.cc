@@ -5,6 +5,8 @@
 
 #include "GPSMonitor.hh"
 
+#define TO_RAD(x)		((x) * M_PI / 180.)
+
 using namespace std;
 using namespace Trekking;
 
@@ -21,8 +23,8 @@ void __attribute__((noreturn)) gps_thread() {
 				if (gpsm.gpsd_data->set & LATLON_SET) {
 					try {
 						gps_mutex.lock();
-						gps.latitude = gpsm.gpsd_data->fix.latitude;
-						gps.longitude = gpsm.gpsd_data->fix.longitude;
+						gps.latitude = TO_RAD(gpsm.gpsd_data->fix.latitude);
+						gps.longitude = TO_RAD(gpsm.gpsd_data->fix.longitude);
 						gps_mutex.unlock();
 					} catch (system_error& e) {
 						cerr << "GPS Mutex: " << e.what() << endl;

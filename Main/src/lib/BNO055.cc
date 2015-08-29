@@ -1,3 +1,6 @@
+#define BNO055_I2C_BUS		0
+#define BNO055_I2C_BUS_NAME	"i2c-0"
+
 #include <ctime>
 #include <iostream>
 #include <stdexcept>
@@ -37,7 +40,7 @@ namespace Trekking {
 		acceleration_return << acceleration.x, acceleration.y;
 	}
 
-	void BNO055::heading(Rotation2D<double> new_heading) {
+	void BNO055::heading(Rotation2D<double>& new_heading) {
 		double alpha;
 		if (bno055_convert_double_euler_h_rad(&alpha))
 			cerr << "bno055_convert_double_euler_h_rad failed\n";

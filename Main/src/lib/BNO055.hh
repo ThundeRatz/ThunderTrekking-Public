@@ -11,7 +11,7 @@ namespace Trekking {
 	public:
 		BNO055();
 		void linear_acceleration(Eigen::Vector2d& acceleration_return);
-		void heading(Eigen::Rotation2D<double> new_heading);
+		void heading(Eigen::Rotation2D<double>& new_heading);
 
 	private:
 		static Trekking::I2C bno055_i2c;

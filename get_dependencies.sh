@@ -25,3 +25,4 @@ cmake .
 make
 cp -f libgtest*.a ../lib/
 cp -rf include/* ../include/
+cd -

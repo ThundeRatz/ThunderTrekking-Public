@@ -28,7 +28,7 @@ namespace Trekking {
 		double	phy1 = latitude,
 				phy2 = to.latitude,
 				delta_lat = to.latitude - latitude,
-				delta_long = to.longitude - longitude);
+				delta_long = to.longitude - longitude;
 		double a, dist_angular;
 
 		a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
@@ -39,8 +39,8 @@ namespace Trekking {
 
 	// Forward Azimuth (angulação inicial)
 	double GPS::azimuth_to(const GPS &to) {
-		double	y = sin(to.longitude - longitD * cos(to.latitude),
-				x = cos(latitude) * sin(to.latitude) -
+		double	y = sin(to.longitude - longitude) * cos(to.latitude),
+	  			x = cos(latitude) * sin(to.latitude) -
 				sin(latitude) * cos(to.latitude) *
 				cos(to.longitude - longitude);
 		return atan2(y, x);

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include <cmath>
 #include <mutex>
 
 #include "GPSMonitor.hh"

@@ -27,21 +27,21 @@ int main() {
 	Point ponto(0, 0);
 
 	//read_coordinates(initial_position);
-	initial_position.latitude  = -23.64696611;
-	initial_position.longitude = -46.57281075;
+	initial_position.latitude  = -0.412717417;
+	initial_position.longitude = -0.812848889;
 	initial_position.to_2d(ponto, initial_position);
 	cout << " " << ponto.x << "  " << ponto.y << endl;
 	cout << endl;
 
 	for (;;) {
 		//read_coordinates(position);
-		position.latitude  = -23.64733556;
-		position.longitude = -46.57264100;
+		position.latitude  = -0.412723865;
+		position.longitude = -0.812845927;
 		cout << initial_position.azimuth_to(position) << endl;
 
 		position.to_2d(ponto, initial_position);
 		cout << " " << ponto.x << "  " << ponto.y << endl;
-		cout << TO_DEGREES(M_PI - atan2(ponto.x, fabs(ponto.y))) << endl;
+		cout << M_PI - atan2(ponto.x, fabs(ponto.y)) << endl;
 
 		double dist = sqrt(ponto.x * ponto.x + ponto.y * ponto.y);
 		cout 	<< initial_position.distance_to(position) << endl;

@@ -1,71 +1,59 @@
 #include <iostream>
+#include <iomanip>
 #include <cstring>
 #include <mutex>
 
-#include "ThreadSpawn.hh"
-
-#include "udp_receiver.h"
-#include "ports.h"
-#include "gps_coord.h"
+#include "GPSMonitor.hh"
 
 using namespace std;
+using namespace Trekking;
 
-static gps_coord_t gps = {.latitude = 0., .longitude = 0.};
+static GPS gps;
 mutex gps_mutex;
 
 void __attribute__((noreturn)) gps_thread() {
+	cout << fixed << setprecision(9);
 	char error[32];
-	int udp_socket;
-
-	if ((udp_socket = udp_receiver_init(UDP_GPS_CELL, sizeof(gps_coord_t))) == -1) {
-		cerr << "udp_receiver_init: " << strerror_r(errno, error, sizeof error) << endl;
-		exit(-1);
-	}
-
+	GPSMonitor gpsm;
 	for (;;) {
-		gps_coord_t gps_novo;
-		switch (udp_receiver_recv(udp_socket, &gps_novo, sizeof(gps_novo))) {
-			case sizeof(gps_novo):
-			if (gps.latitude != 0 || gps.longitude != 0) {
-				gps.latitude = 0.2 * gps.latitude + 0.8 * gps_novo.latitude;
-				gps.longitude = 0.2 * gps.longitude + 0.8 * gps_novo.longitude;
-			} else {
-				gps.latitude = gps_novo.latitude;
-				gps.longitude =  gps_novo.longitude;
+		if (gpsm.update()) {
+			if (gpsm.gpsd_data != NULL) {
+				if (gpsm.gpsd_data->set & LATLON_SET) {
+					try {
+						gps_mutex.lock();
+						gps.latitude = gpsm.gpsd_data->fix.latitude;
+						gps.longitude = gpsm.gpsd_data->fix.longitude;
+						gps_mutex.unlock();
+					} catch (system_error& e) {
+						cerr << "GPS Mutex: " << e.what() << endl;
+					}
+				}
 			}
-			break;
-
-			case -1:
-			cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
-			break;
-
-			default:
-			cout << "Unexpected message size\n";
-			break;
+		} else {
+			const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
+            //cerr << "blocking_update error" << endl;
+            if (nanosleep(&sleep_time, NULL))
+                cerr << "nanosleep: " << strerror_r(errno, error, sizeof error) << endl;
 		}
 	}
 }
 
-gps_coord_t * gps_get() {
-	return &gps;
+GPS& gps_get() {
+	return gps;
 }
 
-void gps_set(gps_coord_t *nova, double pass) {
+void gps_set(GPS& nova, double pass) {
 	try {
 		gps_mutex.lock();
 		if (gps.latitude == 0.) {
-			gps.latitude = nova->latitude;
-			gps.longitude = nova->longitude;
+			gps.latitude = nova.latitude;
+			gps.longitude = nova.longitude;
 		} else {
-			gps.latitude = gps.latitude * (1 - pass) + pass * nova->latitude;
-			gps.longitude = gps.longitude * (1 - pass) + pass * nova->longitude;
+			gps.latitude = gps.latitude * (1 - pass) + pass * nova.latitude;
+			gps.longitude = gps.longitude * (1 - pass) + pass * nova.longitude;
 		}
 		gps_mutex.unlock();
 	} catch (system_error& e) {
 		cerr << "GPS Mutex: " << e.what() << endl;
 	}
-}
-
-void gps_move(double dist, double bearing) {
-	final_position(&gps, dist, bearing);
 }

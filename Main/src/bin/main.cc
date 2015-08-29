@@ -19,7 +19,6 @@
 #include "ThreadPixy.hh"
 #include "ThreadGPS.hh"
 
-#include "gps_coord.h"
 #include "file_lock.h"
 #include "joystick.h"
 #include "compass.h"
@@ -39,7 +38,7 @@ static pixy_block_t pixy;
 static const struct timespec cycle = {.tv_sec = 0, .tv_nsec = 10 * MS};
 
 typedef struct {
-	gps_coord_t pos;
+	GPS pos;
 	double margem_gps, margem_objetivo;
 	int tem_cone, desvio;
 } evento;

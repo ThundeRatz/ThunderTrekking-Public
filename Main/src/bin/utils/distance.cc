@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "gps_coord.h"
+#include "GPS.hh"
 
 int main() {
-	gps_coord_t from, to;
-	
+	Trekking::GPS from, to;
+
 	while (scanf("%lf%lf%lf%lf", &from.latitude, &from.longitude, &to.latitude, &to.longitude) == 4)
-		printf("%lf\n", gps_distance(&from, &to));
+		printf("%lf\n", from.distance_to(to));
 	return 0;
 }

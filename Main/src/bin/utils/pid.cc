@@ -19,7 +19,6 @@
 #include "ThreadGPS.hh"
 #include "PID.hh"
 
-#include "gps_coord.h"
 #include "file_lock.h"
 #include "joystick.h"
 #include "compass.h"

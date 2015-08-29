@@ -8,8 +8,6 @@
 #include "Point.hh"
 #include "GPS.hh"
 
-#include "gps_coord.h"
-
 #define MS	1000000
 
 using namespace std;
@@ -67,7 +65,7 @@ int main () {
 		cout << filtro.getX() << endl;
 		origem.move_towards(posicao);
 		atual = origem;
-		
+
 		cout << "  " << atual.longitude << "                "
 			 << atual.latitude << endl;
 

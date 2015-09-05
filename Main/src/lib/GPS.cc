@@ -3,6 +3,7 @@
 // menores distâncias e outros em coordenadas esféricas
 
 #include <cmath>
+#include <stdexcept>
 
 #include "GPS.hh"
 
@@ -10,20 +11,20 @@
 #define TO_DEGREES(x)	((x) * 180. / M_PI)
 #define TO_RAD(x)		((x) * M_PI / 180.)
 
+using namespace std;
+
 namespace Trekking {
 	GPS::GPS() {}
 	GPS::GPS(double latitude, double longitude) : latitude(latitude), longitude(longitude) {}
 
-	// Cálculo pelo método haversine.
-	// O uso da lei esférica dos cossenos também é possível, mas não é
-	// recomendado para pequenas distâncias
-	// (ver http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b)
-	// Apesar de mais simples, cos(x) é muito próximo de 1 com x muito próximo
-	// de 0. Com distâncias próximas, a multiplicação dos 3 cossenos é ~1 e
-	// somando com o valor dos senos pode ser >1 por erro de aredondamento,
-	// gerando erro ao usar acos. Os resultados válidos divergem
-	// consideravelmente do método haversine (ver link).
-	// O uso de haversine (definido acima) evita erros de precisão.
+	/**
+	 * Calculate distance between coordinates.
+	 * Uses the haversine method.
+	 * The spherical law of cosines is also possible, but not recommended for
+	 * small distances (see
+	 * http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b)
+	 * @param[in] to other coordinate
+	 */
 	double GPS::distance_to(const GPS &to) {
 		double	phy1 = latitude,
 				phy2 = to.latitude,
@@ -37,7 +38,10 @@ namespace Trekking {
 		return EARTH_R * dist_angular;
 	}
 
-	// Forward Azimuth (angulação inicial)
+	/**
+	 * Forward Azimuth (initial angle)
+	 * @param[in] to other coordinate
+	 */
 	double GPS::azimuth_to(const GPS &to) {
 		double	y = sin(to.longitude - longitude) * cos(to.latitude),
 	  			x = cos(latitude) * sin(to.latitude) -
@@ -45,54 +49,60 @@ namespace Trekking {
 				cos(to.longitude - longitude);
 		return atan2(y, x);
 	}
-#warning testar essa
-	void GPS::final_position(GPS &return_position, double dist, double bearing) {
-		double dist_angular = dist / EARTH_R, final_latitude;
-		final_latitude = asin(sin(latitude) * cos(dist_angular) +
-			cos(latitude) * sin(dist_angular) * cos(bearing));
-		return_position.latitude = final_latitude;
-		return_position.longitude += atan2(sin(bearing) * sin(dist_angular) * cos(latitude),
-			cos(dist_angular) - sin(latitude) * sin(final_latitude));
-	}
-#warning testar essa
-	void GPS::move_towards(double dist, double bearing) {
-		double dist_angular = dist / EARTH_R, initial_latitude = latitude;
-		latitude = asin(sin(latitude) * cos(dist_angular) +
-			cos(latitude) * sin(dist_angular) * cos(bearing));
-		longitude += atan2(sin(bearing) * sin(dist_angular) * cos(initial_latitude),
-			cos(dist_angular) - sin(initial_latitude) * sin(latitude));
-	}
-
-	void GPS::move_towards(const Point& ponto) {
-		double dist, angle;
-		dist = sqrt(ponto.x * ponto.x + ponto.y * ponto.y);
-		angle = M_PI - atan2(ponto.x, fabs(ponto.y)); // Quarto quadrante, colocar os outros depois
-		this->move_towards(dist, angle);
-	}
-
-	// haversine(x) = sin(x / 2) ^ 2;
+	
+	/**
+	 * Haversine calculation
+	 * haversine(x) = sin²(x / 2);
+	 */
 	double GPS::haversine(double a) {
 		double sin_a2 = sin(a / 2);
 		return sin_a2 * sin_a2;
 	}
 
-	void GPS::to_2d(Point& point, GPS& origin) {
+	void GPS::to_2d(Eigen::Vector2d& point, GPS& origin) {
 		double distance, azimuth;
 		azimuth = origin.azimuth_to(*this);
 		distance = origin.distance_to(*this);
-		point.x = distance * sin(azimuth);
-		point.y = distance * cos(azimuth);
+		point << distance * sin(azimuth), distance * cos(azimuth);
 	}
 
-	GPS GPS::operator/ (int a) {
-		latitude /= a;
-		longitude /= a;
-		return *this;
+	GPSMonitor::GPSMonitor() : gpsd_client("localhost", DEFAULT_GPSD_PORT) {
+		if (!gpsd_client.is_open())
+			throw runtime_error("gpsmm() initialization failed");
+		gpsd_client.clear_fix();
+		gpsd_client.stream(WATCH_ENABLE | WATCH_JSON);
 	}
 
-	GPS GPS::operator= (int a) {
-		latitude = a;
-		longitude = a;
-		return *this;
+	bool GPSMonitor::blocking_update() {
+		gpsd_data = gpsd_client.read();
+		if (gpsd_data == NULL)
+			return false;
+		if (gpsd_data->fix.mode == MODE_2D || gpsd_data->fix.mode == MODE_3D) {
+			latitude = TO_RAD(gpsd_data->fix.latitude);
+			longitude = TO_RAD(gpsd_data->fix.longitude);
+			return true;
+		}
+		return false;
+	}
+
+	bool GPSMonitor::update() {
+		if (gpsd_client.waiting(0))
+			return blocking_update();
+		return false;
+	}
+
+	GPSStats::GPSStats() : _latitude_stats(), _longitude_stats() {}
+
+	const Stats& GPSStats::latitude_stats() {
+		return _latitude_stats;
+	}
+
+	const Stats& GPSStats::longitude_stats() {
+		return _longitude_stats;
+	}
+
+	void GPSStats::sample(const GPS &gps) {
+		_latitude_stats.sample(gps.latitude);
+		_longitude_stats.sample(gps.longitude);
 	}
 }

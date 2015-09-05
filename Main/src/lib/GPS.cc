@@ -49,7 +49,14 @@ namespace Trekking {
 				cos(to.longitude - longitude);
 		return atan2(y, x);
 	}
-	
+
+	void GPS::to_2d(Eigen::Vector2d& point, GPS& origin) {
+		double distance, azimuth;
+		azimuth = origin.azimuth_to(*this);
+		distance = origin.distance_to(*this);
+		point << distance * sin(azimuth), distance * cos(azimuth);
+	}
+
 	/**
 	 * Haversine calculation
 	 * haversine(x) = sin²(x / 2);
@@ -57,13 +64,6 @@ namespace Trekking {
 	double GPS::haversine(double a) {
 		double sin_a2 = sin(a / 2);
 		return sin_a2 * sin_a2;
-	}
-
-	void GPS::to_2d(Eigen::Vector2d& point, GPS& origin) {
-		double distance, azimuth;
-		azimuth = origin.azimuth_to(*this);
-		distance = origin.distance_to(*this);
-		point << distance * sin(azimuth), distance * cos(azimuth);
 	}
 
 	GPSMonitor::GPSMonitor() : gpsd_client("localhost", DEFAULT_GPSD_PORT) {
@@ -77,7 +77,7 @@ namespace Trekking {
 		gpsd_data = gpsd_client.read();
 		if (gpsd_data == NULL)
 			return false;
-		if (gpsd_data->fix.mode == MODE_2D || gpsd_data->fix.mode == MODE_3D) {
+		if (gpsd_data->set & LATLON_SET) {
 			latitude = TO_RAD(gpsd_data->fix.latitude);
 			longitude = TO_RAD(gpsd_data->fix.longitude);
 			return true;

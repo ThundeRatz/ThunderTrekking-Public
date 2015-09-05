@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <ctime>
 
-#include "GPSMonitor.hh"
+#include "GPS.hh"
 
 using namespace std;
 

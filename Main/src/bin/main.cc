@@ -11,19 +11,21 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
+#include "GPS.hh"
 #include "ThreadProximity.hh"
 #include "ThreadHmc5883l.hh"
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
 #include "ThreadSonar.hh"
 #include "ThreadPixy.hh"
-#include "ThreadGPS.hh"
 
 #include "file_lock.h"
 #include "joystick.h"
 #include "compass.h"
 #include "leds.h"
-#include "pid.h"
+#include "PID.hh"
+
+using namespace Trekking;
 
 #define MAX_Vel        50
 #define VELOCIDADE_MAX 50
@@ -125,8 +127,6 @@ int main()
 	thread_spawn(gps_thread);
 	thread_spawn(motors_thread);
 	thread_spawn(hmc5883l_thread);
-#warning SONAR AQUI
-	thread_spawn(sonar_thread);
 	thread_spawn(proximity_thread);
 
 	pixy_cam_init();
@@ -234,7 +234,7 @@ static void executa_evento(int evento_atual) {
 //		printf("Maior Distancia: %" PRIu64 "\n", sonar_max);
 //		printf("Sonares: %llu, %llu\n", sonar_l / 58000, sonar_r / 58000);
 		printf("Sensor Contato: %f\n", sensor_contato);
-#warning SONAR AQUI
+
 		if (sonar_l == 141414141414 && sonar_r == 141414141414) {
 			evento_atual = 0;
 			gps_set(&eventos[0].pos, 1.);

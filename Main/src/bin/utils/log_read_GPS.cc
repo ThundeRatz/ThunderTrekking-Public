@@ -7,7 +7,6 @@
 #include <stdexcept>
 
 #include "GPS.hh"
-#include "Point.hh"
 
 using namespace std;
 
@@ -49,11 +48,11 @@ int main(int argc, char **argv) {
 	for (; it != document.MemberEnd(); ++it) {
 		if (it->name == "latlon") {
 			Trekking::GPS current, std_deviation;
-			Trekking::Point coordinate;
+			Eigen::Vector2d coordinate;
 			current.latitude = it->value["latitude"].GetDouble();
 			current.longitude = it->value["longitude"].GetDouble();
 			current.to_2d(coordinate, origin);
-			cout << 1000 * coordinate.x << " " << 1000 * coordinate.y << " ";
+			cout << 1000 * coordinate[0] << " " << 1000 * coordinate[1] << " ";
 
 			// std_deviation.latitude = it->value["latitude std"].GetDouble();
 			// std_deviation.longitude = it->value["longitude std"].GetDouble();

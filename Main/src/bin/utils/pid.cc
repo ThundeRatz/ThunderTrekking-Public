@@ -16,14 +16,13 @@
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
 #include "ThreadSonar.hh"
-#include "ThreadGPS.hh"
 #include "PID.hh"
 
 #include "file_lock.h"
 #include "joystick.h"
 #include "compass.h"
 #include "leds.h"
-#include "pid.h"
+#include "PID.hh"
 
 
 #define MAX_Vel        50

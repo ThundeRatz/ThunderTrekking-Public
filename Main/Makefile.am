@@ -1,10 +1,9 @@
 PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
-	udp_recv_gps_cell udp_send main pixy_test distance compass_diff \
-	udp_sendr_led controle color_follow udp_recv_contato azimuth gps_error \
-	gpsd_client_new PID spherical_to_plane GPS_compass_data KalmanTeste log_read_GPS \
-	bumpers GPS_receiver
+	udp_send pixy_test distance compass_diff udp_sendr_led controle color_follow \
+	udp_recv_contato azimuth gps_error gpsd_client_new PID \
+	GPS_compass_data log_read_GPS bumpers
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
@@ -15,7 +14,6 @@ udp_recv_hmc5883l_LDADD = -lm
 
 udp_recv_bussola_cell_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_bussola_cell.cc
 
-udp_recv_gps_cell_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_gps_cell.cc
 udp_recv_contato_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_contato.cc
 
 udp_send_SOURCES = src/bin/utils/udp_send.cc
@@ -23,24 +21,16 @@ udp_send_SOURCES = src/bin/utils/udp_send.cc
 pixy_test_SOURCES = src/lib/ThreadSpawn.cc src/lib/ThreadPixy.cc src/bin/utils/pixy_test.cc
 pixy_test_LDADD = $(PIXY) -lpthread
 
-azimuth_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth_new.cc
+azimuth_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth.cc
 azimuth_LDADD = -lm -lgps
 
 distance_SOURCES = src/lib/GPS.cc src/bin/utils/distance.cc
 distance_LDADD = -lm -lgps
 
 gps_error_SOURCES = src/bin/utils/gps_error.cc src/lib/ThreadSpawn.cc \
-					src/lib/ThreadGPS.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
-					src/lib/udp_receiver.cc src/lib/pid.cc src/lib/GPS.cc
-gps_error_LDADD = -lpthread -lm
-
-main_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \
-	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadGPS.cc \
-	src/lib/i2c.cc src/lib/ThreadHmc5883l.cc src/lib/pid.cc \
-	src/lib/udp_receiver.cc src/lib/ThreadSonar.cc src/lib/joystick.cc \
-	src/lib/ThreadPixy.cc src/bin/main.cc src/lib/leds.cc src/lib/udp_sender.cc \
-	src/lib/ThreadProximity.cc
-main_LDADD = -lpthread -lm $(PIXY)
+					src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
+					src/lib/udp_receiver.cc src/lib/GPS.cc src/lib/Stats.cc
+gps_error_LDADD = -lpthread -lm -lgps
 
 controle_SOURCES = src/bin/controle.cc src/lib/ThreadSpawn.cc \
 	src/lib/ThreadMotors.cc src/lib/serial.cc
@@ -54,43 +44,36 @@ udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.cc src/lib/udp_sender.cc
 udp_sendr_led_LDADD = -lpthread
 
 color_follow_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \
-	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadGPS.cc \
-	src/lib/i2c.cc src/lib/ThreadHmc5883l.cc src/lib/pid.cc \
+	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
+	src/lib/i2c.cc src/lib/ThreadHmc5883l.cc \
 	src/lib/udp_receiver.cc src/lib/ThreadSonar.cc src/lib/joystick.cc \
 	src/lib/ThreadPixy.cc src/lib/leds.cc src/lib/udp_sender.cc \
 	src/lib/ThreadProximity.cc src/bin/color_follow.cc
 color_follow_LDADD = -lpthread $(PIXY) -lm
 
-gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPSMonitor.cc \
-	src/lib/GPS.cc
+gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc
 gpsd_client_new_LDADD = -lgps -lm
 
 PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
-	src/lib/udp_receiver.cc src/lib/pid.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
+	src/lib/udp_receiver.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/serial.cc
 PID_LDADD = -lpthread
 
-spherical_to_plane_SOURCES = src/bin/utils/spherical_to_plane.cc src/lib/GPS.cc src/lib/Point.cc
-
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
-	src/lib/udp_receiver.cc src/lib/GPSMonitor.cc src/lib/GPS.cc src/lib/compass.cc
+	src/lib/udp_receiver.cc src/lib/GPS.cc src/lib/compass.cc
 GPS_compass_data_LDADD = -lgps -lpthread
 
 bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc src/lib/GPIOButton.cc
 bumpers_LDADD = -lpthread
 
-KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc src/lib/ThreadGPS.cc \
-	src/lib/ThreadSpawn.cc src/lib/udp_receiver.cc src/lib/Point.cc \
-	src/lib/GPS.cc
-KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
+# KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc \
+# 	src/lib/ThreadSpawn.cc src/lib/udp_receiver.cc \
+# 	src/lib/GPS.cc
+# KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
 
-log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc src/lib/Point.cc
+log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
 
-GPS_receiver_SOURCES = src/bin/utils/GPS_receiver.cc src/lib/ThreadSpawn.cc src/lib/ThreadGPS.cc \
-	src/lib/GPSMonitor.cc src/lib/GPS.cc
-GPS_receiver_LDADD = -lpthread -lgps
-
-# -DRAPIDJSON_SSE42 para x86
+# -DRAPIDJSON_SSE42 for x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
 	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14 \
 	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib

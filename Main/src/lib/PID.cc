@@ -1,6 +1,8 @@
-#include <math.h>
+#include <cmath>
 #include <iostream>
+
 #include "PID.hh"
+
 namespace Trekking {
         PID::PID(double new_p, double new_i, double new_d) {
             p = new_p;

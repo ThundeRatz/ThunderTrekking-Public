@@ -6,7 +6,7 @@
 
 #include <rapidjson/prettywriter.h>
 
-#include "GPSMonitor.hh"
+#include "GPS.hh"
 #include "udp_receiver.h"
 #include "ports.h"
 #include "compass.h"

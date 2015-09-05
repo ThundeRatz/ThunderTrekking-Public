@@ -2,10 +2,7 @@
 #include <iomanip>
 #include <cmath>
 
-#include "ThreadSpawn.hh"
 #include "TrekkingKF.hh"
-#include "ThreadGPS.hh"
-#include "Point.hh"
 #include "GPS.hh"
 
 #define MS	1000000
@@ -17,10 +14,8 @@ static const struct timespec cycle = {.tv_sec = 0, .tv_nsec = 100 * MS};
 
 int main () {
 	cout << fixed << setprecision(8);
-	thread_spawn(gps_thread);
 
 	TrekkingKF filtro;
-	Point posicao(0, 0);
 	GPS origem, atual;
 
 	const int n = 4;

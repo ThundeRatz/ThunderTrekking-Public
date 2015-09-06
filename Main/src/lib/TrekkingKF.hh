@@ -18,8 +18,8 @@ namespace Trekking {
 
 		private:
 			double dt;      //!< Tempo entre duas medidas
-			double sigma_a; //!< Desvio padrão da aceleração (w)
-			double sigma_z; //!< Desvio padrão do ruido das medidas (v)
+			// double sigma_a; //!< Desvio padrão da aceleração (w)
+			// double sigma_z; //!< Desvio padrão do ruido das medidas (v)
 
 			//! \name Tamanhos dos vetores
 			int n;          //!< Estado, Ruído do Processo

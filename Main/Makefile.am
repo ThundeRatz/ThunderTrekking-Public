@@ -43,10 +43,9 @@ udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.cc src/lib/udp_sender.cc
 						src/lib/ThreadSpawn.cc
 udp_sendr_led_LDADD = -lpthread
 
-color_follow_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \
-	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
-	src/lib/i2c.cc src/lib/ThreadHmc5883l.cc \
-	src/lib/udp_receiver.cc src/lib/ThreadSonar.cc src/lib/joystick.cc \
+color_follow_SOURCES = src/lib/compass.cc src/lib/serial.cc \
+	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadHmc5883l.cc \
+	src/lib/udp_receiver.cc src/lib/ThreadSonar.cc \
 	src/lib/ThreadPixy.cc src/lib/leds.cc src/lib/udp_sender.cc \
 	src/lib/ThreadProximity.cc src/bin/color_follow.cc
 color_follow_LDADD = -lpthread $(PIXY) -lm

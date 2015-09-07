@@ -18,8 +18,6 @@
 #include "ThreadSonar.hh"
 #include "PID.hh"
 
-#include "file_lock.h"
-#include "joystick.h"
 #include "compass.h"
 #include "leds.h"
 #include "PID.hh"

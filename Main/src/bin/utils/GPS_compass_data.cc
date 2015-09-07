@@ -32,6 +32,7 @@
 
 #include "GPS.hh"
 #include "UDP.hh"
+#include "errno_string.hh"
 
 #include "ports.h"
 #include "compass.h"
@@ -142,7 +143,6 @@ int main() {
     thread gps(gps_thread);
 
 	int16_t data[3];
-    char error[32];
 
 	try {
         UDPReceiver bussola(UDP_HMC5883L, sizeof data);
@@ -156,7 +156,7 @@ int main() {
     			break;
 
                 case -1:
-				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				cerr << "recvfrom: " << errno_string() << endl;
 				return -1;
 
     			default:

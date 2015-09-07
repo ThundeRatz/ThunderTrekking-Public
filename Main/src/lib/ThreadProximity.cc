@@ -23,11 +23,10 @@
 */
 
 #include <iostream>
-#include <cstring>
 #include <stdexcept>
 
 #include "UDP.hh"
-
+#include "errno_string.hh"
 #include "ports.h"
 
 using namespace std;
@@ -36,8 +35,6 @@ using namespace Trekking;
 float sensor_contato = 999;
 
 void __attribute__((noreturn)) proximity_thread() {
-	char error[32];
-
 	try {
 		UDPReceiver proximity(UDP_PROXIMITY, sizeof sensor_contato);
 
@@ -47,7 +44,7 @@ void __attribute__((noreturn)) proximity_thread() {
 				break;
 
 				case -1:
-				cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				cerr << "recvfrom: " << errno_string() << endl;
 				break;
 
 				default:

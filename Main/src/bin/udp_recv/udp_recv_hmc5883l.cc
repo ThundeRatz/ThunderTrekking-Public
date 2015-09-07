@@ -24,12 +24,12 @@
 
 #include <iostream>
 #include <cstdint>
-#include <cstring>
 #include <stdexcept>
 
 #include <arpa/inet.h>
 
 #include "UDP.hh"
+#include "errno_string.hh"
 
 #include "ports.h"
 #include "compass.h"
@@ -39,7 +39,7 @@ using namespace Trekking;
 
 int main() {
 	struct sockaddr_in remote;
-	char ip[41], error[32];
+	char ip[41];
 	int16_t data[3];
 
 	try {
@@ -49,14 +49,14 @@ int main() {
 			switch (hmc.receive(data, sizeof data)) {
 				case sizeof(data):
 				if (inet_ntop(AF_INET, &remote.sin_addr, ip, sizeof(ip) - 1) == NULL) {
-					cerr << "Inet_ntop: " << strerror_r(errno, error, sizeof error) << endl;
+					cerr << "Inet_ntop: " << errno_string() << endl;
 					cout << data[0] << " " << data[1] << " " << data[2] << " " << compass_orientation(data[0], data[2]) << endl;
 				} else
 					cout << ip << ": " << data[0] << " " << data[1] << " " << data[2] << " " << compass_orientation(data[0], data[2]) << endl;
 				break;
 
 				case -1:
-				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				cerr << "Recvfrom: " << errno_string() << endl;
 				return -1;
 
 				default:

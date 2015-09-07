@@ -22,13 +22,12 @@
  * SOFTWARE.
 */
 
-#include <stdexcept>
 #include <iostream>
 #include <cstdint>
-#include <cstring>
 
 #include <arpa/inet.h>
 
+#include "errno_string.hh"
 #include "ports.h"
 
 #include "UDP.hh"
@@ -38,7 +37,7 @@ using namespace Trekking;
 
 int main() {
 	struct sockaddr_in remote;
-	char ip[41], error[32];
+	char ip[41];
 	uint8_t data;
 
 	try {
@@ -48,14 +47,14 @@ int main() {
 			switch (bigode.receive(&data, sizeof data)) {
 				case sizeof(data):
 				if (inet_ntop(AF_INET, &remote.sin_addr, ip, sizeof(ip) - 1) == NULL) {
-					cerr << "Inet_ntop: " << strerror_r(errno, error, sizeof error) << endl;
+					cerr << "Inet_ntop: " << errno_string() << endl;
 					cout << data << endl;
 				} else
 					cout << ip << ": " << data << endl;
 				break;
 
 				case -1:
-				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				cerr << "Recvfrom: " << errno_string() << endl;
 				return -1;
 
 				default:

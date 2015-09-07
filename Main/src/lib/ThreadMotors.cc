@@ -23,8 +23,9 @@
 */
 
 #include <iostream>
-#include <cstring>
 #include <ctime>
+
+#include "errno_string.hh"
 
 #define MS			1000000
 
@@ -48,25 +49,25 @@ void __attribute__((noreturn)) motors_thread() {
 
 	i2c = i2c_open(1, "i915 gmbus vga");
 	if (i2c == -1) {
-		cerr << "i2c_open: " << strerror_r(errno, error, sizeof error) << endl;;
+		cerr << "i2c_open: " << errno_string() << endl;;
 		exit(-1);
 	}
 
 	if (i2c_slave(i2c, 0x69)) {
-		cerr << "i2c_slave: " << sstrerror_r(errno, error, sizeof error) << endl;
+		cerr << "i2c_slave: " << errno_string() << endl;
 		exit(-1);
 	}
 
 	for (;;) {
 		nanosleep(&sleep_time, NULL);
 		if (i2c_smbus_write_byte_data(i2c, 0, speed_left < 0))
-			cerr << "i2c_smbus_write_byte_data: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "i2c_smbus_write_byte_data: " << errno_string() << endl;
 		if (i2c_smbus_write_byte_data(i2c, 1, speed_left >= 0 ? speed_left * max_speed / 255 : -speed_left * max_speed / 255))
-			cerr << "i2c_smbus_write_byte_data: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "i2c_smbus_write_byte_data: " << errno_string() << endl;
 		if (i2c_smbus_write_byte_data(i2c, 2, speed_right < 0))
-			cerr << "i2c_smbus_write_byte_data: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "i2c_smbus_write_byte_data: " << errno_string() << endl;
 		if (i2c_smbus_write_byte_data(i2c, 3, speed_right >= 0 ? speed_right * max_speed / 255 : -speed_right * max_speed / 255))
-			cerr << "i2c_smbus_write_byte_data: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "i2c_smbus_write_byte_data: " << errno_string() << endl;
 	}
 }
 
@@ -81,7 +82,6 @@ void __attribute__((noreturn)) motors_thread() {
 #include "serial.h"
 
 void __attribute__((noreturn)) motors_thread() {
-	char error[32];
 	static const int baudrate = 9600;
 	static const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 10 * MS};
 	int fd = serial_open("/dev/ttyUSB0", &baudrate, O_WRONLY);
@@ -94,7 +94,7 @@ void __attribute__((noreturn)) motors_thread() {
 		nanosleep(&sleep_time, NULL);
 		message = (1<< 7) | (speed_left < 0 ? 1 << 6 | (-(speed_left / 4) & 0x3f) : (speed_left / 4) & 0x3f);
 		if (write(fd, &message, 1) == -1) {
-			cerr << "write: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "write: " << errno_string() << endl;
 			close(fd);
 			do {
 				fd = serial_open("/dev/ttyUSB0", &baudrate, O_WRONLY);
@@ -108,14 +108,14 @@ void __attribute__((noreturn)) motors_thread() {
 		message = 0xAA | __builtin_parity(message);
 		//printf("%hhu\n", message);
 		if (write(fd, &message, 1) == -1)
-			cerr << "write: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "write: " << errno_string() << endl;
 		message = speed_right < 0 ? 1 << 6 | (-(speed_right / 4) & 0x3f) : ((speed_right / 4) & 0x3f);
 		if (write(fd, &message, 1) == -1)
-			cerr << "write: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "write: " << errno_string() << endl;
 		message = 0xAA | __builtin_parity(message);
 		//printf("%hhu\n", message);
 		if (write(fd, &message, 1) == -1)
-			cerr << "write: " << strerror_r(errno, error, sizeof error) << endl;
+			cerr << "write: " << errno_string() << endl;
 		fsync(fd);
 	}
 }

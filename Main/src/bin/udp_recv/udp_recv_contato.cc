@@ -23,13 +23,12 @@
 */
 
 #include <iostream>
-#include <cstdint>
-#include <cstring>
 #include <stdexcept>
 
 #include <arpa/inet.h>
 
 #include "UDP.hh"
+#include "errno_string.hh"
 
 #include "ports.h"
 
@@ -38,7 +37,6 @@ using namespace Trekking;
 
 int main() {
 	float data;
-	char error[32];
 
 	try {
 		UDPReceiver contato(UDP_PROXIMITY, sizeof data);
@@ -50,7 +48,7 @@ int main() {
 				break;
 
 				case -1:
-				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				cerr << "Recvfrom: " << errno_string() << endl;
 				return -1;
 
 				default:

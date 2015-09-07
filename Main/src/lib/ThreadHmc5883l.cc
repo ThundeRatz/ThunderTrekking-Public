@@ -24,12 +24,12 @@
 
 #include <iostream>
 #include <cstdint>
-#include <cstring>
 #include <stdexcept>
 
 #include <arpa/inet.h>
 
 #include "UDP.hh"
+#include "errno_string.hh"
 
 #include "ports.h"
 #include "compass.h"
@@ -37,9 +37,7 @@
 double direcao_atual = 0;
 
 void __attribute__((noreturn)) hmc5883l_thread() {
-	char error[32];
 	int16_t data[3];
-
 
 	try {
 		Trekking::UDPReceiver hmc(UDP_HMC5883L, sizeof(data));
@@ -51,7 +49,7 @@ void __attribute__((noreturn)) hmc5883l_thread() {
 				break;
 
 				case -1:
-				std::cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << std::endl;
+				std::cerr << "Recvfrom: " << errno_string() << std::endl;
 				break;
 
 				default:

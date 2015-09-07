@@ -32,18 +32,18 @@
 #include <sys/socket.h>
 
 #include "ports.h"
+#include "errno_string.hh"
 
 #include "UDP.hh"
 
 namespace Trekking {
 	UDPReceiver::UDPReceiver(uint16_t port, int packet_size) {
 		struct sockaddr_in local;
-		char error[32];
 
 		this->port = port;
 
 		if ((socketfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-			throw std::runtime_error("Socket: " + std::string(strerror_r(errno, error, sizeof error)));
+			throw std::runtime_error("Socket: " + std::string(errno_string()));
 
 		memset((char *) &local, 0, sizeof local);
 		local.sin_family = AF_INET;	        //IPv4
@@ -51,10 +51,10 @@ namespace Trekking {
 		local.sin_port = htons(this->port);
 
 		if (bind(socketfd, (struct sockaddr *) &local, sizeof local) == -1)
-			throw std::runtime_error("Bind: " + std::string(strerror_r(errno, error, sizeof error)));
+			throw std::runtime_error("Bind: " + std::string(errno_string()));
 
 		if (setsockopt(socketfd, SOL_SOCKET, SO_RCVBUF, &packet_size, sizeof(packet_size)) == -1)
-			std::cerr << "Setsockopt: " << strerror_r(errno, error, sizeof error) << std::endl;
+			std::cerr << "Setsockopt: " << errno_string() << std::endl;
 	}
 
 	ssize_t UDPReceiver::receive(void* data, size_t size) {
@@ -63,21 +63,20 @@ namespace Trekking {
 
 	UDPSender::UDPSender(uint16_t port) {
 		struct sockaddr_in remote;
-		char error[32];
 
 		this->port = port;
 
 		if ((socketfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-			throw std::runtime_error("Socket: " + std::string(strerror_r(errno, error, sizeof error)));
+			throw std::runtime_error("Socket: " + std::string(errno_string()));
 
 		memset((char *) &remote, 0, sizeof remote);
 		remote.sin_family = AF_INET;	//IPv4
 		if (!inet_pton(AF_INET, IP, &remote.sin_addr.s_addr))
-			throw std::runtime_error("Inet_pton: " + std::string(strerror_r(errno, error, sizeof error)));
+			throw std::runtime_error("Inet_pton: " + std::string(errno_string()));
 		remote.sin_port = htons(this->port);
 
 		if (connect(socketfd, (struct sockaddr *) &remote, sizeof(remote)) == -1)
-			throw std::runtime_error("Connect: " + std::string(strerror_r(errno, error, sizeof error)));
+			throw std::runtime_error("Connect: " + std::string(errno_string()));
 	}
 
 	ssize_t UDPSender::send(void* data, size_t size) {

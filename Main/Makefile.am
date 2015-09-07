@@ -7,7 +7,7 @@ bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_buss
 
 udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
-udp_recv_bigodes_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_bigodes.cc
+udp_recv_bigodes_SOURCES = src/lib/UDP.cc src/bin/udp_recv/udp_recv_bigodes.cc
 
 udp_recv_hmc5883l_SOURCES = src/lib/udp_receiver.cc src/lib/compass.cc src/bin/udp_recv/udp_recv_hmc5883l.cc
 udp_recv_hmc5883l_LDADD = -lm

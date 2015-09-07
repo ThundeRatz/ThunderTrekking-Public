@@ -12,4 +12,3 @@ static inline ssize_t udp_receiver_recv(int udp_socket, void *data, size_t lengt
 }
 
 #endif
-

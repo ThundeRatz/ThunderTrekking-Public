@@ -46,7 +46,7 @@ int main() {
 		UDPReceiver hmc(UDP_HMC5883L, sizeof(data));
 
 		for (;;) {
-			switch (hmc.receive(&data, sizeof data)) {
+			switch (hmc.receive(data, sizeof data)) {
 				case sizeof(data):
 				if (inet_ntop(AF_INET, &remote.sin_addr, ip, sizeof(ip) - 1) == NULL) {
 					cerr << "Inet_ntop: " << strerror_r(errno, error, sizeof error) << endl;

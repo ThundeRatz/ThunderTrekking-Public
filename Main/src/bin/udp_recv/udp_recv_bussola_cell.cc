@@ -45,7 +45,7 @@ int main() {
 		UDPReceiver bussolaCell(UDP_BUSSOLA_CELL, sizeof data);
 
 		for (;;) {
-			switch (bussolaCell.receive(&data, sizeof data)) {
+			switch (bussolaCell.receive(data, sizeof data)) {
 				case sizeof(data):
 				if (inet_ntop(AF_INET, &remote.sin_addr, ip, sizeof(ip) - 1) == NULL) {
 					cerr << "Inet_ntop: " << strerror_r(errno, error, sizeof error) << endl;

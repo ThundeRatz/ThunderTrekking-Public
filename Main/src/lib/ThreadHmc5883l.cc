@@ -45,7 +45,7 @@ void __attribute__((noreturn)) hmc5883l_thread() {
 		Trekking::UDPReceiver hmc(UDP_HMC5883L, sizeof(data));
 
 		for (;;) {
-			switch (hmc.receive(&data, sizeof data)) {
+			switch (hmc.receive(data, sizeof data)) {
 				case sizeof(data):
 				direcao_atual = compass_orientation(data[0], data[2]);
 				break;

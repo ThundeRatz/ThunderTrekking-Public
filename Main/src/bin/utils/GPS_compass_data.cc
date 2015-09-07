@@ -147,7 +147,7 @@ int main() {
 	try {
         UDPReceiver bussola(UDP_HMC5883L, sizeof data);
         while (running) {
-            switch (bussola.receive(&data, sizeof(data))) {
+            switch (bussola.receive(data, sizeof(data))) {
     			case sizeof(data): {
                     lock_guard<mutex> lock(json_output);
                     json.Key("bussola");

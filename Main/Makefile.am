@@ -1,11 +1,9 @@
 PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
-bin_PROGRAMS = udp_recv_hc_sr04 udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
+bin_PROGRAMS = udp_recv_bigodes udp_recv_hmc5883l udp_recv_bussola_cell \
 	udp_send pixy_test distance compass_diff udp_sendr_led controle color_follow \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers
-
-udp_recv_hc_sr04_SOURCES = src/lib/udp_receiver.cc src/bin/udp_recv/udp_recv_hc_sr04.cc
 
 udp_recv_bigodes_SOURCES = src/lib/UDP.cc src/bin/udp_recv/udp_recv_bigodes.cc
 
@@ -43,12 +41,10 @@ udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.cc src/lib/udp_sender.cc
 						src/lib/ThreadSpawn.cc
 udp_sendr_led_LDADD = -lpthread
 
-color_follow_SOURCES = src/lib/file_lock.cc src/lib/compass.cc src/lib/serial.cc \
-	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
-	src/lib/i2c.cc src/lib/ThreadHmc5883l.cc \
-	src/lib/udp_receiver.cc src/lib/ThreadSonar.cc src/lib/joystick.cc \
-	src/lib/ThreadPixy.cc src/lib/leds.cc src/lib/udp_sender.cc \
-	src/lib/ThreadProximity.cc src/bin/color_follow.cc
+color_follow_SOURCES = src/lib/compass.cc src/lib/serial.cc \
+	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadHmc5883l.cc \
+	src/lib/udp_receiver.cc src/lib/ThreadPixy.cc src/lib/leds.cc \
+	src/lib/udp_sender.cc src/lib/ThreadProximity.cc src/bin/color_follow.cc
 color_follow_LDADD = -lpthread $(PIXY) -lm
 
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc

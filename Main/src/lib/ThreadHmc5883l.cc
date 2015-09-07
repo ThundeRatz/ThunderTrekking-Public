@@ -23,10 +23,14 @@
 */
 
 #include <iostream>
+#include <cstdint>
 #include <cstring>
-#include <stdint.h>
+#include <stdexcept>
 
-#include "udp_receiver.h"
+#include <arpa/inet.h>
+
+#include "UDP.hh"
+
 #include "ports.h"
 #include "compass.h"
 
@@ -34,27 +38,29 @@ double direcao_atual = 0;
 
 void __attribute__((noreturn)) hmc5883l_thread() {
 	char error[32];
-	int udp_socket;
 	int16_t data[3];
 
-	if ((udp_socket = udp_receiver_init(UDP_HMC5883L, sizeof(data))) == -1) {
-		std::cerr << "hmc5883l_thread - udp_sender_init: " <<strerror_r(errno, error, sizeof error) << std::endl;
-		exit(-1);
-	}
 
-	for (;;) {
-		switch (udp_receiver_recv(udp_socket, data, sizeof(data))) {
-			case sizeof(data):
-			direcao_atual = compass_orientation(data[0], data[2]);
-			break;
+	try {
+		Trekking::UDPReceiver hmc(UDP_HMC5883L, sizeof(data));
 
-			case -1:
-			std::cerr << "recvfrom: " << strerror_r(errno, error, sizeof error) << std::endl;
-			break;
+		for (;;) {
+			switch (hmc.receive(&data, sizeof data)) {
+				case sizeof(data):
+				direcao_atual = compass_orientation(data[0], data[2]);
+				break;
 
-			default:
-			std::cout << "Unexpected message size\n";
-			break;
+				case -1:
+				std::cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << std::endl;
+				break;
+
+				default:
+				std::cout << "Unexpected message size\n";
+				break;
+			}
 		}
+	} catch (std::runtime_error& e) {
+		std::cerr << e.what() << std::endl;
+		exit(-1);
 	}
 }

@@ -26,12 +26,13 @@
 #include <ctime>
 #include <thread>
 #include <mutex>
-#include <signal.h>
 
+#include <signal.h>
 #include <rapidjson/prettywriter.h>
 
 #include "GPS.hh"
-#include "udp_receiver.h"
+#include "UDP.hh"
+
 #include "ports.h"
 #include "compass.h"
 
@@ -140,13 +141,13 @@ int main() {
 
     thread gps(gps_thread);
 
-    int udp_socket;
 	int16_t data[3];
-	if ((udp_socket = udp_receiver_init(UDP_HMC5883L, sizeof(data))) == -1)
-		cerr << "hmc5883l_thread - udp_sender_init" << endl;
-	else
+    char error[32];
+
+	try {
+        UDPReceiver bussola(UDP_HMC5883L, sizeof data);
         while (running) {
-            switch (udp_receiver_recv(udp_socket, data, sizeof(data))) {
+            switch (bussola.receive(&data, sizeof(data))) {
     			case sizeof(data): {
                     lock_guard<mutex> lock(json_output);
                     json.Key("bussola");
@@ -154,15 +155,18 @@ int main() {
                 }
     			break;
 
-    			case -1:
-    			perror("recvfrom");
-    			break;
+                case -1:
+				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				return -1;
 
     			default:
     			cerr << "Unexpected message size" << endl;
     			break;
     		}
         }
+    } catch (runtime_error& e) {
+        cerr << e.what() << endl;
+    }
 
     gps.join();
     json.EndObject();

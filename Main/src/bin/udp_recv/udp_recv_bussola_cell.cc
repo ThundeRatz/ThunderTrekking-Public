@@ -22,41 +22,48 @@
  * SOFTWARE.
 */
 
-#include <stdio.h>
-#include <stdint.h>
+#include <iostream>
+#include <cstdint>
+#include <cstring>
+#include <stdexcept>
+
 #include <arpa/inet.h>
 
-#include "udp_receiver.h"
+#include "UDP.hh"
+
 #include "ports.h"
 
+using namespace std;
+using namespace Trekking;
+
 int main() {
-	int udp_socket;
 	struct sockaddr_in remote;
-	char ip[41];
+	char ip[41], error[32];
 	float data[3];
 
-	if ((udp_socket = udp_receiver_init(UDP_BUSSOLA_CELL, sizeof(data))) == -1) {
-		perror("udp_sender_init");
-		return -1;
-	}
+	try {
+		UDPReceiver bussolaCell(UDP_BUSSOLA_CELL, sizeof data);
 
-	for (;;) {
-		switch (udp_receiver_recv(udp_socket, &data, sizeof(data))) {
-			case sizeof(data):
-			if (inet_ntop(AF_INET, &remote.sin_addr, ip, sizeof(ip) - 1) == NULL) {
-				perror("inet_ntop");
-				printf("%f %f %f\n", data[0], data[1], data[2]);
-			} else
-				printf("%s: %f %f %f\n", ip, data[0], data[1], data[2]);
-			break;
+		for (;;) {
+			switch (bussolaCell.receive(&data, sizeof data)) {
+				case sizeof(data):
+				if (inet_ntop(AF_INET, &remote.sin_addr, ip, sizeof(ip) - 1) == NULL) {
+					cerr << "Inet_ntop: " << strerror_r(errno, error, sizeof error) << endl;
+					cout << data[0] << " " << data[1] << " " << data[2] << endl;
+				} else
+					cout << ip << ": " << data[0] << " " << data[1] << " " << data[2] << endl;
+				break;
 
-			case -1:
-			perror("recvfrom");
-			return -1;
+				case -1:
+				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				return -1;
 
-			default:
-			printf("Unexpected message size\n");
-			break;
+				default:
+				cout << "Unexpected message size\n";
+				break;
+			}
 		}
+	} catch (runtime_error& e) {
+		cerr << e.what() << endl;
 	}
 }

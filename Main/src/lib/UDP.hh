@@ -22,17 +22,27 @@
  * SOFTWARE.
 */
 
-#ifndef __UDP_SENDER_H__
-#define __UDP_SENDER_H__
+#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <sys/types.h>
-#include <sys/socket.h>
 
-int udp_sender_init(uint16_t port);
+namespace Trekking {
+	class UDP {
+	protected:
+		int socketfd;
+		uint16_t port;
+	};
 
-static inline ssize_t udp_sender_send(int udp_socket, void *data, size_t length) {
-	return send(udp_socket, data, length, 0);
+	class UDPReceiver : private UDP {
+	public:
+		UDPReceiver(uint16_t port, int packet_size);
+		ssize_t receive(void* data, size_t size);
+	};
+
+	class UDPSender : private UDP {
+	public:
+		UDPSender(uint16_t port);
+		ssize_t send(void* data, size_t size);
+	};
 }
-
-#endif

@@ -51,7 +51,7 @@ rapidjson::PrettyWriter<JSON_stream_to_cout_interface> json(cout_interface);
 mutex json_output;
 
 void gps_thread() {
-    GPSMonitor gps;
+    GPSMonitor gps(GPS(0., 0.));
 
 #if GPSD_API_MAJOR_VERSION != 6
 #warning GPSd API 6 required

@@ -17,7 +17,7 @@ const char *format_string(const char *string) {
 }
 
 int main() {
-    Trekking::GPSMonitor gps;
+    Trekking::GPSMonitor gps(Trekking::GPS(0., 0.));
 
     for (;;) {
         if (gps.blocking_update()) {

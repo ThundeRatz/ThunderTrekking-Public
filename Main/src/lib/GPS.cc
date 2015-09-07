@@ -66,7 +66,7 @@ namespace Trekking {
 		return sin_a2 * sin_a2;
 	}
 
-	GPSMonitor::GPSMonitor() : gpsd_client("localhost", DEFAULT_GPSD_PORT) {
+	GPSMonitor::GPSMonitor(GPS origin) : gpsd_client("localhost", DEFAULT_GPSD_PORT), origin(origin) {
 		if (!gpsd_client.is_open())
 			throw runtime_error("gpsmm() initialization failed");
 		gpsd_client.clear_fix();
@@ -80,6 +80,7 @@ namespace Trekking {
 		if (gpsd_data->set & LATLON_SET) {
 			latitude = TO_RAD(gpsd_data->fix.latitude);
 			longitude = TO_RAD(gpsd_data->fix.longitude);
+			update2d();
 			return true;
 		}
 		return false;
@@ -89,6 +90,13 @@ namespace Trekking {
 		if (gpsd_client.waiting(0))
 			return blocking_update();
 		return false;
+	}
+
+	void GPSMonitor::update2d() {
+		double distance, azimuth;
+		azimuth = origin.azimuth_to(*this);
+		distance = origin.distance_to(*this);
+		point << distance * sin(azimuth), distance * cos(azimuth);
 	}
 
 	GPSStats::GPSStats() : _latitude_stats(), _longitude_stats() {}

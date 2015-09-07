@@ -9,6 +9,7 @@ namespace Trekking {
 	class GPS {
 	public:
 		double latitude, longitude;
+		Eigen::Vector2d point;
 		GPS();
 		GPS(double latitude, double longitude);
 		double distance_to(const GPS& to);
@@ -22,12 +23,14 @@ namespace Trekking {
 	class GPSMonitor: public GPS {
 	public:
 		gps_data_t *gpsd_data;
-		GPSMonitor();
+		GPSMonitor(GPS origin);
 		bool blocking_update();
 		bool update();
 
 	private:
 		gpsmm gpsd_client;
+		GPS origin;
+		void update2d();
 	};
 
 	class GPSStats {

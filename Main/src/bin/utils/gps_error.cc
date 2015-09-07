@@ -29,7 +29,7 @@ int main() {
 
 	// Media das medidas do GPS na posicao atual
 	Trekking::GPSStats stats;
-	Trekking::GPSMonitor position;
+	Trekking::GPSMonitor position(Trekking::GPS(0., 0.));
 	for (int n = 1; n <= 15; n++) {
 		while (!position.blocking_update()) ;
 		cout << "Posicao atual: " << position.latitude << " " << position.longitude << "\n";

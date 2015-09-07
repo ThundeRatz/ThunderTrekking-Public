@@ -48,7 +48,7 @@ int main() {
 	//thread_spawn(hmc5883l_thread, NULL);
 	//thread_spawn(sonar_thread, NULL);
 	thread_spawn(proximity_thread);
-	leds_init();
+	//leds_init();
 	pixy_cam_init();
 	led_set(0, LEDS2000MS, LEDS75PC, 0);
 	const struct timespec block_wait_time = {.tv_sec = 0, .tv_nsec = 100 * MS};

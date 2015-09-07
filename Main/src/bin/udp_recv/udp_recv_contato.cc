@@ -22,35 +22,43 @@
  * SOFTWARE.
 */
 
-#include <stdio.h>
-#include <stdint.h>
+#include <iostream>
+#include <cstdint>
+#include <cstring>
+#include <stdexcept>
+
 #include <arpa/inet.h>
 
-#include "udp_receiver.h"
+#include "UDP.hh"
+
 #include "ports.h"
 
+using namespace std;
+using namespace Trekking;
+
 int main() {
-	int udp_socket;
 	float data;
+	char error[32];
 
-	if ((udp_socket = udp_receiver_init(UDP_PROXIMITY, sizeof(data))) == -1) {
-		perror("udp_sender_init");
-		return -1;
-	}
+	try {
+		UDPReceiver contato(UDP_PROXIMITY, sizeof data);
 
-	for (;;) {
-		switch (udp_receiver_recv(udp_socket, &data, sizeof(data))) {
-			case sizeof(data):
-			printf("%f\n", data);
-			break;
+		for (;;) {
+			switch (contato.receive(&data, sizeof data)) {
+				case sizeof(data):
+				cout << data << endl;
+				break;
 
-			case -1:
-			perror("recvfrom");
-			return -1;
+				case -1:
+				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				return -1;
 
-			default:
-			printf("Unexpected message size\n");
-			break;
+				default:
+				cout << "Unexpected message size\n";
+				break;
+			}
 		}
+	} catch (runtime_error& e) {
+		cerr << e.what() << endl;
 	}
 }

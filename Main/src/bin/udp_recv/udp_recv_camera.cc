@@ -22,36 +22,43 @@
  * SOFTWARE.
 */
 
-#include <stdio.h>
-#include <stdint.h>
+#include <iostream>
+#include <cstdint>
+#include <cstring>
+#include <stdexcept>
 
-#include "udp_receiver.h"
+#include "UDP.hh"
+
 #include "ports.h"
 #include "camera.h"
 
+using namespace std;
+using namespace Trekking;
+
 int main() {
-	int udp_socket;
 	camera_data data;
+	char error[32];
 
-	if ((udp_socket = udp_receiver_init(UDP_CAMERA, sizeof(camera_data))) == -1) {
-		perror("udp_sender_init");
-		return -1;
-	}
+	try {
+		UDPReceiver camera(UDP_CAMERA, sizeof data);
 
-	for (;;) {
-		switch (udp_receiver_recv(udp_socket, &data, sizeof(data))) {
-			case sizeof(data):
-			printf("%f %f %f %f\n", data.top_left.x, data.top_left.y,
-				data.bottom_right.x, data.bottom_right.y);
-			break;
+		for (;;) {
+			switch (camera.receive(&data, sizeof data)) {
+				case sizeof(data):
+				cout << data.top_left.x << " " << data.top_left.y
+					<< " " << data.bottom_right.x << " " << data.bottom_right.y << endl;
+				break;
 
-			case -1:
-			perror("recvfrom");
-			return -1;
+				case -1:
+				cerr << "Recvfrom: " << strerror_r(errno, error, sizeof error) << endl;
+				return -1;
 
-			default:
-			printf("Unexpected message size\n");
-			break;
+				default:
+				cout << "Unexpected message size\n";
+				break;
+			}
 		}
+	} catch (runtime_error& e) {
+		cout << e.what() << endl;
 	}
 }

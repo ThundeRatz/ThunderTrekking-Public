@@ -24,7 +24,6 @@
 
 #include <iostream>
 #include <cstdint>
-#include <stdexcept>
 
 #include <arpa/inet.h>
 

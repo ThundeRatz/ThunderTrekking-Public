@@ -52,6 +52,6 @@ namespace Trekking {
 		GPIO button;
 		GPIOButtonThread thread;
 		bool running = true, value = false;
-		int debounce;
+		int switch_debounce;
 	};
 }

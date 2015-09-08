@@ -37,7 +37,7 @@ namespace Trekking {
 	void GPIOButtonThread::run(GPIOButton* gpio_button) {
 		while (gpio_button->running) {
 			gpio_button->button.poll();
-			while (gpio_button->button.poll(gpio_button->debounce)) ;
+			while (gpio_button->button.poll(gpio_button->switch_debounce)) ;
 			gpio_button->value = gpio_button->button;
 		}
 	}
@@ -45,7 +45,7 @@ namespace Trekking {
 	GPIOButton::GPIOButton(int gpio, int switch_debounce) : button(gpio), thread(this) {
 		button.direction(GPIO::IN);
 		button.edge(GPIO::EDGE_BOTH);
-		this->debounce = switch_debounce;
+		this->switch_debounce = switch_debounce;
 	}
 
 	GPIOButton::operator bool() const {

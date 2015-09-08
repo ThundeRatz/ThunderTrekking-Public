@@ -103,7 +103,7 @@ namespace Trekking {
 		write_to_file("/sys/class/gpio/gpio" + to_string(gpio) + "/edge", edge_type);
 	}
 
-	void GPIO::operator=(int value) {
+	void GPIO::operator=(bool value) {
 		if (write(fd_value, value ? "1" : "0", 1) == -1) {
 			perror("GPIO write");
 			throw runtime_error("GPIO write failed");

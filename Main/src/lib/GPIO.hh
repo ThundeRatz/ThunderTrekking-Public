@@ -42,7 +42,7 @@ namespace Trekking {
 			void direction(const std::string &direction);
 			void active_low();
 			void edge(const std::string &edge_type);
-			void operator=(int value);
+			void operator=(bool value);
 			operator bool() const;
 
 		private:

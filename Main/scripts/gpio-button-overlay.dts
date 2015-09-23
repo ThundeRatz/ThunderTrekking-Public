@@ -2,6 +2,7 @@
 /plugin/;
 / {
 	compatible = "brcm,bcm2835", "brcm,bcm2708", "brcm,bcm2709";
+
 	fragment@0 {
 		target-path = "/soc";
 		__overlay__ {
@@ -9,17 +10,23 @@
 				compatible = "gpio-keys";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				button@21 {
-					label = "Shutdown GPIO button";
+				button@13 {
+					label = "Shutdown button";
 					linux,code = <116>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 21 0>;
+					gpios = <&gpio 13 0>;
 				};
-				button@20 {
-					label = "Front bumper";
+				button@19 {
+					label = "Front bumper left";
 					linux,code = <48>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 20 0>;
+					gpios = <&gpio 19 0>;
+				};
+				button@26 {
+					label = "Front bumper right";
+					linux,code = <49>;
+					linux,input-type = <1 22>;
+					gpios = <&gpio 26 0>;
 				};
 			};
 		};

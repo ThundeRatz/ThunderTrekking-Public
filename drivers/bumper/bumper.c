@@ -38,14 +38,13 @@ static u8 dev_major;
 
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
-	.read  = bumper_read,
-	.write = bumper_write
+	.read  = bumper_read
 };
 
 static struct gpio pins[] = {
-	{21, GPIOF_IN, "Bumper"},
-	{20, GPIOF_IN, "Bigode L"},
-	{26, GPIOF_IN, "Bigode R"}
+	{21, GPIOF_IN | GPIOF_OPEN_DRAIN, "Bumper"},
+	{20, GPIOF_IN | GPIOF_OPEN_DRAIN, "Bigode L"},
+	{26, GPIOF_IN | GPIOF_OPEN_DRAIN, "Bigode R"}
 };
 
 static irqreturn_t bumper_handler(int irq, void *dev_id, struct pt_regs *regs) {
@@ -89,15 +88,6 @@ static ssize_t bumper_read(struct file *filp, char *buffer, size_t length, loff_
 typedef struct {
 	int pin, value;
 } pin_data;
-
-static ssize_t bumper_write(struct file *filp, const char *buffer,
-	size_t length, loff_t *ppos) {
-	const pin_data *data = (pin_data *) buffer;
-	if (length != sizeof(pin_data))
-		return -EINVAL;
-	gpio_set_value(data->pin, data->value);
-	return sizeof(pin_data);
-}
 
 module_init(bumper_init);
 module_exit(bumper_exit);

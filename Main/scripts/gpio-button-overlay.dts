@@ -3,6 +3,17 @@
 / {
 	compatible = "brcm,bcm2835", "brcm,bcm2708", "brcm,bcm2709";
 	fragment@0 {
+		target-path = "/soc/gpio";
+		__overlay__ {
+			bumper_pin: bumper_pin {
+				brcm,function = <0x0>;
+				brcm,pull = <0x2>;
+				brcm,pins = <0x20>;
+			};
+		};
+	};
+
+	fragment@1 {
 		target-path = "/soc";
 		__overlay__ {
 			keypad: keypad {
@@ -20,8 +31,11 @@
 					linux,code = <48>;
 					linux,input-type = <1 22>;
 					gpios = <&gpio 20 0>;
+					pinctrl-0 = <&bumper_pin>;
+					pinctrl-names = "default";
 				};
 			};
 		};
 	};
 };
+

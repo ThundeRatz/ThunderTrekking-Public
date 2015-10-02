@@ -49,29 +49,45 @@ namespace Trekking {
 	 * http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b)
 	 * @param[in] to other coordinate
 	 */
-	double GPS::distance_to(const GPS &to) {
-		double	phy1 = latitude,
-				phy2 = to.latitude,
-				delta_lat = to.latitude - latitude,
-				delta_long = to.longitude - longitude;
-		double a, dist_angular;
+	// double GPS::distance_to(const GPS &to) {
+	// 	double	phy1 = latitude,
+	// 			phy2 = to.latitude,
+	// 			delta_lat = to.latitude - latitude,
+	// 			delta_long = to.longitude - longitude;
+	// 	double a, dist_angular;
+	//
+	// 	a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
+	// 	dist_angular = 2 * atan2(sqrt(a), sqrt(1 - a));
+	//
+	// 	return EARTH_R * dist_angular;
+	// }
 
-		a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
-		dist_angular = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-		return EARTH_R * dist_angular;
+	double GPS::distance_to(const GPS& to) {
+		return sqrt(point[0] * to.point[0] + point[1] * to.point[1]);
 	}
 
 	/**
 	 * Forward Azimuth (initial angle)
 	 * @param[in] to other coordinate
 	 */
-	double GPS::azimuth_to(const GPS &to) {
-		double	y = sin(to.longitude - longitude) * cos(to.latitude),
-	  			x = cos(latitude) * sin(to.latitude) -
-				sin(latitude) * cos(to.latitude) *
-				cos(to.longitude - longitude);
-		return atan2(y, x);
+	// double GPS::azimuth_to(const GPS &to) {
+	// 	double	y = sin(to.longitude - longitude) * cos(to.latitude),
+	//   			x = cos(latitude) * sin(to.latitude) -
+	// 			sin(latitude) * cos(to.latitude) *
+	// 			cos(to.longitude - longitude);
+	// 	return atan2(y, x);
+	// }
+
+	double GPS::azimuth_to(const GPS& to) {
+		double x = to.point[0] - point[0],
+			   y = to.point[1] - point[1];
+		if (x >= 0 && y >= 0)
+			return atan2(x, y);
+		if (x < 0 && y >= 0)
+			return 2*M_PI - atan2(fabs(x), y);
+		if (x < 0 && y < 0)
+			return M_PI + atan2(fabs(x), fabs(y));
+		return M_PI - atan2(x, fabs(y));
 	}
 
 	void GPS::to_2d(Eigen::Vector2d& point, GPS& origin) {

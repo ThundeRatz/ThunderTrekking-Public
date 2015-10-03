@@ -61,8 +61,8 @@ int hmc5883l_init() {
 		return -1;
 	}
 
-	if (i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_A, HMC_SAMPLES_AVG_1 | HMC_OUTPUT_75HZ | HMC_NORMAL) ||
-		i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_B, HMC_GAIN_230) ||
+	if (i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_A, HMC_SAMPLES_AVG_2 | HMC_OUTPUT_75HZ | HMC_NORMAL) ||
+		i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_B, HMC_GAIN_820) ||
 		i2c_smbus_write_byte_data(i2c, HMC_MODE, HMC_CONTINUOUS_MEASUREMENT)) {
 		perror("i2c_smbus_write_byte_data");
 		return -1;

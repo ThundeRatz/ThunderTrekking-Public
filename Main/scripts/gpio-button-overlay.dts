@@ -11,22 +11,22 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				button@13 {
-					label = "Shutdown button";
-					linux,code = <116>;
+					label = "Front bumper left";
+					linux,code = <49>;
 					linux,input-type = <1 22>;
 					gpios = <&gpio 13 0>;
 				};
-				button@19 {
-					label = "Front bumper left";
-					linux,code = <48>;
+				button@20 {
+					label = "Shutdown button";
+					linux,code = <116>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 19 0>;
+					gpios = <&gpio 20 0>;
 				};
-				button@26 {
+				button@21 {
 					label = "Front bumper right";
 					linux,code = <49>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 26 0>;
+					gpios = <&gpio 21 0>;
 				};
 			};
 		};

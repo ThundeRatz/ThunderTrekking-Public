@@ -61,8 +61,8 @@ int hmc5883l_init() {
 		return -1;
 	}
 
-	if (i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_A, HMC_SAMPLES_AVG_2 | HMC_OUTPUT_75HZ | HMC_NORMAL) ||
-		i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_B, HMC_GAIN_820) ||
+	if (i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_A, HMC_SAMPLES_AVG_1 | HMC_OUTPUT_75HZ | HMC_NORMAL) ||
+		i2c_smbus_write_byte_data(i2c, HMC_CONFIGURATION_B, HMC_GAIN_230) ||
 		i2c_smbus_write_byte_data(i2c, HMC_MODE, HMC_CONTINUOUS_MEASUREMENT)) {
 		perror("i2c_smbus_write_byte_data");
 		return -1;
@@ -97,7 +97,7 @@ int16_t *hmc5883l_read() {
 
 		if (i2c_block[0] == HMC_OVERFLOW || i2c_block[1] == HMC_OVERFLOW ||
 			i2c_block[2] == HMC_OVERFLOW) {
-			fprintf(stderr, "hmc5883l_read: Overflow\n");
+			fprintf(stderr, "hmc5883l_read: Overflow (%d, %d, %d)\n", i2c_block[0], i2c_block[1], i2c_block[2]);
 			return NULL;
 		}
 

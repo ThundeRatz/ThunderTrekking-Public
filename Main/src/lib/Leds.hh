@@ -1,7 +1,8 @@
 #pragma once
-#include "I2C.hh"
-namespace Trekking {
 
+#include "I2C.hh"
+
+namespace Trekking {
 	enum {
 			MANUAL, BLINK, PULSE, PULSE3
 		};
@@ -15,7 +16,7 @@ namespace Trekking {
 			I2C i2c{1, "i915 gmbus vga"};
 		public:
 	 	   	Leds();
-		       ~Leds();		
+		    ~Leds();
 			void red(unsigned value);
 			void green(unsigned value);
 			void blue(unsigned value);
@@ -25,10 +26,9 @@ namespace Trekking {
 			void blink(unsigned timestep);
 			void pulse(unsigned timestep);
 			void pulse3(unsigned timestep);
-	
+
 			void setMode(unsigned value);
 			void setTimestep(unsigned value);
-		
+
 	};
 }
-

@@ -1,5 +1,7 @@
 #include "Leds.hh"
+
 using namespace Trekking;
+
 int main() {
 	Leds led;
 	led.setTimestep(10);
@@ -19,4 +21,3 @@ int main() {
 	led.setMode(BLINK);
 	return 0;
 }
-

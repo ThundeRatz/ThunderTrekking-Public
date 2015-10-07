@@ -1,17 +1,16 @@
 PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 
 bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
-	udp_send pixy_test distance compass_diff udp_sendr_led controle color_follow \
+	udp_send pixy_test distance compass_diff controle \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest
 
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
-	src/lib/PID.cc src/lib/UDP.cc src/lib/leds.cc src/lib/errno_string.cc \
+	src/lib/PID.cc src/lib/UDP.cc src/lib/I2C.cc src/lib/errno_string.cc \
 	src/lib/serial.cc src/lib/GPS.cc src/lib/ThreadProximity.cc \
 	src/lib/Bumper.cc src/lib/Leds.cc
-
-main_LDADD = -lm -lpthread -lgps $(PIXY) -levdev 
+main_LDADD = -lm -lpthread -lgps $(PIXY) -levdev
 
 udp_recv_bigodes_SOURCES = src/lib/UDP.cc src/bin/udp_recv/udp_recv_bigodes.cc \
 	src/lib/errno_string.cc
@@ -46,15 +45,11 @@ controle_LDADD = -lpthread
 compass_diff_SOURCES = src/lib/compass.cc src/bin/utils/compass_diff.cc
 compass_diff_LDADD = -lm
 
-udp_sendr_led_SOURCES = src/bin/udp_sendr/udp_sendr_led.cc src/lib/UDP.cc src/lib/leds.cc \
-						src/lib/ThreadSpawn.cc src/lib/errno_string.cc
-udp_sendr_led_LDADD = -lpthread
-
-color_follow_SOURCES = src/lib/compass.cc src/lib/serial.cc \
-	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadHmc5883l.cc \
-	src/lib/UDP.cc src/lib/ThreadPixy.cc src/lib/leds.cc \
-	src/lib/ThreadProximity.cc src/bin/utils/color_follow.cc src/lib/errno_string.cc
-color_follow_LDADD = -lpthread $(PIXY) -lm
+# color_follow_SOURCES = src/lib/compass.cc src/lib/serial.cc \
+#	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadHmc5883l.cc \
+#	src/lib/UDP.cc src/lib/ThreadPixy.cc src/lib/leds.cc \
+#	src/lib/ThreadProximity.cc src/bin/utils/color_follow.cc src/lib/errno_string.cc
+# color_follow_LDADD = -lpthread $(PIXY) -lm
 
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc
 gpsd_client_new_LDADD = -lgps -lm
@@ -71,7 +66,7 @@ GPS_compass_data_LDADD = -lgps -lpthread
 bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc src/lib/GPIOButton.cc
 bumpers_LDADD = -lpthread
 
-LedsTest_SOURCES = src/lib/Leds.cc src/lib/I2C.cc src/tests/LedsTest.cc
+LedsTest_SOURCES = src/lib/Leds.cc src/lib/I2C.cc src/bin/utils/LedsTest.cc
 LedsTest_LDADD = -lm -lpthread -levdev
 
 # KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc \
@@ -85,7 +80,7 @@ log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
 	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++11 \
 	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib \
-	-I/usr/include/libevdev-1.0/libevdev/ -I/usr/include/libevdev-1.0/ 
+	-I/usr/include/libevdev-1.0/libevdev/ -I/usr/include/libevdev-1.0/
 scripts:
 	cp -rf $(srcdir)/scripts/* .
 .PHONY: scripts

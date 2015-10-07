@@ -1,5 +1,7 @@
 #include "Bumper.hh"
-#include <ctime.h >
+
+#include <ctime>
+
 int main(){
 	Bumper bumper;
 	printf("Bumper\n");
@@ -8,7 +10,7 @@ int main(){
 		if(bumper.pressed())
 			printf("Estado: 1\n");
 		else {
-		        printf("Estado: 0\n");
+		    printf("Estado: 0\n");
 		}
 	return 0;
 }

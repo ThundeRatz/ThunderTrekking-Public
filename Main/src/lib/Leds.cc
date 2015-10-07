@@ -45,7 +45,7 @@ namespace Trekking {
 		i2c.release();
 	}
 
-	void white(unsigned value) {
+	void Leds::white(unsigned value) {
 		i2c.acquire(0x24);
 		i2c[CORR] = 255;
 		i2c[CORG] = 255;
@@ -81,4 +81,3 @@ namespace Trekking {
 		i2c.release();
 	}
 }
-

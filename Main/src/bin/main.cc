@@ -72,8 +72,7 @@ int main() {
 	thread_spawn(hmc5883l_thread);
 	thread_spawn(motors_thread);
 	pixy_cam_init();
-	// leds_init();
-	// Apagar leds;
+	Leds led;
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
@@ -127,7 +126,7 @@ void Evento::executa() {
 						cerr << "nanosleep: " << errno_string() << endl;
 					return;
 				}
-				// Apaga led;
+				apagaLeds();
 			}
 		} else {
 			const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
@@ -160,7 +159,7 @@ bool Evento::find_cone() {
 
 			if (sensor_contato < 4.) { // Colocar laser
 				const struct timespec chegou = {.tv_sec = 1, .tv_nsec = 0};
-				// Acende o led
+				led.white(255);
 				motor(0, 0);
 				nanosleep(&chegou, NULL);
 				return true;

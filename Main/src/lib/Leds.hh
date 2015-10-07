@@ -19,10 +19,13 @@ namespace Trekking {
 			void red(unsigned value);
 			void green(unsigned value);
 			void blue(unsigned value);
+			void white(unsigned value);
+			void apagaLeds();
+
 			void blink(unsigned timestep);
 			void pulse(unsigned timestep);
 			void pulse3(unsigned timestep);
-
+	
 			void setMode(unsigned value);
 			void setTimestep(unsigned value);
 		

@@ -8,8 +8,10 @@ bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
 	src/lib/PID.cc src/lib/UDP.cc src/lib/leds.cc src/lib/errno_string.cc \
-	src/lib/serial.cc src/lib/GPS.cc src/lib/ThreadProximity.cc
-main_LDADD = -lm -lpthread -lgps $(PIXY)
+	src/lib/serial.cc src/lib/GPS.cc src/lib/ThreadProximity.cc \
+	src/lib/Bumper.cc src/lib/Leds.cc
+
+main_LDADD = -lm -lpthread -lgps $(PIXY) -levdev 
 
 udp_recv_bigodes_SOURCES = src/lib/UDP.cc src/bin/udp_recv/udp_recv_bigodes.cc \
 	src/lib/errno_string.cc
@@ -78,9 +80,9 @@ log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
 
 # -DRAPIDJSON_SSE42 for x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
-	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++14 \
-	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib
-
+	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=c++11 \
+	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib \
+	-I/usr/include/libevdev-1.0/libevdev/ -I/usr/include/libevdev-1.0/ 
 scripts:
 	cp -rf $(srcdir)/scripts/* .
 .PHONY: scripts

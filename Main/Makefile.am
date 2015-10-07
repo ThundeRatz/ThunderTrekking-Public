@@ -3,7 +3,7 @@ PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
 	udp_send pixy_test distance compass_diff udp_sendr_led controle color_follow \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
-	GPS_compass_data log_read_GPS bumpers
+	GPS_compass_data log_read_GPS bumpers LedsTest
 
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
@@ -71,8 +71,11 @@ GPS_compass_data_LDADD = -lgps -lpthread
 bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc src/lib/GPIOButton.cc
 bumpers_LDADD = -lpthread
 
+LedsTest_SOURCES = src/lib/Leds.cc src/lib/I2C.cc src/tests/LedsTest.cc
+LedsTest_LDADD = -lm -lpthread -levdev
+
 # KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc \
-# 	src/lib/ThreadSpawn.cc src/lib/UDP.cc \
+# 	src/lib/ThreadSpawn.cc src/lib/UDP.cc \s
 # 	src/lib/GPS.cc
 # KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
 

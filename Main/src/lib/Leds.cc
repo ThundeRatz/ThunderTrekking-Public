@@ -44,6 +44,12 @@ namespace Trekking {
 		i2c[CORB] = value;
 		i2c.release();
 	}
+	void Leds::blink(unsigned timestep) {
+		i2c.acquire(0x24);
+		setMode(BLINK);
+		setTimestep(timestep);
+		i2c.release();
+	}
 
 	void Leds::pulse(unsigned timestep) {
 		i2c.acquire(0x24);

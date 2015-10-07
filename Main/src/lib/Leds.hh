@@ -7,7 +7,7 @@ namespace Trekking {
 		};
 
 	enum {
-			CORR, CORG, CORB, LOWADC, HIGHADC, MODE, TIMESTEP
+			CORG, CORR, CORB, LOWADC, HIGHADC, MODE, TIMESTEP
 		};
 
 	class Leds {

@@ -33,6 +33,7 @@
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
 #include "ThreadPixy.hh"
+#include "Leds.hh"
 #include "GPS.hh"
 #include "PID.hh"
 
@@ -66,14 +67,13 @@ static Evento eventos[] = { // Colocar em radianos
 
 static pixy_block_t cone;
 static GPSMonitor pos_atual(eventos[0].pos);
+static Leds led;
 
 int main() {
 	thread_spawn(proximity_thread); // Laser
 	thread_spawn(hmc5883l_thread);
 	thread_spawn(motors_thread);
 	pixy_cam_init();
-	// leds_init();
-	// Apagar leds;
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
@@ -127,7 +127,7 @@ void Evento::executa() {
 						cerr << "nanosleep: " << errno_string() << endl;
 					return;
 				}
-				// Apaga led;
+				led.apagaLeds();
 			}
 		} else {
 			const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
@@ -158,9 +158,9 @@ bool Evento::find_cone() {
 				<< " w: " << cone.width << " h: " << cone.height
 				<< " a: " << cone.angle << endl;
 
-			if (sensor_contato < 4.) { // Colocar laser
+			if (sensor_contato < 4.) { // Colocar bumper
 				const struct timespec chegou = {.tv_sec = 1, .tv_nsec = 0};
-				// Acende o led
+				led.white(255);
 				motor(0, 0);
 				nanosleep(&chegou, NULL);
 				return true;

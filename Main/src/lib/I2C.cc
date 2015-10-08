@@ -62,11 +62,11 @@ namespace Trekking {
 	I2C::I2C(int dev_n, const std::string& name) {
 		fstream sysfs_name_file;
 		string sysfs_name;
-		sysfs_name_file.open("/sys/class/i2c-dev/i2c-" + to_string(dev_n) + "/name", fstream::out);
-		sysfs_name_file >> sysfs_name;
+		sysfs_name_file.open("/sys/class/i2c-dev/i2c-" + to_string(dev_n) + "/name", fstream::in);
+		std::getline(sysfs_name_file, sysfs_name);
 		if (sysfs_name != name) {
 			cerr << "i2c_open: Falha na checagem do nome do adaptador\nEsperado "
-				<< sysfs_name << ", encontrou " << sysfs_name << endl;
+				<< name << ", encontrou " << sysfs_name << endl;
 			throw runtime_error("I2C sysfs check");
 		}
 		fd = open(("/dev/i2c-" + to_string(dev_n)).c_str(), O_RDWR);

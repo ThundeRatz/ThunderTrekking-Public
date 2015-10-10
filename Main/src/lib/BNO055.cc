@@ -22,8 +22,8 @@
  * SOFTWARE.
 */
 
-#define BNO055_I2C_BUS		0
-#define BNO055_I2C_BUS_NAME	"i2c-0"
+#define BNO055_I2C_BUS		1
+#define BNO055_I2C_BUS_NAME	"3f804000.i2c"
 
 #include <ctime>
 #include <iostream>
@@ -35,15 +35,14 @@ using namespace Eigen;
 using namespace std;
 
 namespace Trekking {
-	Trekking::I2C BNO055::i2c(BNO055_I2C_BUS, BNO055_I2C_BUS_NAME);
+	Trekking::I2C BNO055::bno055_i2c(BNO055_I2C_BUS, BNO055_I2C_BUS_NAME);
 
 	BNO055::BNO055() {
-		struct bno055_t bno055 = {
-			.bus_write = write,
-			.bus_read = read,
-			.delay_msec = delay_ms,
-			.dev_addr = BNO055_I2C_ADDR1
-		};
+		static struct bno055_t bno055;
+		bno055.dev_addr = BNO055_I2C_ADDR1;
+		bno055.bus_write = write;
+		bno055.bus_read = read;
+		bno055.delay_msec = delay_ms;
 
 		if (bno055_init(&bno055))
 			throw runtime_error("BNO055 initialization failed");
@@ -76,6 +75,7 @@ namespace Trekking {
 		for (u8 i = 0; i < cnt; i++)
 			*(reg_data + i) = bno055_i2c[reg_addr + i];
 		bno055_i2c.release();
+		return 0;
 	}
 
 	s8 BNO055::write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt) {
@@ -83,6 +83,7 @@ namespace Trekking {
 		for (u8 i = 0; i < cnt; i++)
 			bno055_i2c[reg_addr + i] = *(reg_data + i);
 		bno055_i2c.release();
+		return 0;
 	}
 
 	void BNO055::delay_ms(u32 ms) {

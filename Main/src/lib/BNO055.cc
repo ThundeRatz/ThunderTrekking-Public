@@ -39,7 +39,7 @@ namespace Trekking {
 
 	BNO055::BNO055() {
 		static struct bno055_t bno055;
-		bno055.dev_addr = BNO055_I2C_ADDR1;
+		bno055.dev_addr = BNO055_I2C_ADDR2;
 		bno055.bus_write = write;
 		bno055.bus_read = read;
 		bno055.delay_msec = delay_ms;

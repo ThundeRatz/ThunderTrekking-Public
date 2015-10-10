@@ -10,8 +10,8 @@ int main() {
 	for (;;) {
 		bno055.linear_acceleration(acceleration);
 		bno055.heading(heading);
-		std::cout << acceleration;
-		std::cout << heading.angle() << '\n';
+		std::cout << "Accel: " << acceleration[0] << ' ' << acceleration[1] << '\n';
+		std::cout << "Heading: " << heading.angle() << '\n';
 	}
 	return 0;
 }

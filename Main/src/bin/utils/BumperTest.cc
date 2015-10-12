@@ -1,16 +1,30 @@
-#include "Bumper.hh"
-
+#include <stdexcept>
+#include <iostream>
 #include <ctime>
 
-int main(){
+#include "Bumper.hh"
+#include "Leds.hh"
+
+using namespace std;
+using namespace Trekking;
+
+int main() {
 	Bumper bumper;
-	printf("Bumper\n");
+	Leds led("LedBlue");
+
+	cout << "Bumper\n";
+
 	while(!(bumper.pressed()));
-	while(1)
-		if(bumper.pressed())
-			printf("Estado: 1\n");
-		else {
-		    printf("Estado: 0\n");
+
+	for (;;) {
+		if(bumper.pressed()) {
+			led = 1;
+			cout << "Estado: 1\n";
 		}
+		else {
+			// led = 0;
+		    cout << "Estado: 0\n";
+		}
+	}
 	return 0;
 }

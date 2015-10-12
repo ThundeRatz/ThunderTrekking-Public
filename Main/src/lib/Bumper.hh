@@ -12,12 +12,14 @@
 #include <unistd.h>
 #include <stdio.h>
 
-class Bumper {
-	private:
-		struct libevdev *dev;
-		int fd;
-	public:
-		Bumper();
-		~Bumper();
-		int pressed();
-};
+namespace Trekking {
+	class Bumper {
+		private:
+			struct libevdev *dev;
+			int fd;
+		public:
+			Bumper();
+			~Bumper();
+			int pressed();
+	};
+}

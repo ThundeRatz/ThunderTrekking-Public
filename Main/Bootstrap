@@ -11,4 +11,4 @@ cd build/
 ../configure --enable-silent-rules
 set +x
 
-echo -e "\e[32mMakefile gerado em build/"
+echo -e "\e[32mMakefile gerado em build/\e[0m"

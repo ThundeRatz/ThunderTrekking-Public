@@ -73,7 +73,8 @@ LedsTest_I2C_LDADD = -lm -lpthread -levdev
 BNO055_test_SOURCES = src/bin/utils/BNO055_test.cc src/lib/bno055.cc \
 	src/lib/BNO055.cc src/lib/I2C.cc
 
-BumperTest_SOURCES = src/bin/utils/BumperTest.cc src/lib/Bumper.cc
+BumperTest_SOURCES = src/bin/utils/BumperTest.cc src/lib/Bumper.cc src/lib/Leds.cc \
+	src/lib/errno_string.cc
 BumperTest_LDADD = -levdev
 
 # KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc \

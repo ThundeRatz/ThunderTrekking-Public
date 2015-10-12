@@ -31,4 +31,31 @@
 			};
 		};
 	};
+
+	fragment@1 {
+		target = <&leds>;
+		__overlay__ {
+			ledgreen: ledgreen {
+				label = "LedGreen";
+				gpios = <&gpio 10 1>;
+				linux,default-trigger = "mmc0";
+			};
+
+			ledblue: ledblue {
+				label = "LedBlue";
+				gpios = <&gpio 11 1>;
+				linux,default-trigger = "none";
+			};
+		};
+	};
+
+	fragment@2 {
+		target-path = "/";
+		__overlay__ {
+			power_ctrl: power_ctrl {
+				compatible = "gpio-poweroff";
+				gpios = <&gpio 9 1>;
+			};
+		};
+	};
 };

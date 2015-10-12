@@ -1,9 +1,9 @@
-#include "Leds.hh"
+#include "LedsI2C.hh"
 
 using namespace Trekking;
 
 int main() {
-	Leds led;
+	LedsI2C led;
 	led.setTimestep(10);
 	led.red(255);
 	led.green(255);

@@ -1,34 +1,18 @@
 #pragma once
 
-#include "I2C.hh"
+#include <string>
 
 namespace Trekking {
-	enum {
-			MANUAL, BLINK, PULSE, PULSE3
-		};
-
-	enum {
-			CORG, CORR, CORB, LOWADC, HIGHADC, MODE, TIMESTEP
-		};
-
 	class Leds {
-		private:
-			I2C i2c{1, "i915 gmbus vga"};
-		public:
-	 	   	Leds();
-		    ~Leds();
-			void red(unsigned value);
-			void green(unsigned value);
-			void blue(unsigned value);
-			void white(unsigned value);
-			void apagaLeds();
+	public:
+		Leds(const std::string& name);
+		~Leds();
+		void operator=(int brightness);
+		void set_trigger(const std::string& trigger);
+		void set_property(const std::string& name, const std::string& value);
 
-			void blink(unsigned timestep);
-			void pulse(unsigned timestep);
-			void pulse3(unsigned timestep);
-
-			void setMode(unsigned value);
-			void setTimestep(unsigned value);
-
+	private:
+		const std::string path;
+		int brightness_fd;
 	};
 }

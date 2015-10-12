@@ -33,7 +33,7 @@
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
 #include "ThreadPixy.hh"
-#include "Leds.hh"
+#include "LedsI2C.hh"
 #include "GPS.hh"
 #include "PID.hh"
 
@@ -67,7 +67,7 @@ static Evento eventos[] = { // Colocar em radianos
 
 static pixy_block_t cone;
 static GPSMonitor pos_atual(eventos[0].pos);
-static Leds led;
+static LedsI2C led;
 
 int main() {
 	thread_spawn(proximity_thread); // Laser
@@ -127,7 +127,7 @@ void Evento::executa() {
 						cerr << "nanosleep: " << errno_string() << endl;
 					return;
 				}
-				led.apagaLeds();
+				led.apaga();
 			}
 		} else {
 			const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};

@@ -1,83 +1,51 @@
 #include "Leds.hh"
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <iostream>
+#include <stdexcept>
+
+#include "errno_string.hh"
+
 namespace Trekking {
-
-	Leds::Leds() {
-		i2c.acquire(0x24);
-		i2c[MODE] = MANUAL;
-		i2c[CORR] = 0;
-		i2c[CORG] = 0;
-		i2c[CORB] = 0;
-		i2c.release();
+	Leds::Leds(const std::string& name) : path("/sys/class/leds/" + name + "/") {
+		brightness_fd = open((path + "brightness").c_str(), O_WRONLY);
+		if (brightness_fd == -1)
+			throw std::runtime_error("Leds open: " + ((std::string) errno_string()));
 	}
 
-	Leds::~Leds(){
+	Leds::~Leds() {
+		close(brightness_fd);
 	}
 
-
-	void Leds::setMode(unsigned value) {
-		i2c.acquire(0x24);
-		i2c[MODE] = value;
-		i2c.release();
+	void Leds::operator=(int brightness) {
+		std::string data = std::to_string(brightness) + "\n";
+		ssize_t status = write(brightness_fd, data.c_str(), data.size());
+		if (status == -1)
+			std::cerr << "Leds write: " << errno_string() << '\n';
+		else if (status != data.size())
+			std::cerr << "Leds write: unexpected size\n";
 	}
 
-	void Leds::setTimestep(unsigned value) {
-		i2c.acquire(0x24);
-		i2c[TIMESTEP] = value;
-		i2c.release();
+	void Leds::set_trigger(const std::string& trigger) {
+		set_property("trigger", trigger);
 	}
 
-
-	void Leds::red(unsigned value) {
-		i2c.acquire(0x24);
-		i2c[CORR] = value;
-		i2c.release();
-	}
-
-	void Leds::green(unsigned value) {
-		i2c.acquire(0x24);
-		i2c[CORG] = value;
-		i2c.release();
-	}
-
-	void Leds::blue(unsigned value) {
-		i2c.acquire(0x24);
-		i2c[CORB] = value;
-		i2c.release();
-	}
-
-	void Leds::white(unsigned value) {
-		i2c.acquire(0x24);
-		i2c[CORR] = 255;
-		i2c[CORG] = 255;
-		i2c[CORB] = 255;
-		i2c.release();
-	}
-
-	void Leds::apagaLeds() {
-		i2c.acquire(0x24);
-		i2c[CORR] = 0;
-		i2c[CORG] = 0;
-		i2c[CORB] = 0;
-		i2c.release();
-	}
-	void Leds::blink(unsigned timestep) {
-		i2c.acquire(0x24);
-		setMode(BLINK);
-		setTimestep(timestep);
-		i2c.release();
-	}
-
-	void Leds::pulse(unsigned timestep) {
-		i2c.acquire(0x24);
-		setMode(PULSE);
-		setTimestep(timestep);
-		i2c.release();
-	}
-
-	void Leds::pulse3(unsigned timestep) {
-		i2c.acquire(0x24);
-		setMode(PULSE3);
-		setTimestep(timestep);
-		i2c.release();
+	void Leds::set_property(const std::string& name, const std::string& value) {
+		int fd = open((path + name).c_str(), O_WRONLY);
+		if (fd != -1)
+			std::cerr << "Leds set_property open: " << errno_string() << '\n';
+		else {
+			std::string data = value + "\n";
+			ssize_t status = write(fd, data.c_str(), data.size());
+			if (status == -1)
+				std::cerr << "Leds set_property: " << errno_string() << '\n';
+			else if (status != data.size())
+				std::cerr << "Leds set_property: unexpected size\n";
+			close(fd);
+		}
 	}
 }

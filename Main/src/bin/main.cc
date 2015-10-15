@@ -22,18 +22,19 @@
  * SOFTWARE.
 */
 
+#include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 #include <ctime>
 
-#include "ThreadProximity.hh"
-#include "ThreadHmc5883l.hh"
 #include "errno_string.hh"
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
 #include "ThreadPixy.hh"
 #include "LedsI2C.hh"
+#include "BNO055.hh"
+#include "Bumper.hh"
 #include "GPS.hh"
 #include "PID.hh"
 
@@ -68,10 +69,11 @@ static Evento eventos[] = { // Colocar em radianos
 static pixy_block_t cone;
 static GPSMonitor pos_atual(eventos[0].pos);
 static LedsI2C led;
+static Bumper bumper;
+static BNO055 bno055;
+static Eigen::Rotation2D<double> heading;
 
 int main() {
-	thread_spawn(proximity_thread); // Laser
-	thread_spawn(hmc5883l_thread);
 	thread_spawn(motors_thread);
 	pixy_cam_init();
 
@@ -97,10 +99,11 @@ void Evento::executa() {
 
 	for (;;) {
 		if (pos_atual.update()) {
-			correcao = compass_diff(pos_atual.azimuth_to(this->pos), direcao_atual); // Colocar o 9 eixos
+			bno055.heading(heading);
+			correcao = compass_diff(pos_atual.azimuth_to(this->pos), heading.angle());
 			cout << pos_atual.point << " -> " << this->pos.point << endl
 				<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
-				<< "Direcao Atual: " << direcao_atual << endl
+				<< "Direcao Atual: " << heading.angle() << endl
 				<< "Diff: " << correcao << endl;
 
 			if (correcao > ERRO_MAX) {
@@ -158,7 +161,7 @@ bool Evento::find_cone() {
 				<< " w: " << cone.width << " h: " << cone.height
 				<< " a: " << cone.angle << endl;
 
-			if (sensor_contato < 4.) { // Colocar bumper
+			if (bumper.pressed()) {
 				const struct timespec chegou = {.tv_sec = 1, .tv_nsec = 0};
 				led.white(255);
 				motor(0, 0);

@@ -10,7 +10,7 @@ main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
 	src/lib/PID.cc src/lib/UDP.cc src/lib/I2C.cc src/lib/errno_string.cc \
 	src/lib/serial.cc src/lib/GPS.cc src/lib/ThreadProximity.cc \
-	src/lib/Bumper.cc src/lib/LedsI2C.cc
+	src/lib/Bumper.cc src/lib/LedsI2C.cc src/lib/BNO055.cc src/lib/bno055.cc
 main_LDADD = -lm -lpthread -lgps $(PIXY) -levdev
 
 udp_recv_bigodes_SOURCES = src/lib/UDP.cc src/bin/udp_recv/udp_recv_bigodes.cc \
@@ -35,8 +35,8 @@ distance_SOURCES = src/lib/GPS.cc src/bin/utils/distance.cc
 distance_LDADD = -lm -lgps
 
 gps_error_SOURCES = src/bin/utils/gps_error.cc src/lib/ThreadSpawn.cc \
-					src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
-					src/lib/UDP.cc src/lib/GPS.cc src/lib/Stats.cc
+	src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
+	src/lib/UDP.cc src/lib/GPS.cc src/lib/Stats.cc
 gps_error_LDADD = -lpthread -lm -lgps
 
 controle_SOURCES = src/bin/utils/controle.cc src/lib/ThreadSpawn.cc \

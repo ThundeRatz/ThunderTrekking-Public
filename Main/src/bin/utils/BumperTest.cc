@@ -11,6 +11,7 @@ using namespace Trekking;
 int main() {
 	Bumper bumper;
 	Leds led("LedBlue");
+	bool ledOn = false;
 
 	cout << "Bumper\n";
 
@@ -18,12 +19,16 @@ int main() {
 
 	for (;;) {
 		if(bumper.pressed()) {
-			led = 1;
 			cout << "Estado: 1\n";
+			if (ledOn)
+				led = 0;
+			else
+				led = 1;
+			ledOn = !ledOn;
 		}
 		else {
 			// led = 0;
-		    cout << "Estado: 0\n";
+		    //cout << "Estado: 0\n";
 		}
 	}
 	return 0;

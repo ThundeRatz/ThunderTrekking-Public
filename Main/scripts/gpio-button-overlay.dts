@@ -10,23 +10,23 @@
 				compatible = "gpio-keys";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				button@13 {
+				button@23 {
 					label = "Front bumper left";
 					linux,code = <49>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 13 0>;
+					gpios = <&gpio 23 0>;
 				};
-				button@20 {
-					label = "Shutdown button";
-					linux,code = <116>;
-					linux,input-type = <1 22>;
-					gpios = <&gpio 20 0>;
-				};
-				button@21 {
+				button@24 {
 					label = "Front bumper right";
 					linux,code = <49>;
 					linux,input-type = <1 22>;
-					gpios = <&gpio 21 0>;
+					gpios = <&gpio 24 0>;
+				};
+				button@25 {
+					label = "Shutdown button";
+					linux,code = <116>;
+					linux,input-type = <1 22>;
+					gpios = <&gpio 25 0>;
 				};
 			};
 		};
@@ -44,16 +44,10 @@
 			ledblue: ledblue {
 				label = "LedBlue";
 				gpios = <&gpio 11 1>;
-				linux,default-trigger = "none";
 			};
-		};
-	};
 
-	fragment@2 {
-		target-path = "/";
-		__overlay__ {
-			power_ctrl: power_ctrl {
-				compatible = "gpio-poweroff";
+			ledred: ledred {
+				label = "LedRed";	
 				gpios = <&gpio 9 1>;
 			};
 		};

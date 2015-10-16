@@ -1,0 +1,11 @@
+[Unit]
+Description=systemd unit to automatically start GPIO bumpers pull-up
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/gpio -g mode 13 up
+ExecStart=/usr/local/bin/gpio -g mode 20 up
+ExecStart=/usr/local/bin/gpio -g mode 21 up
+
+[Install]
+WantedBy=multi-user.target

@@ -32,6 +32,7 @@
 
 #include "GPS.hh"
 #include "UDP.hh"
+#include "sleep.hh"
 #include "errno_string.hh"
 
 #include "ports.h"
@@ -121,10 +122,9 @@ void gps_thread() {
                 gps.gpsd_data->set = 0;
             }
         } else {
-            const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
+            unsigned int sleep_time = 1000;
             cerr << "blocking_update error" << endl;
-            if (nanosleep(&sleep_time, NULL))
-                perror("nanosleep");
+            sleep_ms(sleep_time);
         }
     }
 #endif

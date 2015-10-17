@@ -30,6 +30,7 @@
 
 #include "ThreadSpawn.hh"
 #include "ThreadPixy.hh"
+#include "sleep.hh"
 
 #define len(array)	((&array)[1] - array)
 #define MS			1000000
@@ -63,10 +64,9 @@ static void pixy_clear() {
 
 void __attribute__((noreturn)) pixy_thread() {
 	int number_objects, i, largest, largest_size;
-	const struct timespec block_wait_time = {.tv_sec = 0, .tv_nsec = 25 * MS};
+	const unsigned long block_wait_time = 25;
 	for (;;) {
-		if (nanosleep(&block_wait_time, NULL))
-			perror("nanosleep");
+		Trekking::sleep_ms(block_wait_time);
 
 		if (pixy_blocks_are_new()) {
 			number_objects = pixy_get_blocks(len(blocks), blocks);

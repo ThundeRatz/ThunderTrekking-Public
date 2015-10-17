@@ -35,6 +35,7 @@
 #include "LedsI2C.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
+#include "sleep.hh"
 #include "GPS.hh"
 #include "PID.hh"
 
@@ -124,37 +125,33 @@ void Evento::executa() {
 			if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
 				cout << "Cone proximo\n";
 				if (find_cone()) {
-					const struct timespec re_time = {.tv_sec = 1, .tv_nsec = 0 * MS};
+					unsigned int re_time = 1000;
 					motor(-50, -50);
-					if (nanosleep(&re_time, NULL))
-						cerr << "nanosleep: " << errno_string() << endl;
+					sleep_ms(re_time);
 					return;
 				}
 				led.apaga();
 			}
 		} else {
-			const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
+			unsigned int sleep_time = 1000;
 			cerr << "blocking_update error" << endl;
-			if (nanosleep(&sleep_time, NULL))
-				cerr << "nanosleep: " << errno_string() << endl;
+			sleep_ms(sleep_time);
 		}
 	}
 }
 
 bool Evento::find_cone() {
-	const struct timespec block_wait_time = {.tv_sec = 0, .tv_nsec = 100 * MS};
-	const struct timespec led_wait_time = {.tv_sec = 1, .tv_nsec = 500 * MS};
+	unsigned int block_wait_time = 100;
+	unsigned int led_wait_time = 500;
 	int corretor;
 
-	if (nanosleep(&led_wait_time, NULL))
-		cerr << "nanosleep: " << errno_string() << endl;
+	sleep_ms(led_wait_time);
 
 	for (;;) {
 		if (pos_atual.update()) {
 			if (pos_atual.distance_to(this->pos) > this->margemObjetivo + 1./1000.)
 				return false;
-			if (nanosleep(&block_wait_time, NULL))
-				cerr << "nanosleep: " << errno_string() << endl;
+			sleep_ms(block_wait_time);
 
 			pixy_cam_get(&cone);
 			cout << "Objeto = x: " << cone.x << " y: " << cone.y
@@ -162,10 +159,10 @@ bool Evento::find_cone() {
 				<< " a: " << cone.angle << endl;
 
 			if (bumper.pressed()) {
-				const struct timespec chegou = {.tv_sec = 1, .tv_nsec = 0};
+				unsigned int chegou = 1000;
 				led.white(255);
 				motor(0, 0);
-				nanosleep(&chegou, NULL);
+				sleep_ms(chegou);
 				return true;
 			}
 
@@ -180,10 +177,9 @@ bool Evento::find_cone() {
 			if (cone.height == 0 && cone.width == 0)
 				motor(50, 50);
 		} else {
-			const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
+			unsigned int sleep_time = 1000;
 			cerr << "blocking_update error" << endl;
-			if (nanosleep(&sleep_time, NULL))
-				cerr << "nanosleep: " << errno_string() << endl;
+			sleep_ms(sleep_time);
 		}
 	}
 	return false;

@@ -27,8 +27,10 @@
 #include <ctime>
 
 #include "GPS.hh"
+#include "sleep.hh"
 
 using namespace std;
+using namespace Trekking;
 
 const char *format_string(const char *string) {
     static const char string_null[] = "NULL";
@@ -186,10 +188,9 @@ int main() {
             }
 #endif
         } else {
-            const struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
+            unsigned int sleep_time = 1000;
             cout << "blocking_update error" << endl;
-            if (nanosleep(&sleep_time, NULL))
-                perror("nanosleep");
+            sleep_ms(sleep_time);
         }
     }
 }

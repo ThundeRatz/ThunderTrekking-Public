@@ -25,18 +25,18 @@
 #include <stdio.h>
 
 #include "ThreadPixy.hh"
+#include "sleep.hh"
 
 #define MS			1000000
 
 int main() {
-	const struct timespec block_wait_time = {.tv_sec = 0, .tv_nsec = 125 * MS};
+	unsigned int block_wait_time = 125;
 
 	pixy_cam_init();
 
 	for (;;) {
 		pixy_block_t object;
-		if (nanosleep(&block_wait_time, NULL))
-			perror("nanosleep");
+		Trekking::sleep_ms(block_wait_time);
 
 		pixy_cam_get(&object);
 		printf("t: %4hu sig: %4hu x: %4hd y: %4hd w: %4hu h: %4hu a: %4hu\n",

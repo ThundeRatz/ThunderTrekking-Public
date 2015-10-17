@@ -26,6 +26,7 @@
 #include <ctime>
 
 #include "errno_string.hh"
+#include "sleep.hh"
 
 #define MS			1000000
 
@@ -44,7 +45,7 @@ using namespace std;
 
 void __attribute__((noreturn)) motors_thread() {
 	char error[32];
-	static const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 50 * MS};
+	static const unsigned int sleep_time = 50;
 	static int i2c;
 
 	i2c = i2c_open(1, "i915 gmbus vga");
@@ -59,7 +60,7 @@ void __attribute__((noreturn)) motors_thread() {
 	}
 
 	for (;;) {
-		nanosleep(&sleep_time, NULL);
+		Trekking::sleep_ms(sleep_time);
 		if (i2c_smbus_write_byte_data(i2c, 0, speed_left < 0))
 			cerr << "i2c_smbus_write_byte_data: " << errno_string() << endl;
 		if (i2c_smbus_write_byte_data(i2c, 1, speed_left >= 0 ? speed_left * max_speed / 255 : -speed_left * max_speed / 255))
@@ -83,26 +84,26 @@ void __attribute__((noreturn)) motors_thread() {
 
 void __attribute__((noreturn)) motors_thread() {
 	static const int baudrate = 9600;
-	static const struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 10 * MS};
+	static const unsigned long sleep_time = 10;
 	int fd = serial_open("/dev/ttyUSB0", &baudrate, O_WRONLY);
 	while (fd == -1) {
 		fd = serial_open("/dev/ttyUSB0", &baudrate, O_WRONLY);
-		nanosleep(&sleep_time, NULL);
+		Trekking::sleep_ms(sleep_time);
 	}
 	for (;;) {
 		uint8_t message;
-		nanosleep(&sleep_time, NULL);
+		Trekking::sleep_ms(sleep_time);
 		message = (1<< 7) | (speed_left < 0 ? 1 << 6 | (-(speed_left / 4) & 0x3f) : (speed_left / 4) & 0x3f);
 		if (write(fd, &message, 1) == -1) {
 			cerr << "write: " << errno_string() << endl;
 			close(fd);
 			do {
 				fd = serial_open("/dev/ttyUSB0", &baudrate, O_WRONLY);
-				nanosleep(&sleep_time, NULL);
+				Trekking::sleep_ms(sleep_time);
 				if (fd != -1)
 					break;
 				fd = serial_open("/dev/ttyUSB1", &baudrate, O_WRONLY);
-				nanosleep(&sleep_time, NULL);
+				Trekking::sleep_ms(sleep_time);
 			} while (fd == -1);
 		}
 		message = 0xAA | __builtin_parity(message);

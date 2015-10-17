@@ -35,20 +35,35 @@
 	fragment@1 {
 		target = <&leds>;
 		__overlay__ {
-			ledgreen: ledgreen {
-				label = "LedGreen";
+			bnogreen: bnogreen {
+				label = "BNOGreen";
 				gpios = <&gpio 10 1>;
 				linux,default-trigger = "mmc0";
 			};
 
-			ledblue: ledblue {
-				label = "LedBlue";
+			bnoblue: bnoblue {
+				label = "BNOBlue";
 				gpios = <&gpio 11 1>;
 			};
 
-			ledred: ledred {
-				label = "LedRed";	
+			bnored: bnored {
+				label = "BNORed";
 				gpios = <&gpio 9 1>;
+			};
+
+			ledgreen: ledgreen {
+				label = "LedGreen";
+				gpios = <&gpio 26 0>;
+			};
+
+			ledblue: ledblue {
+				label = "LedBlue";
+				gpios = <&gpio 13 0>;
+			};
+
+			ledred: ledred {
+				label = "LedRed";
+				gpios = <&gpio 19 0>;
 			};
 		};
 	};

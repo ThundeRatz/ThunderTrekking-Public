@@ -10,7 +10,7 @@ using namespace Trekking;
 
 int main() {
 	Bumper bumper;
-	Leds led("LedBlue");
+	Leds led("BNOBlue");
 	bool ledOn = false;
 
 	cout << "Bumper\n";

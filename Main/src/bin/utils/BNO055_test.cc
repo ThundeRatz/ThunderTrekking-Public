@@ -13,7 +13,7 @@ int main() {
 		bno055.heading(heading);
 		std::cout << "Accel: " << acceleration[0] << ' ' << acceleration[1] << '\n';
 		std::cout << "Heading: " << heading.angle() << '\n';
-		Trekking::sleep_ms(500);
+		Trekking::sleep_ms(100);
 	}
 	return 0;
 }

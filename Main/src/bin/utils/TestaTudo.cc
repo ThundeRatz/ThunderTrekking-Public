@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 ThundeRatz
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+*/
+
 #include <eigen3/Eigen/Dense>
 #include <stdexcept>
 #include <cmath>
@@ -5,12 +29,12 @@
 
 #include <ncurses.h>
 
-#include "ThreadPixy.hh"
 #include "LedsI2C.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
 #include "sleep.hh"
 #include "Leds.hh"
+#include "Pixy.hh"
 #include "GPS.hh"
 
 using namespace Trekking;
@@ -34,20 +58,20 @@ void GPSScreen(GPSMonitor& gps) {
 	wrefresh(gps_s);
 }
 
-void PixyScreen(pixy_block_t& block) {
-	pixy_cam_get(&block);
+void PixyScreen(PixyCam& block) {
+	block.update();
 
 	wclear(pixy_s);
 	box(pixy_s, 0 , 0);
 	mvwprintw(pixy_s, 1, (COLS/2 - 6)/2 - 4, "Pixy Cam");
 
-	mvwprintw(pixy_s, 3, 1, "Object Type: %hu", block.type);
-	mvwprintw(pixy_s, 4, 1, "Object Signature: %hu", block.signature);
-	mvwprintw(pixy_s, 5, 1, "Object X: %hd", block.x);
-	mvwprintw(pixy_s, 6, 1, "Object Y: %hd", block.y);
-	mvwprintw(pixy_s, 7, 1, "Object Width: %hu", block.width);
-	mvwprintw(pixy_s, 8, 1, "Object Height: %hu", block.height);
-	mvwprintw(pixy_s, 9, 1, "Object Angle: %hu", block.angle);
+	mvwprintw(pixy_s, 3, 1, "Object Type: %hu", block.block.type);
+	mvwprintw(pixy_s, 4, 1, "Object Signature: %hu", block.block.signature);
+	mvwprintw(pixy_s, 5, 1, "Object X: %hd", block.block.x);
+	mvwprintw(pixy_s, 6, 1, "Object Y: %hd", block.block.y);
+	mvwprintw(pixy_s, 7, 1, "Object Width: %hu", block.block.width);
+	mvwprintw(pixy_s, 8, 1, "Object Height: %hu", block.block.height);
+	mvwprintw(pixy_s, 9, 1, "Object Angle: %hu", block.block.angle);
 
 	wrefresh(pixy_s);
 }
@@ -83,7 +107,7 @@ void BumperScreen(Bumper& bumper) {
 }
 
 int main() {
-	pixy_block_t block;
+	PixyCam block;
 	GPSMonitor gps(GPS(0., 0.));
 	BNO055 bno055;
 	Bumper bumper;
@@ -96,8 +120,6 @@ int main() {
 	bool ledrOn = false;
 	bool ledgOn = false;
 	bool ledbOn = false;
-
-	pixy_cam_init();
 
 	initscr();
 	raw();

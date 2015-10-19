@@ -89,7 +89,7 @@ BumperTest_LDADD = -levdev
 
 log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
 
-TesteGeral_SOURCES = src/bin/utils/TestaTudo.cc src/lib/ThreadSpawn.cc src/lib/ThreadPixy.cc \
+TesteGeral_SOURCES = src/bin/utils/TestaTudo.cc src/lib/Pixy.cc \
 	src/lib/Stats.hh src/lib/Bumper.cc src/lib/BNO055.cc src/lib/bno055.cc src/lib/I2C.cc \
 	src/lib/GPS.cc src/lib/errno_string.cc src/lib/sleep.cc src/lib/Leds.cc
 TesteGeral_LDADD = -lncurses -lpthread -lgps -levdev $(PIXY)

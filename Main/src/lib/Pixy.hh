@@ -22,10 +22,19 @@
  * SOFTWARE.
 */
 
-#include <ctime>
+#pragma once
+
+#include <pixy.h>
 
 namespace Trekking {
-	void sleep_ms(long ms);
-	void sleep_us(long us);
-	void sleep_ns(long ns);
+	class PixyCam {
+	private:
+		Block blocks[100];
+
+	public:
+		Block block;
+		PixyCam();
+		void clear();
+		void update();
+	};
 }

@@ -31,11 +31,11 @@
 #include "errno_string.hh"
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
-#include "LedsI2C.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
 #include "sleep.hh"
 #include "Pixy.hh"
+#include "Leds.hh"
 #include "GPS.hh"
 #include "PID.hh"
 
@@ -69,7 +69,9 @@ static Evento eventos[] = {
 
 static PixyCam cone;
 static GPSMonitor pos_atual(eventos[0].pos);
-static LedsI2C led;
+static Leds ledr("LedRed");
+static Leds ledg("LedGreen");
+static Leds ledb("LedBlue");
 static Bumper bumper;
 static BNO055 bno055;
 static Eigen::Rotation2D<double> heading;
@@ -129,7 +131,7 @@ void Evento::executa() {
 					sleep_ms(re_time);
 					return;
 				}
-				led.apaga();
+				ledr = 0; ledg = 0; ledb = 0;
 			}
 		} else {
 			unsigned int sleep_time = 1000;
@@ -159,7 +161,7 @@ bool Evento::find_cone() {
 
 			if (bumper.pressed()) {
 				unsigned int chegou = 1000;
-				led.white(255);
+				ledr = 1; ledg = 1; ledb = 1;
 				motor(0, 0);
 				sleep_ms(chegou);
 				return true;

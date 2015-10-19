@@ -10,7 +10,7 @@ main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
 	src/lib/PID.cc src/lib/UDP.cc src/lib/I2C.cc src/lib/errno_string.cc \
 	src/lib/serial.cc src/lib/GPS.cc src/lib/ThreadProximity.cc \
-	src/lib/Bumper.cc src/lib/LedsI2C.cc src/lib/BNO055.cc src/lib/bno055.cc \
+	src/lib/Bumper.cc src/lib/Leds.cc src/lib/BNO055.cc src/lib/bno055.cc \
 	src/lib/sleep.cc src/lib/Pixy.cc
 main_LDADD = -lm -lpthread -lgps $(PIXY) -levdev
 

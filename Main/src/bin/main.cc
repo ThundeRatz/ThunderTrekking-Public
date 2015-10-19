@@ -31,11 +31,11 @@
 #include "errno_string.hh"
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
-#include "ThreadPixy.hh"
 #include "LedsI2C.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
 #include "sleep.hh"
+#include "Pixy.hh"
 #include "GPS.hh"
 #include "PID.hh"
 
@@ -59,7 +59,7 @@ struct Evento {
 	bool find_cone();
 };
 
-static Evento eventos[] = { // Colocar em radianos
+static Evento eventos[] = {
 	{.pos = GPS(-0.4127174167, -0.8128488894), .margemGPS = 0, .margemObjetivo = 0, .tem_cone = false, .desvio = 0},
 
 	{.pos = GPS(-0.4127238648, -0.8128459268), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},
@@ -67,7 +67,7 @@ static Evento eventos[] = { // Colocar em radianos
 	{.pos = GPS(-0.4127182328, -0.8128458454), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},
 };
 
-static pixy_block_t cone;
+static PixyCam cone;
 static GPSMonitor pos_atual(eventos[0].pos);
 static LedsI2C led;
 static Bumper bumper;
@@ -76,7 +76,6 @@ static Eigen::Rotation2D<double> heading;
 
 int main() {
 	thread_spawn(motors_thread);
-	pixy_cam_init();
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
@@ -153,10 +152,10 @@ bool Evento::find_cone() {
 				return false;
 			sleep_ms(block_wait_time);
 
-			pixy_cam_get(&cone);
-			cout << "Objeto = x: " << cone.x << " y: " << cone.y
-				<< " w: " << cone.width << " h: " << cone.height
-				<< " a: " << cone.angle << endl;
+			cone.update();
+			cout << "Objeto = x: " << cone.block.x << " y: " << cone.block.y
+				<< " w: " << cone.block.width << " h: " << cone.block.height
+				<< " a: " << cone.block.angle << endl;
 
 			if (bumper.pressed()) {
 				unsigned int chegou = 1000;
@@ -166,15 +165,15 @@ bool Evento::find_cone() {
 				return true;
 			}
 
-			if (cone.x < 0) {  // Aparentemente e unsigned, ver isso
-				corretor = VELOCIDADE_MAX + cone.x/2;
+			if (cone.block.x < 0) {
+				corretor = VELOCIDADE_MAX + cone.block.x/2;
 				motor(corretor, VELOCIDADE_MAX);
-			} else if (cone.x > 0) {
-				corretor = VELOCIDADE_MAX - cone.x/2;
+			} else if (cone.block.x > 0) {
+				corretor = VELOCIDADE_MAX - cone.block.x/2;
 				motor(VELOCIDADE_MAX, corretor);
 			}
 
-			if (cone.height == 0 && cone.width == 0)
+			if (cone.block.height == 0 && cone.block.width == 0)
 				motor(50, 50);
 		} else {
 			unsigned int sleep_time = 1000;

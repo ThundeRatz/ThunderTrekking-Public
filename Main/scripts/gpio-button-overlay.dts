@@ -11,8 +11,8 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				button@23 {
-					label = "Front bumper left";
-					linux,code = <49>;
+					label = "Shutdown button";
+					linux,code = <116>;
 					linux,input-type = <1 22>;
 					gpios = <&gpio 23 0>;
 				};
@@ -23,8 +23,8 @@
 					gpios = <&gpio 24 0>;
 				};
 				button@25 {
-					label = "Shutdown button";
-					linux,code = <116>;
+					label = "Front bumper left";
+					linux,code = <49>;
 					linux,input-type = <1 22>;
 					gpios = <&gpio 25 0>;
 				};

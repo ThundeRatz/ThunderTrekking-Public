@@ -61,7 +61,6 @@ struct Evento {
 
 static Evento eventos[] = {
 	{.pos = GPS(-0.4127174167, -0.8128488894), .margemGPS = 0, .margemObjetivo = 0, .tem_cone = false, .desvio = 0},
-
 	{.pos = GPS(-0.4127238648, -0.8128459268), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},
 	{.pos = GPS(-0.4127223579, -0.8128485238), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},
 	{.pos = GPS(-0.4127182328, -0.8128458454), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},

@@ -37,8 +37,7 @@ distance_SOURCES = src/lib/GPS.cc src/bin/utils/distance.cc
 distance_LDADD = -lm -lgps
 
 gps_error_SOURCES = src/bin/utils/gps_error.cc src/lib/ThreadSpawn.cc \
-	src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
-	src/lib/UDP.cc src/lib/GPS.cc src/lib/Stats.cc
+	src/lib/errno_string.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
 gps_error_LDADD = -lpthread -lm -lgps
 
 controle_SOURCES = src/bin/utils/controle.cc src/lib/ThreadSpawn.cc \
@@ -99,6 +98,7 @@ AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \
 	-I$(srcdir)/include -I$(srcdir)/src/lib -Wall -Wextra -std=gnu++11 \
 	-isystem $(srcdir)/../externals/include -L$(srcdir)/../externals/lib \
 	-I/usr/include/libevdev-1.0/libevdev/ -I/usr/include/libevdev-1.0/
+
 scripts:
 	cp -rf $(srcdir)/scripts/* .
 .PHONY: scripts

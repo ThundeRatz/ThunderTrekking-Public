@@ -95,11 +95,11 @@ int main() {
 			return 1;
 		}
 
-		if ((object.x - (PIXY_MAX_X - PIXY_MIN_X + 1) / 2) < 0) {
-			corretor = MAX_Vel + object.x/2;
+		if (((int16_t) object.x) < 0) {
+			corretor = MAX_Vel + ((int16_t) object.x)/2;
 			motor(corretor, MAX_Vel);
-			printf("motor(%d, %d)\n", corretor, MAX_Vel);
-		} else if ((object.x - (PIXY_MAX_X - PIXY_MIN_X + 1) / 2) > 0) {
+			printf("1 - motor(%d, %d)\n", corretor, MAX_Vel);
+		} else {
 			corretor = MAX_Vel - object.x/2;
 			motor(MAX_Vel, corretor);
 			printf("motor(%d, %d)\n", MAX_Vel, corretor);

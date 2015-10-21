@@ -112,24 +112,26 @@ void BumperScreen(Bumper& bumper) {
 void LeddarScreen(LeddarEK& leddar) {
 	leddar.update();
 
-	wclear(bumper_s);
-	box(bumper_s, 0, 0);
-	mvwprintw(bumper_s, 1, (COLS/3 - 8)/2 - 3, "Leddar");
+	wclear(leddar_s);
+	box(leddar_s, 0, 0);
+	mvwprintw(leddar_s, 1, (COLS/3 - 8)/2 - 3, "Leddar");
 
-	mvwprintw(bno_s, 5, 1, "Segment: %d", leddar.measure.mSegment);
-	mvwprintw(bno_s, 6, 1, "Distance: %f", leddar.measure.mDistance);
+	mvwprintw(leddar_s, 5, 1, "Segment: %d", leddar.measure.mSegment);
+	mvwprintw(leddar_s, 6, 1, "Distance: %f", leddar.measure.mDistance);
 
-	wrefresh(bumper_s);
+	wrefresh(leddar_s);
 }
 
 void LedsScreen() {
 	wclear(leds_s);
 	box(leds_s, 0, 0);
-	mvwprintw(bumper_s, 1, (COLS/3 - 8)/2 - 2, "LEDs");
+	mvwprintw(leds_s, 1, (COLS/3 - 8)/2 - 2, "LEDs");
 
-	mvwprintw(bumper_s, 5, 1, "r - red");
-	mvwprintw(bumper_s, 6, 1, "g - green");
-	mvwprintw(bumper_s, 7, 1, "b - blue");
+	mvwprintw(leds_s, 5, 1, "r - red");
+	mvwprintw(leds_s, 6, 1, "g - green");
+	mvwprintw(leds_s, 7, 1, "b - blue");
+
+	wrefresh(leds_s);
 }
 
 int main() {

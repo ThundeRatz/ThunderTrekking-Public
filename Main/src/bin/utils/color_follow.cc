@@ -31,8 +31,6 @@
 #include "ThreadMotors.hh"
 #include "ThreadProximity.hh"
 
-#include "leds.h"
-
 #define MS			1000000
 #define MAX_Vel     50
 #define CONVERTE    58000
@@ -50,7 +48,6 @@ int main() {
 	thread_spawn(proximity_thread);
 	//leds_init();
 	pixy_cam_init();
-	led_set(0, LEDS2000MS, LEDS75PC, 0);
 	const struct timespec block_wait_time = {.tv_sec = 0, .tv_nsec = 100 * MS};
 	const struct timespec led_wait_time = {.tv_sec = 1, .tv_nsec = 500 * MS};
 	int corretor = 0, n = 0;
@@ -87,16 +84,15 @@ int main() {
 //			nanosleep(&chegou, NULL);
 //			return 1;
 //		}
-		if (sensor_contato < 4	) {
+		if (sensor_contato < 4) {
 			const struct timespec chegou = {.tv_sec = 1, .tv_nsec = 100 * MS};
-			led_set((1 << 0), LEDS2000MS, LEDS75PC, 5);
 			motor(0, 0);
 			nanosleep(&chegou, NULL);
 			return 1;
 		}
 
-		if (((int16_t) object.x) < 0) {
-			corretor = MAX_Vel + ((int16_t) object.x)/2;
+		if (object.x < 0) {
+			corretor = MAX_Vel + object.x/2;
 			motor(corretor, MAX_Vel);
 			printf("1 - motor(%d, %d)\n", corretor, MAX_Vel);
 		} else {

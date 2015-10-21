@@ -50,7 +50,7 @@ compass_diff_LDADD = -lm
 
 # color_follow_SOURCES = src/lib/compass.cc src/lib/serial.cc \
 #	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadHmc5883l.cc \
-#	src/lib/UDP.cc src/lib/ThreadPixy.cc src/lib/leds.cc \
+#	src/lib/UDP.cc src/lib/ThreadPixy.cc src/lib/sleep.cc\
 #	src/lib/ThreadProximity.cc src/bin/utils/color_follow.cc src/lib/errno_string.cc
 # color_follow_LDADD = -lpthread $(PIXY) -lm
 

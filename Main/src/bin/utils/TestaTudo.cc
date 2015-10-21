@@ -29,6 +29,7 @@
 
 #include <ncurses.h>
 
+#include "LeddarEK.hh"
 #include "LedsI2C.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
@@ -40,9 +41,11 @@
 using namespace Trekking;
 
 static WINDOW* gps_s;
-static WINDOW* pixy_s;
 static WINDOW* bno_s;
+static WINDOW* pixy_s;
+static WINDOW* leds_s;
 static WINDOW* bumper_s;
+static WINDOW* leddar_s;
 
 void GPSScreen(GPSMonitor& gps) {
 	wclear(gps_s);
@@ -50,7 +53,7 @@ void GPSScreen(GPSMonitor& gps) {
 		mvwprintw(gps_s, LINES/2 - 6 - 5, 1, "blocking_update error");
 
 	box(gps_s, 0 , 0);
-	mvwprintw(gps_s, 1, (COLS/2 - 6)/2 - 1, "GPS");
+	mvwprintw(gps_s, 1, (COLS/3 - 8)/2 - 1, "GPS");
 
 	mvwprintw(gps_s, 3, 1, "Latitude: %hu", gps.latitude);
 	mvwprintw(gps_s, 4, 1, "Longitude: %hu", gps.longitude);
@@ -63,7 +66,7 @@ void PixyScreen(PixyCam& block) {
 
 	wclear(pixy_s);
 	box(pixy_s, 0 , 0);
-	mvwprintw(pixy_s, 1, (COLS/2 - 6)/2 - 4, "Pixy Cam");
+	mvwprintw(pixy_s, 1, (COLS/3 - 8)/2 - 4, "Pixy Cam");
 
 	mvwprintw(pixy_s, 3, 1, "Object Type: %hu", block.block.type);
 	mvwprintw(pixy_s, 4, 1, "Object Signature: %hu", block.block.signature);
@@ -85,7 +88,7 @@ void BNOScreen(BNO055& bno055) {
 
 	wclear(bno_s);
 	box(bno_s, 0 , 0);
-	mvwprintw(bno_s, 1, (COLS/2 - 6)/2 - 3, "9 eixos");
+	mvwprintw(bno_s, 1, (COLS/3 - 8)/2 - 3, "9 eixos");
 
 	mvwprintw(bno_s, 5, 1, "Acceleration: %.0f %.0f", acceleration[0], acceleration[1]);
 	mvwprintw(bno_s, 6, 1, "Heading: %f", heading.angle());
@@ -96,7 +99,7 @@ void BNOScreen(BNO055& bno055) {
 void BumperScreen(Bumper& bumper) {
 	wclear(bumper_s);
 	box(bumper_s, 0, 0);
-	mvwprintw(bumper_s, 1, (COLS/2 - 6)/2 - 3, "Bumper");
+	mvwprintw(bumper_s, 1, (COLS/3 - 8)/2 - 3, "Bumper");
 
 	if (bumper.pressed())
 		mvwprintw(bumper_s, 5, 1, "Pressed");
@@ -106,9 +109,33 @@ void BumperScreen(Bumper& bumper) {
 	wrefresh(bumper_s);
 }
 
+void LeddarScreen(LeddarEK& leddar) {
+	leddar.update();
+
+	wclear(bumper_s);
+	box(bumper_s, 0, 0);
+	mvwprintw(bumper_s, 1, (COLS/3 - 8)/2 - 3, "Leddar");
+
+	mvwprintw(bno_s, 5, 1, "Segment: %d", leddar.measure.mSegment);
+	mvwprintw(bno_s, 6, 1, "Distance: %f", leddar.measure.mDistance);
+
+	wrefresh(bumper_s);
+}
+
+void LedsScreen() {
+	wclear(leds_s);
+	box(leds_s, 0, 0);
+	mvwprintw(bumper_s, 1, (COLS/3 - 8)/2 - 2, "LEDs");
+
+	mvwprintw(bumper_s, 5, 1, "r - red");
+	mvwprintw(bumper_s, 6, 1, "g - green");
+	mvwprintw(bumper_s, 7, 1, "b - blue");
+}
+
 int main() {
-	PixyCam block;
 	GPSMonitor gps(GPS(0., 0.));
+	LeddarEK leddar;
+	PixyCam block;
 	BNO055 bno055;
 	Bumper bumper;
 	char c;
@@ -126,26 +153,35 @@ int main() {
 	noecho();
 	keypad(stdscr, TRUE);
 
-	gps_s = newwin(LINES/2 - 6, COLS/2 - 6, 2, 2);
+	gps_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2);
 	box(gps_s, 0 , 0);
 
-	pixy_s = newwin(LINES/2 - 6, COLS/2 - 6, 2, COLS/2 + 1);
+	pixy_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2 + COLS/3 + 2);
 	box(pixy_s, 0 , 0);
 
-	bno_s = newwin(LINES/2 - 6, COLS/2 - 6, LINES/2, 2);
+	bno_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2 + 2 * (COLS/3 + 2));
 	box(bno_s, 0 , 0);
 
-	bumper_s = newwin(LINES/2 - 6, COLS/2 - 6, LINES/2, COLS/2 + 1);
+	bumper_s = newwin(LINES/2 - 6, COLS/3 - 8, LINES/2 + 1, 2);
 	box(bumper_s, 0 , 0);
 
-	mvprintw(LINES - 1, 3, "LEDs: r - toggle red, g - toggle green, b - toggle blue | q - quit");
+	leddar_s = newwin(LINES/2 - 6, COLS/3 - 8, LINES/2  + 1, 2 + COLS/3 + 2);
+	box(bumper_s, 0 , 0);
+
+	leds_s = newwin(LINES/2 - 6, COLS/3 - 8, LINES/2 + 1, 2 + 2 * (COLS/3 + 2));
+	box(bumper_s, 0 , 0);
+
+	mvprintw(LINES - 1, 3, "q - quit");
 
 	refresh();
 	wrefresh(gps_s);
-	wrefresh(pixy_s);
 	wrefresh(bno_s);
+	wrefresh(pixy_s);
+	wrefresh(leds_s);
 	wrefresh(bumper_s);
+	wrefresh(leddar_s);
 
+	LedsScreen();
 	timeout(90);
 	for (;;) {
 		c = getch();
@@ -160,6 +196,7 @@ int main() {
 		PixyScreen(block);
 		BNOScreen(bno055);
 		BumperScreen(bumper);
+		LeddarScreen(leddar);
 		sleep_ms(10);
 	}
 

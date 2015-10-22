@@ -18,7 +18,7 @@
 				};
 				button@24 {
 					label = "Front bumper right";
-					linux,code = <49>;
+					linux,code = <50>;
 					linux,input-type = <1 22>;
 					gpios = <&gpio 24 0>;
 				};

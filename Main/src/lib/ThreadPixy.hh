@@ -27,7 +27,15 @@
 #include <pixy.h>
 #include <mutex>
 
-typedef struct Block pixy_block_t;
+typedef struct {
+        uint16_t type;
+        uint16_t signature;
+        int16_t x;
+        int16_t y;
+        uint16_t width;
+        uint16_t height;
+        int16_t  angle;
+} pixy_block_t;
 
 void __attribute__((noreturn)) pixy_thread();
 

@@ -24,41 +24,31 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cstdio>
-#include <ctime>
+#include <mutex>
 
-#include "GPS.hh"
+#include "LeddarEK.hh"
+#include "sleep.hh"
 
-#include "compass.h"
-
-#define MS	1000000
-#define len(array)	((&array)[1] - array)
+#define len(array)     ((&array)[1] - array)
 
 using namespace std;
-
-static const struct timespec gps_wait = {.tv_sec = 1, .tv_nsec = 0 * MS};
-
-Trekking::GPS testes[] = {
-	Trekking::GPS(-23.55392375, -46.72891395),  //Mesa elétrica
-	Trekking::GPS(-23.55387477, -46.72899905),  //Interruptor
-	Trekking::GPS(-23.55344336, -46.72915281),  //Hidrante
-	//{.latitude = -23.64701287, .longitude = -46.57263634},
-};
+using namespace Trekking;
 
 int main() {
-	cout << fixed << setprecision(8);
+	LeddarEK leddar;
 
-	double angle, dist;
+	for(;;) {
+		leddar.update();
+		cout << "Minimum Measurement: \n"
+			<< "\t" << leddar.measure.mSegment << " | " << leddar.measure.mDistance << endl;
 
-	// Media das medidas do GPS na posicao atual
-	Trekking::GPSStats stats;
-	Trekking::GPSMonitor position(Trekking::GPS(0., 0.));
-	for (int n = 1; n <= 15; n++) {
-		while (!position.blocking_update()) ;
-		cout << "Posicao atual: " << position.latitude << " " << position.longitude << "\n";
-		stats.sample(position);
+		if (leddar.measure.mSegment < 6 && leddar.measure.mDistance < 0.3)
+			cout << "Esquerda\n";
+		else if (leddar.measure.mSegment > 8 && leddar.measure.mDistance < 0.3)
+			cout << "Direita\n";
+		else
+			cout << "Reto\n";
+
+		sleep_ms(300);
 	}
-	cout << "Posicao atual media: " << stats.latitude_stats().mean() << " " << stats.longitude_stats().mean() << "\n";
-
-	return 0;
 }

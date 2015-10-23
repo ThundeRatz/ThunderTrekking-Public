@@ -32,7 +32,7 @@ static std::mutex leddarMtx;
 static LdDetection measurement;
 
 namespace Trekking {
-	static unsigned char ReadData(void* aHandle, LeddarU32 aLevels) {
+	unsigned char ReadData(void* aHandle, LeddarU32 aLevels) {
 		LdDetection lDetections[50];
 	    unsigned int lCount = LeddarGetDetectionCount(aHandle);
 		float min_distance = 999999.;

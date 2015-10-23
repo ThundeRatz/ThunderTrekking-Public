@@ -5,7 +5,7 @@ bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
 	udp_send pixy_test distance compass_diff controle \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
-	BumperTest TesteGeral cameraTest LeddarTest
+	BumperTest TesteGeral LeddarTest FindCone cameraTest
 
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
@@ -50,15 +50,15 @@ controle_LDADD = -lpthread
 compass_diff_SOURCES = src/lib/compass.cc src/bin/utils/compass_diff.cc
 compass_diff_LDADD = -lm
 
-# color_follow_SOURCES = src/lib/compass.cc src/lib/serial.cc \
-#	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/ThreadHmc5883l.cc \
-#	src/lib/UDP.cc src/lib/ThreadPixy.cc src/lib/sleep.cc\
-#	src/lib/ThreadProximity.cc src/bin/utils/color_follow.cc src/lib/errno_string.cc
-# color_follow_LDADD = -lpthread $(PIXY) -lm
+FindCone_SOURCES = src/bin/utils/FindCone.cc src/lib/compass.cc src/lib/serial.cc \
+	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/Bumper.cc src/lib/LeddarEK.cc \
+	src/lib/UDP.cc src/lib/Pixy.cc src/lib/sleep.cc src/lib/BNO055.cc \
+	src/lib/Leds.cc src/lib/errno_string.cc src/lib/I2C.cc
+FindCone_LDADD = -lpthread $(PIXY) -lm $(LEDDAR) -levdev
 
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc src/lib/sleep.cc \
 	src/lib/errno_string.cc
-gpsd_client_new_LDADD = -lgps -lm9
+gpsd_client_new_LDADD = -lgps -lm
 
 PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
 	src/lib/UDP.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \

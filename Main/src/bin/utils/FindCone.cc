@@ -22,8 +22,13 @@
  * SOFTWARE.
 */
 
+#include <iostream>
+
 #include "ThreadMotors.hh"
+#include "ThreadSpawn.hh"
 #include "LeddarEK.hh"
+#include "Bumper.hh"
+#include "sleep.hh"
 #include "Pixy.hh"
 #include "Leds.hh"
 
@@ -34,35 +39,35 @@ using namespace std;
 
 int main() {
 	LeddarEK leddar;
-	Pixy pixy
+	PixyCam  pixy;
+	Bumper   bumper;
 
 	Leds ledr("LedRed");
 	Leds ledg("LedGreen");
 	Leds ledb("LedBlue");
 
-	unsigned int block_wait_time = 100;
-	unsigned int led_wait_time = 500;
 	int corretor;
 
 	thread_spawn(motors_thread);
 
-	sleep_ms(led_wait_time);
-
 	for (;;) {
-		sleep_ms(block_wait_time);
+		sleep_ms(300);
 
 		leddar.update();
 		pixy.update();
 
-		cout << "Objeto = x: " << pixy.block.x << " y: " << pixy.block.y
+		cout << "Objeto Pixy = x: " << pixy.block.x << " y: " << pixy.block.y
 			<< " w: " << pixy.block.width << " h: " << pixy.block.height
 			<< " a: " << pixy.block.angle << endl;
 
+		cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
+			<< leddar.measure.mDistance << endl << endl;
+
 		if (bumper.pressed()) {
-			unsigned int chegou = 1000;
 			ledr = 1; ledg = 1; ledb = 1;
 			motor(0, 0);
-			sleep_ms(chegou);
+			sleep_ms(1000);
+			ledr = 0; ledg = 0; ledb = 0;
 			return 0;
 		}
 

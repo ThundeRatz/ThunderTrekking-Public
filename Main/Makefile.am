@@ -5,7 +5,7 @@ bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
 	udp_send pixy_test distance compass_diff controle \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
-	BumperTest TesteGeral LeddarTest FindCone cameraTest
+	BumperTest TesteGeral LeddarTest FindCone GPSTest cameraTest
 
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
@@ -96,12 +96,16 @@ log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
 
 TesteGeral_SOURCES = src/bin/utils/TestaTudo.cc src/lib/Pixy.cc \
 	src/lib/Stats.hh src/lib/Bumper.cc src/lib/BNO055.cc src/lib/bno055.cc src/lib/I2C.cc \
-	src/lib/GPS.cc src/lib/errno_string.cc src/lib/sleep.cc src/lib/Leds.cc src/lib/LeddarEK.cc
+	src/lib/GPS.cc src/lib/errno_string.cc src/lib/sleep.cc src/lib/Leds.cc src/lib/LeddarEK.cc \
+	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/serial.cc
 TesteGeral_LDADD = -lncurses -lpthread -lgps -levdev $(PIXY) $(LEDDAR)
 
 LeddarTest_SOURCES = src/bin/utils/LeddarTest.cc src/lib/sleep.cc src/lib/errno_string.cc \
 	src/lib/LeddarEK.cc
 LeddarTest_LDADD = $(LEDDAR) -lpthread
+
+GPSTest_SOURCES = src/bin/utils/GPSTest.cc src/lib/GPS.cc src/lib/sleep.cc src/lib/errno_string.cc
+GPSTest_LDADD = -lgps
 
 # -DRAPIDJSON_SSE42 for x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \

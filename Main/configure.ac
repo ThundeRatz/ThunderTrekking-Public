@@ -13,6 +13,6 @@ AC_CONFIG_FILES([
 AX_CHECK_COMPILE_FLAG([-fdiagnostics-color=auto],
     [CXXFLAGS="$CXXFLAGS -fdiagnostics-color=auto"])
 
-PKG_CHECK_MODULES(opencv, opencv)
+# PKG_CHECK_MODULES(opencv, opencv)
 
 AC_OUTPUT

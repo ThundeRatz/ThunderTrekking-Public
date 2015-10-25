@@ -71,7 +71,7 @@ int main() {
 			return 0;
 		}
 
-		if (leddar.measure.mDistance < 3) {
+		if (leddar.measure.mDistance < 2) {
 			if (pixy.block.x < 0) {
 				corretor = VELOCIDADE_MAX + pixy.block.x/2;
 				motor(corretor, VELOCIDADE_MAX);

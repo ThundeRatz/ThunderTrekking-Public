@@ -49,6 +49,8 @@ static WINDOW* leds_s;
 static WINDOW* bumper_s;
 static WINDOW* leddar_s;
 
+static int left = 0, right = 0;
+
 void GPSScreen(GPSMonitor& gps) {
 	wclear(gps_s);
 	if(!gps.blocking_update())
@@ -135,11 +137,15 @@ void LedsScreen() {
 	mvwprintw(leds_s, 6, 1, "v - green");
 	mvwprintw(leds_s, 7, 1, "b - blue");
 
+	mvwprintw(leds_s, 9, 1, "Setas - motor");
+	mvwprintw(leds_s, 10, 1, "motor(%d, %d)", left, right);
+
+
 	wrefresh(leds_s);
 }
 
 int main() {
-	//thread_spawn(motors_thread);
+	thread_spawn(motors_thread);
 
 	GPSMonitor gps(GPS(-0.411087, -0.815589));
 	LeddarEK leddar;
@@ -148,7 +154,6 @@ int main() {
 	Bumper bumper;
 	char c;
 
-	int left = 0, right = 0;
 
 	Leds ledr("LedRed");
 	Leds ledg("LedGreen");
@@ -228,7 +233,7 @@ int main() {
 		BNOScreen(bno055);
 		BumperScreen(bumper);
 		LeddarScreen(leddar);
-		//motor(left, right);
+		motor(left, right);
 		sleep_ms(10);
 	}
 

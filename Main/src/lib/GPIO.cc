@@ -112,13 +112,12 @@ namespace Trekking {
 
 	GPIO::operator bool() const {
 		char buffer;
+		if (lseek(fd_value, SEEK_SET, 0) == -1) {
+			return previous_value;
+		}
 		if (read(fd_value, &buffer, 1) == -1) {
 			perror("GPIO read");
 			throw runtime_error("GPIO read failed");
-		}
-		if (lseek(fd_value, SEEK_SET, 0) == -1) {
-			perror("GPIO lseek");
-			throw runtime_error("GPIO lseek failed");
 		}
 		return buffer == '1';
 	}

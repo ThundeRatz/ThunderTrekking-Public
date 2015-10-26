@@ -52,6 +52,8 @@ namespace Trekking {
 			int gpio;
 			struct pollfd poll_targets;
 			void write_to_file(const std::string& name, const std::string& value);
+			bool previous_value = false;
+			
 			bool exported();
 	};
 }

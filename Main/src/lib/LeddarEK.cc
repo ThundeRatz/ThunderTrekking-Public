@@ -57,11 +57,15 @@ namespace Trekking {
 	LeddarEK::LeddarEK() {
 		gHandle = LeddarCreate();
 
-		if(LeddarConnect(gHandle, "") != LD_SUCCESS)
+		if (LeddarConnect(gHandle, "") != LD_SUCCESS)
 			throw std::runtime_error("Leddar connection failed");
 
-		LeddarStartDataTransfer(gHandle, LDDL_DETECTIONS);
-		LeddarAddCallback(gHandle, ReadData, gHandle);
+		if (LeddarStartDataTransfer(gHandle, LDDL_DETECTIONS) != LD_SUCCESS)
+			throw std::runtime_error("Leddar start data transfer failed");
+
+		if (LeddarAddCallback(gHandle, ReadData, gHandle) != LD_SUCCESS)
+			throw std::runtime_error("Leddar add callback failed");
+
 		sleep_ms(100);
 	}
 

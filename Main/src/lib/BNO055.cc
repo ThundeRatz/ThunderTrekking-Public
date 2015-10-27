@@ -40,7 +40,7 @@ namespace Trekking {
 		bno055.bus_write = write;
 		bno055.bus_read = read;
 		bno055.delay_msec = delay_ms;
-
+		
 		if (bno055_init(&bno055))
 			throw runtime_error("BNO055 initialization failed");
 		if (bno055_set_power_mode(POWER_MODE_NORMAL))
@@ -49,6 +49,15 @@ namespace Trekking {
 			throw runtime_error("BNO055 operation mode failed");
 		if (bno055_set_accel_slow_no_motion_durn(0x3f))
 			throw runtime_error("BNO055 accel no motion sleep failed");
+		
+		if (bno055_set_remap_x_sign(REMAP_AXIS_POSITIVE))
+			throw runtime_error("Error on set_remap_x_sign");		
+		if (bno055_set_remap_y_sign(REMAP_AXIS_POSITIVE))
+			throw runtime_error("Error on set_remap_y_sign");		
+		if (bno055_set_remap_z_sign(REMAP_AXIS_POSITIVE))
+			throw runtime_error("Error on set_remap_z_sign");
+			
+			
 	}
 
 	void BNO055::linear_acceleration(Vector2d& acceleration_return) {

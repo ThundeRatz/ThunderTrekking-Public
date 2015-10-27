@@ -15,13 +15,7 @@ int main() {
 	u8 v_gyro_calib_u8;
 	u8 v_sys_calib_u8;
 	
-	file = fopen("Calibration.txt", "w");
-	bno055_get_mag_calib_stat(&v_mag_calib_u8);
-	bno055_get_accel_calib_stat(&v_accel_calib_u8);
-	bno055_get_gyro_calib_stat(&v_gyro_calib_u8);
-	bno055_get_sys_calib_stat(&v_sys_calib_u8);
-	fprintf(file, "%hu %hu %hu %hu", v_mag_calib_u8, v_accel_calib_u8, v_gyro_calib_u8, v_sys_calib_u8);
-	fclose(file);
+	bno055.save_file();
 	/*
 	for (;;) {
 		bno055.linear_acceleration(acceleration);

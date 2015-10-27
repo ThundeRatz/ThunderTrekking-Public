@@ -13,7 +13,7 @@ main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/PID.cc src/lib/UDP.cc src/lib/I2C.cc src/lib/errno_string.cc \
 	src/lib/serial.cc src/lib/GPS.cc src/lib/ThreadProximity.cc \
 	src/lib/Bumper.cc src/lib/Leds.cc src/lib/BNO055.cc src/lib/bno055.cc \
-	src/lib/sleep.cc src/lib/Pixy.cc
+	src/lib/sleep.cc src/lib/Pixy.cc src/lib/Stats.cc
 main_LDADD = -lm -lpthread -lgps $(PIXY) -levdev
 
 udp_recv_bigodes_SOURCES = src/lib/UDP.cc src/bin/udp_recv/udp_recv_bigodes.cc \
@@ -32,15 +32,15 @@ pixy_test_SOURCES = src/lib/ThreadSpawn.cc src/lib/ThreadPixy.cc src/bin/utils/p
 	src/lib/sleep.cc src/lib/errno_string.cc
 pixy_test_LDADD = $(PIXY) -lpthread
 
-azimuth_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth.cc
+azimuth_SOURCES = src/lib/GPS.cc src/bin/utils/azimuth.cc src/lib/Stats.cc
 azimuth_LDADD = -lm -lgps
 
-distance_SOURCES = src/lib/GPS.cc src/bin/utils/distance.cc
+distance_SOURCES = src/lib/GPS.cc src/bin/utils/distance.cc src/lib/Stats.cc
 distance_LDADD = -lm -lgps
 
 gps_error_SOURCES = src/bin/utils/gps_error.cc src/lib/ThreadSpawn.cc \
 	src/lib/errno_string.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
-	src/lib/GPS.cc src/lib/Stats.cc
+	src/lib/GPS.cc src/lib/Stats.cc src/lib/UDP.cc
 gps_error_LDADD = -lpthread -lm -lgps
 
 controle_SOURCES = src/bin/utils/controle.cc src/lib/ThreadSpawn.cc \
@@ -54,11 +54,11 @@ compass_diff_LDADD = -lm
 FindCone_SOURCES = src/bin/utils/FindCone.cc src/lib/compass.cc src/lib/serial.cc \
 	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/Bumper.cc src/lib/LeddarEK.cc \
 	src/lib/UDP.cc src/lib/Pixy.cc src/lib/sleep.cc src/lib/BNO055.cc \
-	src/lib/Leds.cc src/lib/errno_string.cc src/lib/I2C.cc
-FindCone_LDADD = -lpthread $(PIXY) -lm $(LEDDAR) -levdev
+	src/lib/Leds.cc src/lib/errno_string.cc src/lib/I2C.cc src/lib/bno055.cc
+FindCone_LDADD = -lpthread $(PIXY) -lm $(LEDDAR) -levdev -lgps
 
 gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc src/lib/sleep.cc \
-	src/lib/errno_string.cc
+	src/lib/errno_string.cc src/lib/Stats.cc
 gpsd_client_new_LDADD = -lgps -lm
 
 PID_SOURCES = src/bin/utils/pid.cc src/lib/PID.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
@@ -68,7 +68,7 @@ PID_LDADD = -lpthread
 
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
 	src/lib/UDP.cc src/lib/GPS.cc src/lib/compass.cc src/lib/errno_string.cc \
-	src/lib/sleep.cc
+	src/lib/sleep.cc src/lib/Stats.cc
 GPS_compass_data_LDADD = -lgps -lpthread
 
 bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc src/lib/GPIOButton.cc
@@ -98,19 +98,21 @@ cameraTest_LDADD = $(opencv_LIBS)
 # 	src/lib/GPS.cc
 # KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
 
-log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc
+log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc src/lib/Stats.cc
+log_read_GPS_LDADD = -lgps
 
 TesteGeral_SOURCES = src/bin/utils/TestaTudo.cc src/lib/Pixy.cc \
 	src/lib/Stats.hh src/lib/Bumper.cc src/lib/BNO055.cc src/lib/bno055.cc src/lib/I2C.cc \
 	src/lib/GPS.cc src/lib/errno_string.cc src/lib/sleep.cc src/lib/Leds.cc src/lib/LeddarEK.cc \
-	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/serial.cc
+	src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc src/lib/serial.cc src/lib/Stats.cc
 TesteGeral_LDADD = -lncurses -lpthread -lgps -levdev $(PIXY) $(LEDDAR)
 
 LeddarTest_SOURCES = src/bin/utils/LeddarTest.cc src/lib/sleep.cc src/lib/errno_string.cc \
 	src/lib/LeddarEK.cc
 LeddarTest_LDADD = $(LEDDAR) -lpthread
 
-GPSTest_SOURCES = src/bin/utils/GPSTest.cc src/lib/GPS.cc src/lib/sleep.cc src/lib/errno_string.cc
+GPSTest_SOURCES = src/bin/utils/GPSTest.cc src/lib/GPS.cc src/lib/sleep.cc src/lib/errno_string.cc \
+	src/lib/Stats.cc
 GPSTest_LDADD = -lgps
 
 # -DRAPIDJSON_SSE42 for x86

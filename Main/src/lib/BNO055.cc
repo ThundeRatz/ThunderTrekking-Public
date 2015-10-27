@@ -63,11 +63,6 @@ namespace Trekking {
 		
 			
 	}
-	
-	BNO055::~BNO055() {
-		ofstream file("Calibration.txt");
-		file << mag << " " << accel << " " << gyro << " " << sys;
-	}
 
 	void BNO055::linear_acceleration(Vector2d& acceleration_return) {
 		bno055_linear_accel_t acceleration;
@@ -107,5 +102,9 @@ namespace Trekking {
 			.tv_nsec = (ms % 1000) * 1000000
 		};
 		nanosleep(&sleep_time, NULL);
+	}
+	void save_file(){
+		ofstream file("Calibration.txt");
+		file << mag << " " << accel << " " << gyro << " " << sys;
 	}
 }

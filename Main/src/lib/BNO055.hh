@@ -36,6 +36,7 @@ namespace Trekking {
 		BNO055();
 		void linear_acceleration(Eigen::Vector2d& acceleration_return);
 		void heading(Eigen::Rotation2D<double>& new_heading);
+		void get_calibration();
 		void save_file();
 
 	private:

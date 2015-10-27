@@ -103,8 +103,15 @@ namespace Trekking {
 		};
 		nanosleep(&sleep_time, NULL);
 	}
-	void save_file(){
+	void BNO055::get_calibration() {
+		bno055_get_accel_calib_stat(&accel);
+		bno055_get_gyro_calib_stat(&gyro);
+		bno055_get_mag_calib_stat(&mag);
+		bno055_get_sys_calib_stat(&sys);
+		cout << " " << accel << " " << gyro << " " << mag << "\n";		
+	}
+	void BNO055::save_file() {
 		ofstream file("Calibration.txt");
-		file << mag << " " << accel << " " << gyro << " " << sys;
+		file << mag << " " << accel << " " << gyro << endl;
 	}
 }

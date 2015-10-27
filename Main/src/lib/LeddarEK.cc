@@ -25,6 +25,7 @@
 #include <stdexcept>
 
 #include "LeddarEK.hh"
+#include "sleep.hh"
 
 #define len(array)     ((&array)[1] - array)
 
@@ -42,7 +43,7 @@ namespace Trekking {
 
 	    LeddarGetDetections(aHandle, lDetections, len(lDetections));
 
-	    for(unsigned int i = 0; (i < lCount) && (i < 16); ++i) {
+	    for (unsigned int i = 0; (i < lCount) && (i < 16); ++i) {
 	        if (lDetections[i].mDistance < min_distance) {
 				min_distance = lDetections[i].mDistance;
 				leddarMtx.lock();
@@ -61,9 +62,13 @@ namespace Trekking {
 
 		LeddarStartDataTransfer(gHandle, LDDL_DETECTIONS);
 		LeddarAddCallback(gHandle, ReadData, gHandle);
+		sleep_ms(100);
 	}
 
 	LeddarEK::~LeddarEK() {
+		LeddarStopDataTransfer(gHandle);
+		LeddarRemoveCallback( gHandle, ReadData, gHandle );
+
 		LeddarDisconnect(gHandle);
 		LeddarDestroy(gHandle);
 	}

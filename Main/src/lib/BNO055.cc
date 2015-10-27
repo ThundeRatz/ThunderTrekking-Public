@@ -100,7 +100,7 @@ namespace Trekking {
 		};
 		nanosleep(&sleep_time, NULL);
 	}
-	void save_file(){
+	void BNO055::save_file(){
 		ofstream file("Calibration.txt");
 		file << mag << " " << accel << " " << gyro << " " << sys << endl;
 	}

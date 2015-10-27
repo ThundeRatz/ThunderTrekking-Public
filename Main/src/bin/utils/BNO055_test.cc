@@ -20,7 +20,7 @@ int main() {
 	bno055_get_accel_calib_stat(&v_accel_calib_u8);
 	bno055_get_gyro_calib_stat(&v_gyro_calib_u8);
 	bno055_get_sys_calib_stat(&v_sys_calib_u8);
-	fprintf(file, "%d %d %d %d", v_mag_calib_u8, v_accel_calib_u8, v_gyro_calib_u8, v_sys_calib_u8);
+	fprintf(file, "%hu %hu %hu %hu", v_mag_calib_u8, v_accel_calib_u8, v_gyro_calib_u8, v_sys_calib_u8);
 	fclose(file);
 	/*
 	for (;;) {

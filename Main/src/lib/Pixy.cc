@@ -35,6 +35,7 @@ namespace Trekking {
 		if ((error_code = pixy_init())) {
 			pixy_error(error_code);
 			throw std::runtime_error("pixy_init");
+		x = y = 0;
 		}
 
 #ifdef DEBUG
@@ -48,6 +49,7 @@ namespace Trekking {
 
 	void PixyCam::clear() {
 		memset(&block, 0, sizeof(block));
+		x = y = 0;
 	}
 
 	void PixyCam::update() {
@@ -75,8 +77,8 @@ namespace Trekking {
 					}
 				}
 				memcpy(&block, &blocks[largest], sizeof(block));
-				block.x -= (PIXY_MAX_X + 1) / 2;
-				block.y -= (PIXY_MAX_Y + 1) / 2;
+				x = block.x - (PIXY_MAX_X + 1) / 2;
+				y = block.y - (PIXY_MAX_Y + 1) / 2;
 			}
 		} else
 			clear();

@@ -32,7 +32,7 @@
 #include "Pixy.hh"
 #include "Leds.hh"
 
-#define VELOCIDADE_MAX     50
+#define VELOCIDADE_MAX     240
 
 using namespace Trekking;
 using namespace std;
@@ -56,7 +56,7 @@ int main() {
 		leddar.update();
 		pixy.update();
 
-		cout << "Objeto Pixy = x: " << pixy.block.x << " y: " << pixy.block.y
+		cout << "Objeto Pixy = x: " << pixy.x << " y: " << pixy.y
 			<< " w: " << pixy.block.width << " h: " << pixy.block.height
 			<< " a: " << pixy.block.angle << endl;
 
@@ -71,22 +71,22 @@ int main() {
 			return 0;
 		}
 
-		if (leddar.measure.mDistance < 2) {
-			if (pixy.block.x < 0) {
-				corretor = VELOCIDADE_MAX + pixy.block.x/2;
+		if (leddar.measure.mDistance < 0.5) {
+			if (pixy.x < 0) {
+				corretor = VELOCIDADE_MAX + pixy.x/2;
 				motor(corretor, VELOCIDADE_MAX);
-			} else if (pixy.block.x > 0) {
-				corretor = VELOCIDADE_MAX - pixy.block.x/2;
+			} else if (pixy.x >= 0) {
+				corretor = VELOCIDADE_MAX - pixy.x/2;
 				motor(VELOCIDADE_MAX, corretor);
 			}
-		} else if (leddar.measure.mDistance > 10) {
+		} else if (leddar.measure.mDistance > 2) {
 			motor(-50, 50);
 		} else {
 			if (leddar.measure.mSegment < 6) {
-				corretor = VELOCIDADE_MAX - 10;
+				corretor = VELOCIDADE_MAX - 30;
 				motor(corretor, VELOCIDADE_MAX);
 			} else if (leddar.measure.mSegment > 8) {
-				corretor = VELOCIDADE_MAX - 10;
+				corretor = VELOCIDADE_MAX - 30;
 				motor(VELOCIDADE_MAX, corretor);
 			} else {
 				motor(VELOCIDADE_MAX, VELOCIDADE_MAX);

@@ -33,6 +33,7 @@ namespace Trekking {
 
 	public:
 		Block block;
+		int x, y;
 		PixyCam();
 		void clear();
 		void update();

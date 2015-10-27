@@ -40,6 +40,8 @@
 #include "Pixy.hh"
 #include "GPS.hh"
 
+#define VELOCIDADE_MAX 240
+
 using namespace Trekking;
 
 static WINDOW* gps_s;
@@ -76,8 +78,8 @@ void PixyScreen(PixyCam& block) {
 
 	mvwprintw(pixy_s, 3, 1, "Object Type: %hu", block.block.type);
 	mvwprintw(pixy_s, 4, 1, "Object Signature: %hu", block.block.signature);
-	mvwprintw(pixy_s, 5, 1, "Object X: %hd", block.block.x);
-	mvwprintw(pixy_s, 6, 1, "Object Y: %hd", block.block.y);
+	mvwprintw(pixy_s, 5, 1, "Object X: %hd", block.x);
+	mvwprintw(pixy_s, 6, 1, "Object Y: %hd", block.y);
 	mvwprintw(pixy_s, 7, 1, "Object Width: %hu", block.block.width);
 	mvwprintw(pixy_s, 8, 1, "Object Height: %hu", block.block.height);
 	mvwprintw(pixy_s, 9, 1, "Object Angle: %hu", block.block.angle);
@@ -152,8 +154,7 @@ int main() {
 	PixyCam block;
 	BNO055 bno055;
 	Bumper bumper;
-	char c;
-
+	int c;
 
 	Leds ledr("LedRed");
 	Leds ledg("LedGreen");
@@ -196,7 +197,6 @@ int main() {
 	wrefresh(bumper_s);
 	wrefresh(leddar_s);
 
-	LedsScreen();
 	timeout(90);
 	for (;;) {
 		c = getch();
@@ -205,23 +205,23 @@ int main() {
 			case 'v': ledg = (ledgOn ? 0 : 1); ledgOn = !ledgOn; break;
 			case 'b': ledb = (ledbOn ? 0 : 1); ledbOn = !ledbOn; break;
 			case KEY_UP:
-				if (left < 60) left++;
-				if (right < 60) right++;
+				if (left < VELOCIDADE_MAX) left++;
+				if (right < VELOCIDADE_MAX) right++;
 			break;
 
 			case KEY_DOWN:
-				if (left > -60) left--;
-				if (right > -60) right--;
+				if (left > -VELOCIDADE_MAX) left--;
+				if (right > -VELOCIDADE_MAX) right--;
 				break;
 
 			case KEY_LEFT:
-				if (right > -60) right--;
-				if (left < 60) left ++;
+				if (right > -VELOCIDADE_MAX) right--;
+				if (left < VELOCIDADE_MAX) left ++;
 				break;
 
 			case KEY_RIGHT:
-				if (left > -60) left--;
-				if (right < 60) right++;
+				if (left > -VELOCIDADE_MAX) left--;
+				if (right < VELOCIDADE_MAX) right++;
 				break;
 
 			case ' ': left = right = 0; break;
@@ -233,6 +233,7 @@ int main() {
 		BNOScreen(bno055);
 		BumperScreen(bumper);
 		LeddarScreen(leddar);
+		LedsScreen();
 		motor(left, right);
 		sleep_ms(10);
 	}

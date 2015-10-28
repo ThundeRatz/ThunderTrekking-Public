@@ -29,17 +29,17 @@
 #include <LeddarC.h>
 
 namespace Trekking {
-	static unsigned char ReadData(void* aHandle, LeddarU32 aLevels);
-
 	class LeddarEK {
 	private:
 		LeddarHandle gHandle;
 
 	public:
 		LdDetection measure;
+		unsigned int nMeasures;
 
 		LeddarEK();
 		~LeddarEK();
 		void update();
+		void restart();
 	};
 }

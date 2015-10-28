@@ -32,9 +32,10 @@
 
 static std::mutex leddarMtx;
 static LdDetection measurement;
+static unsigned int _nMeasures;
 
 namespace Trekking {
-	unsigned char ReadData(void* aHandle, LeddarU32 aLevels) {
+	static unsigned char ReadData(void* aHandle, LeddarU32 aLevels) {
 		LdDetection lDetections[50];
 
 		int error;
@@ -45,6 +46,10 @@ namespace Trekking {
 
 	    if (lCount > len(lDetections))
 	        lCount = len(lDetections);
+
+		leddarMtx.lock();
+		_nMeasures = lCount;
+		leddarMtx.unlock();
 
 	    if ((error = LeddarGetDetections(aHandle, lDetections, len(lDetections))) != LD_SUCCESS) {
 			LeddarGetErrorMessage(error, msg, len(msg));
@@ -74,7 +79,7 @@ namespace Trekking {
 		if (LeddarAddCallback(gHandle, ReadData, gHandle) != LD_SUCCESS)
 			throw std::runtime_error("Leddar add callback failed");
 
-		sleep_ms(100);
+		sleep_ms(50);
 	}
 
 	LeddarEK::~LeddarEK() {
@@ -88,6 +93,20 @@ namespace Trekking {
 	void LeddarEK::update() {
 		leddarMtx.lock();
 		measure = measurement;
+		nMeasures = _nMeasures;
 		leddarMtx.unlock();
+	}
+
+	void LeddarEK::restart() {
+		LeddarStopDataTransfer(gHandle);
+		LeddarRemoveCallback( gHandle, ReadData, gHandle );
+
+		sleep_ms(200);
+
+		if (LeddarStartDataTransfer(gHandle, LDDL_DETECTIONS) != LD_SUCCESS)
+			throw std::runtime_error("Leddar start data transfer failed");
+
+		if (LeddarAddCallback(gHandle, ReadData, gHandle) != LD_SUCCESS)
+			throw std::runtime_error("Leddar add callback failed");
 	}
 }

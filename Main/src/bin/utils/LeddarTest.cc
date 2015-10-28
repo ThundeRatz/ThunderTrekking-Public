@@ -36,11 +36,26 @@ using namespace Trekking;
 
 int main() {
 	LeddarEK leddar;
+	int cont = 0;
+	float ant = 0.;
 
 	for(;;) {
 		leddar.update();
+
+		if (ant == leddar.measure.mDistance) cont++;
+		else cont = 0;
+
+		if (cont >= 5) {
+			leddar.restart();
+			cont = 0;
+			ant = 0.;
+		}
+
+		ant = leddar.measure.mDistance;
+
 		cout << "Minimum Measurement: \n"
-			<< "\t" << leddar.measure.mSegment << " | " << leddar.measure.mDistance << endl;
+			<< "\t" << leddar.measure.mSegment << " | " << leddar.measure.mDistance << endl
+			<< "Number of measures: " << leddar.nMeasures << endl;
 
 		if (leddar.measure.mSegment < 6 && leddar.measure.mDistance < 0.3)
 			cout << "Esquerda\n";

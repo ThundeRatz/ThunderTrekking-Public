@@ -23,6 +23,7 @@
 */
 
 #include <stdexcept>
+#include <iostream>
 
 #include "LeddarEK.hh"
 #include "sleep.hh"
@@ -35,13 +36,20 @@ static LdDetection measurement;
 namespace Trekking {
 	unsigned char ReadData(void* aHandle, LeddarU32 aLevels) {
 		LdDetection lDetections[50];
-	    unsigned int lCount = LeddarGetDetectionCount(aHandle);
+
+		int error;
+		LtChar msg[256];
+
+		unsigned int lCount = LeddarGetDetectionCount(aHandle);
 		float min_distance = 999999.;
 
 	    if (lCount > len(lDetections))
 	        lCount = len(lDetections);
 
-	    LeddarGetDetections(aHandle, lDetections, len(lDetections));
+	    if ((error = LeddarGetDetections(aHandle, lDetections, len(lDetections))) != LD_SUCCESS) {
+			LeddarGetErrorMessage(error, msg, len(msg));
+			std::cerr << "Leddar get detetections error: " << msg << std::endl;
+		}
 
 	    for (unsigned int i = 0; (i < lCount) && (i < 16); ++i) {
 	        if (lDetections[i].mDistance < min_distance) {

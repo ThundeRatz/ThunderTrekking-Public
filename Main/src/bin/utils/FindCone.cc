@@ -73,14 +73,14 @@ int main() {
 
 		if (leddar.measure.mDistance < 2 && pixy.block.width != 0) {
 			if (pixy.x < 0) {
-				corretor = VELOCIDADE_MAX + pixy.x;
+				corretor = VELOCIDADE_MAX + (pixy.x * 1.5);
 				motor(corretor, VELOCIDADE_MAX);
 			} else if (pixy.x >= 0) {
-				corretor = VELOCIDADE_MAX - pixy.x;
+				corretor = VELOCIDADE_MAX - (pixy.x * 1.5);
 				motor(VELOCIDADE_MAX, corretor);
 			}
 		} else if (leddar.measure.mDistance > 10 || (leddar.measure.mDistance < 2 && pixy.block.width == 0)) {
-			motor(-100, 100);
+			motor(100, -100);
 		} else {
 			if (leddar.measure.mSegment < 6) {
 				corretor = VELOCIDADE_MAX - 50;

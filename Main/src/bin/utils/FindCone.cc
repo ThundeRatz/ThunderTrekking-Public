@@ -46,7 +46,8 @@ int main() {
 	Leds ledg("LedGreen");
 	Leds ledb("LedBlue");
 
-	int corretor;
+	int corretor, cont = 0;
+	double ant = 0.;
 
 	thread_spawn(motors_thread);
 
@@ -55,6 +56,17 @@ int main() {
 
 		leddar.update();
 		pixy.update();
+
+		if (ant == leddar.measure.mDistance) cont++;
+		else cont = 0;
+
+		if (cont >= 5) {
+			leddar.restart();
+			cont = 0;
+			ant = 0.;
+		}
+
+		ant = leddar.measure.mDistance;
 
 		cout << "Objeto Pixy = x: " << pixy.x << " y: " << pixy.y
 			<< " w: " << pixy.block.width << " h: " << pixy.block.height

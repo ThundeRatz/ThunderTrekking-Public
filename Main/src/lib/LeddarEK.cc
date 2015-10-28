@@ -84,7 +84,7 @@ namespace Trekking {
 
 	LeddarEK::~LeddarEK() {
 		LeddarStopDataTransfer(gHandle);
-		LeddarRemoveCallback( gHandle, ReadData, gHandle );
+		LeddarRemoveCallback(gHandle, ReadData, gHandle);
 
 		LeddarDisconnect(gHandle);
 		LeddarDestroy(gHandle);
@@ -98,8 +98,14 @@ namespace Trekking {
 	}
 
 	void LeddarEK::restart() {
+		std::cerr << "Restaring Leddar..." << std::endl;
+
 		LeddarStopDataTransfer(gHandle);
-		LeddarRemoveCallback( gHandle, ReadData, gHandle );
+		LeddarRemoveCallback(gHandle, ReadData, gHandle);
+
+		nMeasures = 0;
+		measure.mDistance = 0.;
+		measure.mSegment = 0.;
 
 		sleep_ms(200);
 
@@ -108,5 +114,7 @@ namespace Trekking {
 
 		if (LeddarAddCallback(gHandle, ReadData, gHandle) != LD_SUCCESS)
 			throw std::runtime_error("Leddar add callback failed");
+
+		sleep_ms(50);
 	}
 }

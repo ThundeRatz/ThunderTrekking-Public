@@ -42,7 +42,7 @@ namespace Trekking {
 		bno055.bus_read = read;
 		bno055.delay_msec = delay_ms;
 
-		file >> mag >> accel >> gyro >> sys;
+		load_file();
 
 		if (bno055_init(&bno055))
 			throw runtime_error("BNO055 initialization failed");
@@ -138,7 +138,7 @@ namespace Trekking {
 			>> gyro_offset.x >> gyro_offset.y
 			>> gyro_offset.z
 		 	>> mag_offset.x >> mag_offset.y
-  			>> mag_offset.z >> mag_offset.r >> endl;
+  			>> mag_offset.z >> mag_offset.r;
 		//Write variables
 		bno055_write_accel_offset(&accel_offset);
 		bno055_write_gyro_offset(&gyro_offset);

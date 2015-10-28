@@ -71,22 +71,22 @@ int main() {
 			return 0;
 		}
 
-		if (leddar.measure.mDistance < 0.5) {
+		if (leddar.measure.mDistance < 2 && pixy.block.width != 0) {
 			if (pixy.x < 0) {
-				corretor = VELOCIDADE_MAX + pixy.x/2;
+				corretor = VELOCIDADE_MAX + pixy.x;
 				motor(corretor, VELOCIDADE_MAX);
 			} else if (pixy.x >= 0) {
-				corretor = VELOCIDADE_MAX - pixy.x/2;
+				corretor = VELOCIDADE_MAX - pixy.x;
 				motor(VELOCIDADE_MAX, corretor);
 			}
-		} else if (leddar.measure.mDistance > 2) {
-			motor(-50, 50);
+		} else if (leddar.measure.mDistance > 10 || (leddar.measure.mDistance < 2 && pixy.block.width == 0)) {
+			motor(-100, 100);
 		} else {
 			if (leddar.measure.mSegment < 6) {
-				corretor = VELOCIDADE_MAX - 30;
+				corretor = VELOCIDADE_MAX - 50;
 				motor(corretor, VELOCIDADE_MAX);
 			} else if (leddar.measure.mSegment > 8) {
-				corretor = VELOCIDADE_MAX - 30;
+				corretor = VELOCIDADE_MAX - 50;
 				motor(VELOCIDADE_MAX, corretor);
 			} else {
 				motor(VELOCIDADE_MAX, VELOCIDADE_MAX);

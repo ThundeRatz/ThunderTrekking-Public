@@ -102,19 +102,48 @@ namespace Trekking {
 	}
 
 	void BNO055::get_calibration() {
-		bno055_get_accel_calib_stat(&accel);
-		bno055_get_gyro_calib_stat(&gyro);
-		bno055_get_mag_calib_stat(&mag);
-		bno055_get_sys_calib_stat(&sys);
+		u8 mag_calib;
+		u8 accel_calib;
+		u8 gyro_calib;
+		u8 sys_calib;
 
-		cout << "Mag: " << unsigned(mag)
-			<< "\nAccel: " << unsigned(accel)
-			<< "\nGyro: " << unsigned(gyro)
-			<< "\nAll: " << unsigned(sys) << endl << endl;
+		bno055_get_accel_calib_stat(&accel_calib);
+		bno055_get_gyro_calib_stat(&gyro_calib);
+		bno055_get_mag_calib_stat(&mag_calib);
+		bno055_get_sys_calib_stat(&sys_calib);
+
+		cout << "Mag: " << unsigned(mag_calib)
+			<< "\nAccel: " << unsigned(accel_calib)
+			<< "\nGyro: " << unsigned(gyro_calib)
+			<< "\nAll: " << unsigned(sys_calib) << endl << endl;
 	}
 
 	void BNO055::save_file() {
 		ofstream file("Calibration.txt");
-		file << unsigned(mag) << " " << unsigned(accel) << " " << unsigned(gyro) << " " << unsigned(sys) << endl;
+
+		file << accel_offset.x << " " << accel_offset.y << " "
+				 << accel_offset.z << " " << accel_offset.r << " "
+				 << gyro_offset.x << " " << gyro_offset.y << " "
+				 << gyro_offset.z << " "
+				 << mag_offset.x << " " << mag_offset.y << " "
+				 << mag_offset.z << " " << mag_offset.r << endl;
+		file.close();
+	}
+	void BNO055::load_file() {
+		ifstream file("Calibration.txt");
+		if(bno055_set_operation_mode(OPERATION_MODE_CONFIG))
+			throw runtime_error("BNO055 operation mode failed: CONFIG on load_file");
+		file >> accel_offset.x >> accel_offset.y
+			>> accel_offset.z >> accel_offset.r
+			>> gyro_offset.x >> gyro_offset.y
+			>> gyro_offset.z
+		 	>> mag_offset.x >> mag_offset.y
+  			>> mag_offset.z >> mag_offset.r >> endl;
+		//Write variables
+		bno055_write_accel_offset(&accel_offset);
+		bno055_write_gyro_offset(&gyro_offset);
+		bno055_write_mag_offset(&mag_offset);
+		if (bno055_set_operation_mode(OPERATION_MODE_NDOF))
+			throw runtime_error("BNO055 operation mode failed: NDOF on load_file");
 	}
 }

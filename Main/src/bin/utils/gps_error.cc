@@ -28,6 +28,7 @@
 #include <ctime>
 
 #include "GPS.hh"
+#include "sleep.hh"
 
 #include "compass.h"
 
@@ -46,7 +47,7 @@ Trekking::GPS testes[] = {
 };
 
 int main() {
-	cout << fixed << setprecision(8);
+	cout << fixed << setprecision(10);
 
 	double angle, dist;
 
@@ -57,6 +58,7 @@ int main() {
 		while (!position.blocking_update()) ;
 		cout << "Posicao atual: " << position.latitude << " " << position.longitude << "\n";
 		stats.sample(position);
+		Trekking::sleep_ms(1000);
 	}
 	cout << "Posicao atual media: " << stats.latitude_stats().mean() << " " << stats.longitude_stats().mean() << "\n";
 

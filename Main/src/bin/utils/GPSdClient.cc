@@ -132,11 +132,11 @@ int main() {
                         cout << "fix" << "\n\t"
                                 << "time (±" << gps.gpsd_data->fix.ept << ") " << gps.gpsd_data->fix.time << "\n\t"
                                 << "mode: " << gps.gpsd_data->fix.mode << " {MODE_NOT_SEEN, MODE_NO_FIX, MODE_2D, MODE_3D}" << "\n\t";
-                        if (set_fields & LATLON_SET)
+                        if (gps.gpsd_data->set & LATLON_SET)
                                 cout << "latitude: " << gps.gpsd_data->fix.latitude << " (±" << gps.gpsd_data->fix.epy << ")\n\t"
                                         << "longitude: " << gps.gpsd_data->fix.longitude << " (±" << gps.gpsd_data->fix.epx << ")\n\t";
-                        if (set_fields & ALTITUDE_SET)
-                                cout << "altitude: " << gps.gpsd_data->fix.altitude << " (±" << gps.gpsd_data->fix.epv << ")\n\t"
+                        if (gps.gpsd_data->set & ALTITUDE_SET)
+                                cout << "altitude: " << gps.gpsd_data->fix.altitude << " (±" << gps.gpsd_data->fix.epv << ")\n\t";
                         cout << "track: " << gps.gpsd_data->fix.track << " (±" << gps.gpsd_data->fix.epd << ")\n\t"
                         << "speed: " << gps.gpsd_data->fix.speed << " (±" << gps.gpsd_data->fix.eps << ")\n\t"
                         << "climb: " << gps.gpsd_data->fix.climb << " (±" << gps.gpsd_data->fix.epc << ")\n";

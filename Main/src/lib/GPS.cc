@@ -49,22 +49,22 @@ namespace Trekking {
 	 * http://gis.stackexchange.com/questions/4906/why-is-law-of-cosines-more-preferable-than-haversine-when-calculating-distance-b)
 	 * @param[in] to other coordinate
 	 */
-	// double GPS::distance_to(const GPS &to) {
-	// 	double	phy1 = latitude,
-	// 			phy2 = to.latitude,
-	// 			delta_lat = to.latitude - latitude,
-	// 			delta_long = to.longitude - longitude;
-	// 	double a, dist_angular;
-	//
-	// 	a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
-	// 	dist_angular = 2 * atan2(sqrt(a), sqrt(1 - a));
-	//
-	// 	return EARTH_R * dist_angular;
-	// }
+	double GPS::distance_to(const GPS &to) {
+		double	phy1 = latitude,
+				phy2 = to.latitude,
+				delta_lat = to.latitude - latitude,
+				delta_long = to.longitude - longitude;
+		double a, dist_angular;
 
-	double GPS::distance_to(const GPS& to) {
-		return sqrt(point[0] * to.point[0] + point[1] * to.point[1]);
+		a = haversine(delta_lat) + haversine(delta_long) * cos(phy1) * cos(phy2);
+		dist_angular = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+		return EARTH_R * dist_angular;
 	}
+
+	// double GPS::distance_to(const GPS& to) {
+	// 	return sqrt(point[0] * to.point[0] + point[1] * to.point[1]);
+	// }
 
 	/**
 	 * Forward Azimuth (initial angle)

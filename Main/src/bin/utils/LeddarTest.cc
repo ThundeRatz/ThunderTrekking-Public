@@ -22,38 +22,48 @@
  * SOFTWARE.
 */
 
-#pragma once
+#include <iostream>
+#include <iomanip>
+#include <mutex>
 
-#include <string>
+#include "LeddarEK.hh"
+#include "sleep.hh"
 
-#include <poll.h>
+#define len(array)     ((&array)[1] - array)
 
-namespace Trekking {
-	class GPIO {
-		public:
-			static const std::string IN, OUT_LOW, OUT_HIGH;
-			static const std::string EDGE_NONE, EDGE_RISE, EDGE_FALL,
-				EDGE_BOTH;
-			GPIO(int gpio);
-			~GPIO();
-			void export_gpio();
-			int poll(int timeout);
-			void poll();
-			void direction(const std::string &direction);
-			void active_low();
-			void edge(const std::string &edge_type);
-			void operator=(bool value);
-			operator bool() const;
+using namespace std;
+using namespace Trekking;
 
-		private:
-			// value_fd é salvo por ser o mais acessado e para não abrir e
-			// fechar toda a hora
-			int fd_value;
-			int gpio;
-			struct pollfd poll_targets;
-			void write_to_file(const std::string& name, const std::string& value);
-			bool previous_value = false;
-			
-			bool exported();
-	};
+int main() {
+	LeddarEK leddar;
+	int cont = 0;
+	float ant = 0.;
+
+	for(;;) {
+		leddar.update();
+
+		if (ant == leddar.measure.mDistance) cont++;
+		else cont = 0;
+
+		if (cont >= 5) {
+			leddar.restart();
+			cont = 0;
+			ant = 0.;
+		}
+
+		ant = leddar.measure.mDistance;
+
+		cout << "Minimum Measurement: \n"
+			<< "\t" << leddar.measure.mSegment << " | " << leddar.measure.mDistance << endl
+			<< "Number of measures: " << leddar.nMeasures << endl;
+
+		if (leddar.measure.mSegment < 6 && leddar.measure.mDistance < 0.3)
+			cout << "Esquerda\n";
+		else if (leddar.measure.mSegment > 8 && leddar.measure.mDistance < 0.3)
+			cout << "Direita\n";
+		else
+			cout << "Reto\n";
+
+		sleep_ms(300);
+	}
 }

@@ -112,7 +112,7 @@ LeddarTest_SOURCES = src/bin/utils/LeddarTest.cc src/lib/sleep.cc src/lib/errno_
 LeddarTest_LDADD = $(LEDDAR) -lpthread
 
 GPSTest_SOURCES = src/bin/utils/GPSTest.cc src/lib/GPS.cc src/lib/sleep.cc src/lib/errno_string.cc \
-	src/lib/Stats.cc src/lib/BNO055.cc src/lib/bno055.cc src/lib/compass.cc src/lib/I2C.cc
+	src/lib/Stats.cc src/lib/bno055.cc src/lib/compass.cc src/lib/I2C.cc
 GPSTest_LDADD = -lgps
 
 BNOCalib_SOURCES = src/bin/utils/BNO055_calibration_test.cc src/lib/BNO055.cc src/lib/sleep.cc \

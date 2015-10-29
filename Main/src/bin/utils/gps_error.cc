@@ -28,7 +28,7 @@
 #include <ctime>
 
 #include "GPS.hh"
-#include "sleep.hh	"
+#include "sleep.hh"
 
 #include "compass.h"
 

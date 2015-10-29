@@ -104,37 +104,40 @@ int main() {
                     cout << "Offline\n";
 
                 if (gps.gpsd_data->status == STATUS_FIX) {
-                    cout << "Fix - " << gps.gpsd_data->satellites_used << " satellites used\n";
-                    cout << "visible: " << gps.gpsd_data->satellites_visible << "\n";
-                    cout << "Skyview time: " << gps.gpsd_data->skyview_time << endl;
+                        cout << "Fix - " << gps.gpsd_data->satellites_used << " satellites used\n";
+                        cout << "visible: " << gps.gpsd_data->satellites_visible << "\n";
+                        cout << "Skyview time: " << gps.gpsd_data->skyview_time << endl;
 #ifdef DEBUG
-                    // Esses dados podem ser usados para ver qualidade de cada
-                    // satélite, mas são deixados de lado por padrão por serem
-                    // bem barulhentos
-                    for (unsigned int i = 0; i < sizeof(gps.gpsd_data->skyview) / sizeof(*gps.gpsd_data->skyview); i++)
-                        if (gps.gpsd_data->skyview[i].ss != 0. || gps.gpsd_data->skyview[i].used ||
-                            gps.gpsd_data->skyview[i].PRN != 0 || gps.gpsd_data->skyview[i].elevation != 0 ||
-                            gps.gpsd_data->skyview[i].azimuth != 0) {
+                        // Esses dados podem ser usados para ver qualidade de cada
+                        // satélite, mas são deixados de lado por padrão por serem
+                        // bem barulhentos
+                        for (unsigned int i = 0; i < sizeof(gps.gpsd_data->skyview) / sizeof(*gps.gpsd_data->skyview); i++)
+                                if (gps.gpsd_data->skyview[i].ss != 0. || gps.gpsd_data->skyview[i].used ||
+                                        gps.gpsd_data->skyview[i].PRN != 0 || gps.gpsd_data->skyview[i].elevation != 0 ||
+                                        gps.gpsd_data->skyview[i].azimuth != 0) {
 
-                            cout << "Sat " << i << "\n\t"
-                                << "signal-to-noise ratio (dB): " << gps.gpsd_data->skyview[i].ss << "\n\t"
-                                << "elevation: " << gps.gpsd_data->skyview[i].elevation << "\n\t"
-                                << "azimuth: " << gps.gpsd_data->skyview[i].azimuth << "\n\t";
-                            if (gps.gpsd_data->skyview[i].used)
-                                cout << "PRN: " << gps.gpsd_data->skyview[i].PRN << "\n";
-                            else
-                                cout << "No PRN" << "\n";
+                                        cout << "Sat " << i << "\n\t"
+                                        << "signal-to-noise ratio (dB): " << gps.gpsd_data->skyview[i].ss << "\n\t"
+                                        << "elevation: " << gps.gpsd_data->skyview[i].elevation << "\n\t"
+                                        << "azimuth: " << gps.gpsd_data->skyview[i].azimuth << "\n\t";
+                                        if (gps.gpsd_data->skyview[i].used)
+                                                cout << "PRN: " << gps.gpsd_data->skyview[i].PRN << "\n";
+                                        else
+                                                cout << "No PRN" << "\n";
                         }
 #endif
-
-                    cout << "spherical position error (95% confidence): " << gps.gpsd_data->epe << "\n";
-                    cout << "fix" << "\n\t"
-                        << "time (±" << gps.gpsd_data->fix.ept << ") " << gps.gpsd_data->fix.time << "\n\t"
-                        << "mode: " << gps.gpsd_data->fix.mode << " {MODE_NOT_SEEN, MODE_NO_FIX, MODE_2D, MODE_3D}" << "\n\t"
-                        << "latitude: " << gps.gpsd_data->fix.latitude << " (±" << gps.gpsd_data->fix.epy << ")\n\t"
-                        << "longitude: " << gps.gpsd_data->fix.longitude << " (±" << gps.gpsd_data->fix.epx << ")\n\t"
-                        << "altitude: " << gps.gpsd_data->fix.altitude << " (±" << gps.gpsd_data->fix.epv << ")\n\t"
-                        << "track: " << gps.gpsd_data->fix.track << " (±" << gps.gpsd_data->fix.epd << ")\n\t"
+#warning Faltam checagens de _SET aqui
+/// @FIXME Faltam checagens de _SET aqui
+                        cout << "spherical position error (95% confidence): " << gps.gpsd_data->epe << "\n";
+                        cout << "fix" << "\n\t"
+                                << "time (±" << gps.gpsd_data->fix.ept << ") " << gps.gpsd_data->fix.time << "\n\t"
+                                << "mode: " << gps.gpsd_data->fix.mode << " {MODE_NOT_SEEN, MODE_NO_FIX, MODE_2D, MODE_3D}" << "\n\t";
+                        if (set_fields & LATLON_SET)
+                                cout << "latitude: " << gps.gpsd_data->fix.latitude << " (±" << gps.gpsd_data->fix.epy << ")\n\t"
+                                        << "longitude: " << gps.gpsd_data->fix.longitude << " (±" << gps.gpsd_data->fix.epx << ")\n\t";
+                        if (set_fields & ALTITUDE_SET)
+                                cout << "altitude: " << gps.gpsd_data->fix.altitude << " (±" << gps.gpsd_data->fix.epv << ")\n\t"
+                        cout << "track: " << gps.gpsd_data->fix.track << " (±" << gps.gpsd_data->fix.epd << ")\n\t"
                         << "speed: " << gps.gpsd_data->fix.speed << " (±" << gps.gpsd_data->fix.eps << ")\n\t"
                         << "climb: " << gps.gpsd_data->fix.climb << " (±" << gps.gpsd_data->fix.epc << ")\n";
                 } else

@@ -147,7 +147,7 @@ void LedsScreen() {
 }
 
 int main() {
-	thread_spawn(motors_thread);
+	//thread_spawn(motors_thread);
 
 	GPSMonitor gps(GPS(-0.411087, -0.815589));
 	LeddarEK leddar;
@@ -234,7 +234,7 @@ int main() {
 		BumperScreen(bumper);
 		LeddarScreen(leddar);
 		LedsScreen();
-		motor(left, right);
+		//motor(left, right);
 		sleep_ms(10);
 	}
 

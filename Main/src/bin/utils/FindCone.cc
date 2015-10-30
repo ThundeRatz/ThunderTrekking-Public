@@ -51,60 +51,70 @@ int main() {
 
 	thread_spawn(motors_thread);
 
-	for (;;) {
-		sleep_ms(300);
+	for(;;) {
+		for (;;) {
+			sleep_ms(50);
 
-		leddar.update();
-		pixy.update();
+			leddar.update();
+			pixy.update();
 
-		if (ant == leddar.measure.mDistance) cont++;
-		else cont = 0;
+			if (ant == leddar.measure.mDistance) cont++;
+			else cont = 0;
 
-		if (cont >= 5) {
-			leddar.restart();
-			cont = 0;
-			ant = 0.;
-		}
-
-		ant = leddar.measure.mDistance;
-
-		cout << "Objeto Pixy = x: " << pixy.x << " y: " << pixy.y
-			<< " w: " << pixy.block.width << " h: " << pixy.block.height
-			<< " a: " << pixy.block.angle << endl;
-
-		cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
-			<< leddar.measure.mDistance << endl << endl;
-
-		if (bumper.pressed()) {
-			ledr = 1; ledg = 1; ledb = 1;
-			motor(0, 0);
-			sleep_ms(1000);
-			ledr = 0; ledg = 0; ledb = 0;
-			return 0;
-		}
-
-		if (leddar.measure.mDistance < 2 && pixy.block.width != 0) {
-			if (pixy.x < 0) {
-				corretor = VELOCIDADE_MAX + (pixy.x * 1.5);
-				motor(corretor, VELOCIDADE_MAX);
-			} else if (pixy.x >= 0) {
-				corretor = VELOCIDADE_MAX - (pixy.x * 1.5);
-				motor(VELOCIDADE_MAX, corretor);
+			if (cont >= 15) {
+				leddar.restart();
+				cont = 0;
+				ant = 0.;
 			}
-		} else if (leddar.measure.mDistance > 10 || (leddar.measure.mDistance < 2 && pixy.block.width == 0)) {
-			motor(100, -100);
-		} else {
-			if (leddar.measure.mSegment < 6) {
-				corretor = VELOCIDADE_MAX - 50;
-				motor(corretor, VELOCIDADE_MAX);
-			} else if (leddar.measure.mSegment > 8) {
-				corretor = VELOCIDADE_MAX - 50;
-				motor(VELOCIDADE_MAX, corretor);
+
+			ant = leddar.measure.mDistance;
+
+			cout << "Objeto Pixy = x: " << pixy.x << " y: " << pixy.y
+				<< " w: " << pixy.block.width << " h: " << pixy.block.height
+				<< " a: " << pixy.block.angle << endl;
+
+			cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
+				<< leddar.measure.mDistance << endl << endl;
+
+			if (bumper.pressed()) {
+				ledr = 1; ledg = 1; ledb = 1;
+				cout << "Found Cone!" << endl;
+				motor(0, 0);
+				sleep_ms(2500);
+				ledr = 0; ledg = 0; ledb = 0;
+				break;
+			}
+
+			if (leddar.measure.mDistance < 2 && pixy.block.width != 0) {
+				if (pixy.x < 0) {
+					corretor = VELOCIDADE_MAX + (pixy.x * 1.5);
+					motor(corretor, VELOCIDADE_MAX);
+				} else if (pixy.x >= 0) {
+					corretor = VELOCIDADE_MAX - (pixy.x * 1.5);
+					motor(VELOCIDADE_MAX, corretor);
+				}
+			} else if (leddar.measure.mDistance > 10 || (leddar.measure.mDistance < 2 && pixy.block.width == 0)) {
+				motor(100, -100);
 			} else {
-				motor(VELOCIDADE_MAX, VELOCIDADE_MAX);
+				if (leddar.measure.mSegment < 6) {
+					corretor = VELOCIDADE_MAX - 50;
+					motor(corretor, VELOCIDADE_MAX);
+				} else if (leddar.measure.mSegment > 8) {
+					corretor = VELOCIDADE_MAX - 50;
+					motor(VELOCIDADE_MAX, corretor);
+				} else {
+					motor(VELOCIDADE_MAX, VELOCIDADE_MAX);
+				}
 			}
+
 		}
 
+		while (!bumper.pressed());
+		while (!bumper.pressed());
+		while (!bumper.pressed());
+		ledr = 1;
+		sleep_ms(300);
+		ledr = 0;
 	}
 
 	return -1;

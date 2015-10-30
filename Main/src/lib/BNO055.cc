@@ -101,15 +101,19 @@ namespace Trekking {
 	}
 
 	void BNO055::get_calibration() {
-		u8 mag_calib;
-		u8 accel_calib;
-		u8 gyro_calib;
-		u8 sys_calib;
+		u8 mag_calib = 0;
+		u8 accel_calib = 0;
+		u8 gyro_calib = 0;
+		u8 sys_calib = 0;
 
-		bno055_get_accel_calib_stat(&accel_calib);
-		bno055_get_gyro_calib_stat(&gyro_calib);
-		bno055_get_mag_calib_stat(&mag_calib);
-		bno055_get_sys_calib_stat(&sys_calib);
+		if (bno055_get_accel_calib_stat(&accel_calib))
+			cerr << "bno055_get_accel_calib_stat failed\n";
+		if (bno055_get_gyro_calib_stat(&gyro_calib))
+			cerr << "bno055_get_gyro_calib_stat failed\n";
+		if (bno055_get_mag_calib_stat(&mag_calib))
+			cerr << "bno055_get_mag_calib_stat failed\n";
+		if (bno055_get_sys_calib_stat(&sys_calib))
+			cerr << "bno055_get_sys_calib_stat failed\n";
 
 		cout << "Mag: " << unsigned(mag_calib)
 			<< "\nAccel: " << unsigned(accel_calib)

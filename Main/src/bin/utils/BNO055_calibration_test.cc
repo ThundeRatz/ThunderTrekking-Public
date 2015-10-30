@@ -23,7 +23,7 @@ int main() {
 	bno055_get_mag_calib_stat(&mag);
 	bno055_get_sys_calib_stat(&sys);
 
-	while(mag != 3 || accel != 3 || gyro != 3 || sys != 3) {
+	while(mag != 3 || accel != 3 || gyro != 3) {
 
 		bno055_get_accel_calib_stat(&accel);
 		bno055_get_gyro_calib_stat(&gyro);

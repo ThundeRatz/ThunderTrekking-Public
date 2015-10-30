@@ -4,7 +4,7 @@
 
 #include "GPS.hh"
 #include "sleep.hh"
-//#include "BNO055.hh"
+#include "BNO055.hh"
 
 #include "compass.h"
 
@@ -15,12 +15,12 @@ using namespace Trekking;
 
 int main() {
 	cout << fixed << setprecision(10);
-	GPS pos[] = { GPS(-0.4110905127, -0.8155817966),    // Banco 1
-				  GPS(-0.4110880729, -0.8155855454),    // Pe da escada
-				  GPS(-0.4110880384, -0.8155887659),    // Arena do Hockey
-				  GPS(-0.4110855167, -0.8155872874), }; // Outro banco
+	GPS pos[] = { GPS(-0.3705665059, -0.7852447993),
+				  GPS(-0.3705604371, -0.7852483900),
+				  GPS(-0.3705616068, -0.7852457911),
+				  GPS(-0.3705660952, -0.7852481772), }; // Outro banco
 	GPSMonitor gps(pos[0]);
-	//BNO055 bno;
+	BNO055 bno;
 	static Eigen::Rotation2D<double> heading;
 
 	for (int i = 0; i < len(pos); i++)
@@ -33,7 +33,7 @@ int main() {
 			continue;
 		}
 		system("clear");
-		//bno.heading(heading);
+		bno.heading(heading);
 		cout << "Atual:\n"
 			 << "---Esferico:                       Plano:\n"
 		 	 << "-----Latitude:  " << gps.latitude  << "    X: " << gps.point[0] << endl
@@ -47,9 +47,9 @@ int main() {
 				 << "-----Longitude: " << pos[i].longitude << "    Y: " << pos[i].point[1] << endl
 				 << "---Distancia: " << gps.distance_to(pos[i]) << " km" << endl;
 			cout << "---Angulos:\n"
-				 << "-----Azimuth: " << gps.azimuth_to(pos[i]) << endl;
-			//	 << "-----Heading: " << heading.angle() << endl
-			//	 << "-----Diff:    " << compass_diff(gps.azimuth_to(pos[i]), heading.angle()) << endl;
+				 << "-----Azimuth: " << gps.azimuth_to(pos[i]) << endl
+				 << "-----Heading: " << heading.angle() << endl
+				 << "-----Diff:    " << compass_diff(gps.azimuth_to(pos[i]), heading.angle()) << endl;
 			cout << "---------------------------------------------------------------" << endl;
 		}
 		sleep_ms(50);

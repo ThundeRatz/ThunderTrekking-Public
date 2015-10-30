@@ -6,7 +6,7 @@ bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
 	BumperTest TesteGeral LeddarTest FindCone GPIOButtonTest \
-	GPSTest BNOCalib cameraTest pino164
+	GPSTest BNOCalib main_alt cameraTest pino164
 
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
 	src/lib/ThreadPixy.cc src/lib/ThreadHmc5883l.cc src/lib/compass.cc \
@@ -112,7 +112,7 @@ LeddarTest_SOURCES = src/bin/utils/LeddarTest.cc src/lib/sleep.cc src/lib/errno_
 LeddarTest_LDADD = $(LEDDAR) -lpthread
 
 GPSTest_SOURCES = src/bin/utils/GPSTest.cc src/lib/GPS.cc src/lib/sleep.cc src/lib/errno_string.cc \
-	src/lib/Stats.cc src/lib/bno055.cc src/lib/compass.cc src/lib/I2C.cc
+	src/lib/Stats.cc src/lib/bno055.cc src/lib/compass.cc src/lib/I2C.cc src/lib/BNO055.cc
 GPSTest_LDADD = -lgps
 
 pino164_SOURCES = src/bin/utils/pino164.cc src/lib/GPIOButton.cc src/lib/GPIO.cc \
@@ -122,6 +122,10 @@ pino164_LDFLAGS = -pthread -Wl,--no-as-needed
 
 BNOCalib_SOURCES = src/bin/utils/BNO055_calibration_test.cc src/lib/BNO055.cc src/lib/sleep.cc \
 	src/lib/bno055.cc src/lib/I2C.cc src/lib/errno_string.cc
+
+main_alt_SOURCES = src/bin/utils/mainzua.cc src/lib/LeddarEK.cc src/lib/sleep.cc src/lib/errno_string.cc \
+	src/lib/Bumper.cc src/lib/Leds.cc src/lib/ThreadMotors.cc src/lib/ThreadSpawn.cc src/lib/serial.cc
+main_alt_LDADD = $(LEDDAR) -levdev -lpthread
 
 # -DRAPIDJSON_SSE42 for x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \

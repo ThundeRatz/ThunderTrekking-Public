@@ -1,12 +1,12 @@
 PIXY=-lpixyusb -lusb-1.0 -lboost_thread -lboost_system -lboost_chrono -lstdc++
 LEDDAR=-lLeddarC -lLeddar -lLeddarTech -lstdc++
 
-bin_PROGRAMS = main udp_recv_bigodes udp_recv_hmc5883l \
+bin_PROGRAMS = udp_recv_bigodes udp_recv_hmc5883l \
 	udp_send pixy_test distance compass_diff controle \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
 	BumperTest TesteGeral LeddarTest FindCone GPIOButtonTest \
-	GPSTest BNOCalib mainMaps cameraTest pino164
+	GPSTest BNOCalib mainMaps cameraTest pino164 main
 
 ## @TODO: Limpar aqui
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \

@@ -70,6 +70,7 @@ static Bumper bumper;
 static BNO055* bno;
 static LeddarEK leddar;
 static Eigen::Rotation2D<double> heading;
+static GPSMonitor gps(eventos[0].pos);
 
 static int cont = 0;
 static double ant = 0.;
@@ -103,7 +104,7 @@ int main() {
 
 	motor(0, 0);
 
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 101; i++) {
 		ledr = i % 2;
 		sleep_ms(50);
 		ledb = i % 2;
@@ -132,10 +133,12 @@ void Evento::executa() {
 		sleep_ms(50);
 		c++;
 
-		leddar.update();
+		// leddar.update();
 		bno->heading(heading);
+		gps.blocking_update();
+
 		if (bumper.pressed()) {
-			reinicio++;
+			// reinicio++;
 		}
 
 		if (reinicio >= 10) {
@@ -149,19 +152,20 @@ void Evento::executa() {
 			return;
 		}
 
-		if (ant == leddar.measure.mDistance) cont++;
-		else cont = 0;
+		// if (ant == leddar.measure.mDistance) cont++;
+		// else cont = 0;
+		//
+		// if (cont >= 50) {
+		// 	leddar.restart();
+		// 	cont = 0;
+		// 	ant = 0.;
+		// }
+		//
+		// ant = leddar.measure.mDistance;
 
-		if (cont >= 50) {
-			leddar.restart();
-			cont = 0;
-			ant = 0.;
-		}
-
-		ant = leddar.measure.mDistance;
-
-		correcao = compass_diff(this->angle, heading.angle());
-		cout << "Azimuth: " << this->angle << endl
+		correcao = compass_diff(gps.azimuth_to(pos), heading.angle());
+		cout << gps.point << " -> " << pos.point
+			<< "Azimuth: " << this->angle << endl
 			<< "Direcao Atual: " << heading.angle() << endl
 			<< "Diff: " << correcao << endl
 			<< "Menor Distancia EK: " << leddar.measure.mSegment << "|"
@@ -169,11 +173,11 @@ void Evento::executa() {
 
 		if (correcao > ERRO_MAX) {
                 cout << "Girando para a direita\n";
-                motor_l = VMAX ;
-                motor_r = -(VMAX - abs((correcao * 50)));//-VMAX;
+                motor_l = VMAX;
+                motor_r = -(VMAX - abs((correcao * 75)));//-VMAX;
 		} else if (correcao < -ERRO_MAX) {
                 cout << "Girando para a esquerda\n";
-                motor_l = -(VMAX - abs((correcao * 50)));//-VMAX;
+                motor_l = -(VMAX - abs((correcao * 75)));//-VMAX;
                 motor_r = VMAX;
         } else {
                 cout << "Seguindo reto\n";
@@ -182,20 +186,32 @@ void Evento::executa() {
         }
 		motor(motor_l, motor_r);
 
-		if (leddar.nMeasures > 0 && leddar.measure.mDistance < 4 && leddar.measure.mDistance > 0 && c >= 100) {
+		if (this->tem_cone && gps.distance_to(this->pos) < 4./1000.) {
 			cout << "Cone proximo\n";
-			ledb = 1;
-			sleep_ms(150);
-			ledb = 0;
 			if (find_cone()) {
 				motor(VMAX, VMAX);
 				sleep_ms(1500);
 				motor(-VMAX, -VMAX);
-				sleep_ms(1500);
+				sleep_ms(500);
+				reinicio = 0;
 				return;
 			}
-			ledr = 0; ledg = 0; ledb = 0;
 		}
+
+		// if (leddar.nMeasures > 0 && leddar.measure.mDistance < 4 && leddar.measure.mDistance > 0 && c >= 100) {
+		// 	cout << "Cone proximo\n";
+		// 	ledb = 1;
+		// 	sleep_ms(150);
+		// 	ledb = 0;
+		// 	if (find_cone()) {
+		// 		motor(VMAX, VMAX);
+		// 		sleep_ms(1500);
+		// 		motor(-VMAX, -VMAX);
+		// 		sleep_ms(1500);
+		// 		return;
+		// 	}
+		// 	ledr = 0; ledg = 0; ledb = 0;
+		// }
 	}
 }
 
@@ -203,7 +219,9 @@ bool Evento::find_cone() {
 	unsigned int led_wait_time = 500;
 	int corretor;
 
+	ledb= 1;
 	sleep_ms(led_wait_time);
+	ledb = 0;
 
 	for (;;) {
 		sleep_ms(50);
@@ -213,17 +231,22 @@ bool Evento::find_cone() {
 		if (ant == leddar.measure.mDistance) cont++;
 		else cont = 0;
 
-		if (cont >= 20) {
+		if (cont >= 50) {
+			ledg = 1;
 			leddar.restart();
+			ledg = 0;
 			cont = 0;
 			ant = 0.;
 		}
 
 		ant = leddar.measure.mDistance;
 
-		if (leddar.measure.mDistance > 5) {
-			cout << "Alarme falso! Retornando\n";
-			return false;
+		if  (leddar.nMeasures == 0 || leddar.measure.mDistance > 8) {
+			ledr = 1; ledb = 1;
+			cout << "Procurando cone...\n";
+			motor(200, -200);
+			sleep_ms(50);
+			ledr = 0; ledb = 0;
 		}
 
 		cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
@@ -239,13 +262,13 @@ bool Evento::find_cone() {
 			return true;
 		}
 
-		if (leddar.measure.mSegment < 6) {
-			corretor = VMAX - 50;
+		if (leddar.measure.mDistance <= 8 && leddar.measure.mSegment < 6) {
+			corretor = VMAX - 100;
 			motor(corretor, VMAX);
-		} else if (leddar.measure.mSegment > 8) {
-			corretor = VMAX - 50;
+		} else if (leddar.measure.mDistance <= 8 && leddar.measure.mSegment > 8) {
+			corretor = VMAX - 100;
 			motor(VMAX, corretor);
-		} else {
+		} else if (leddar.measure.mDistance <= 8 && (leddar.measure.mSegment >= 6 && leddar.measure.mSegment <= 8)) {
 			motor(VMAX, VMAX);
 		}
 	}

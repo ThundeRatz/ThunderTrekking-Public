@@ -56,10 +56,10 @@ struct Evento {
 };
 
 static Evento eventos[] = {
-	{.pos = GPS(-0.3705665059, -0.7852447993), .tem_cone = false, .angle = 0}, // 0 0
-	{.pos = GPS(-0.3705604371, -0.7852483900), .tem_cone = true, .angle = 0},  // -0.0213236069 0.0386643109
-	{.pos = GPS(-0.3705616068, -0.7852457911), .tem_cone = true, .angle = 0},  // -0.0058898665 0.0312121650
-	{.pos = GPS(-0.3705660952, -0.7852481772), .tem_cone = true, .angle = 0},  // -0.0200598360 0.0026165574
+	{.pos = GPS(-0.3705664273, -0.7852473030), .tem_cone = false, .angle = 0}, // 0 0
+	{.pos = GPS(-0.3705602814, -0.7852492754), .tem_cone = true, .angle = 0},  // -0.0213236069 0.0386643109
+	{.pos = GPS(-0.3705620804, -0.7852460117), .tem_cone = true, .angle = 0},  // -0.0058898665 0.0312121650
+	{.pos = GPS(-0.3705660099, -0.7852496494), .tem_cone = true, .angle = 0},  // -0.0200598360 0.0026165574
 };
 
 static Leds ledr("LedRed");
@@ -67,15 +67,30 @@ static Leds ledg("LedGreen");
 static Leds ledb("LedBlue");
 
 static Bumper bumper;
-static BNO055 bno;
+static BNO055* bno;
 static LeddarEK leddar;
 static Eigen::Rotation2D<double> heading;
 
 static int cont = 0;
 static double ant = 0.;
+static int ev_atual = 1;
+static int reinicio = 0;
 
 int main() {
+	BNO055 bno055_instance;
+	bno = &bno055_instance;
 	thread_spawn(motors_thread);
+
+	while(!bumper.pressed());
+
+	ledr = 1;
+	sleep_ms(50);
+	ledb = 1;
+	sleep_ms(50);
+	ledg = 1;
+	sleep_ms(50);
+
+	ledr = 0; ledb = 0; ledg = 0;
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
@@ -83,8 +98,10 @@ int main() {
 	for (int i = 1; i < len(eventos); i++)
 		eventos[i].angle = eventos[i - 1].pos.azimuth_to(eventos[i].pos);
 
-	for (int i = 1; i < len(eventos); i++)
-		eventos[i].executa();
+	for (; ev_atual < len(eventos);)
+		eventos[ev_atual].executa();
+
+	motor(0, 0);
 
 	for (int i = 0; i < 20; i++) {
 		ledr = i % 2;
@@ -95,7 +112,6 @@ int main() {
 		sleep_ms(50);
 	}
 
-
 	cout << "Terminado" << endl;
 
 	motor(0, 0);
@@ -104,21 +120,39 @@ int main() {
 }
 
 void Evento::executa() {
-	int motor_l = 0, motor_r = 0;
+	int motor_l = 0, motor_r = 0, c = 0;
 	double correcao;
 
 	cout << fixed << setprecision(8);
 	cout << "Executando evento\n";
 
+	sleep_ms(1000);
+
 	for (;;) {
+		sleep_ms(50);
+		c++;
+
 		leddar.update();
-		bno.heading(heading);
-		bumper.pressed();
+		bno->heading(heading);
+		if (bumper.pressed()) {
+			reinicio++;
+		}
+
+		if (reinicio >= 10) {
+			cout << "Reiniciando...\n";
+			sleep_ms(10);
+			ledr = 1;
+			sleep_ms(1000);
+			ledr = 0;
+			reinicio = 0;
+			ev_atual = 1;
+			return;
+		}
 
 		if (ant == leddar.measure.mDistance) cont++;
 		else cont = 0;
 
-		if (cont >= 20) {
+		if (cont >= 50) {
 			leddar.restart();
 			cont = 0;
 			ant = 0.;
@@ -129,15 +163,17 @@ void Evento::executa() {
 		correcao = compass_diff(this->angle, heading.angle());
 		cout << "Azimuth: " << this->angle << endl
 			<< "Direcao Atual: " << heading.angle() << endl
-			<< "Diff: " << correcao << endl;
+			<< "Diff: " << correcao << endl
+			<< "Menor Distancia EK: " << leddar.measure.mSegment << "|"
+			<< leddar.measure.mDistance << endl << endl;
 
 		if (correcao > ERRO_MAX) {
                 cout << "Girando para a direita\n";
                 motor_l = VMAX ;
-                motor_r = -(VMAX - (correcao * 100));//-VMAX;
+                motor_r = -(VMAX - abs((correcao * 50)));//-VMAX;
 		} else if (correcao < -ERRO_MAX) {
                 cout << "Girando para a esquerda\n";
-                motor_l = -(VMAX - (correcao * 100));//-VMAX;
+                motor_l = -(VMAX - abs((correcao * 50)));//-VMAX;
                 motor_r = VMAX;
         } else {
                 cout << "Seguindo reto\n";
@@ -146,17 +182,16 @@ void Evento::executa() {
         }
 		motor(motor_l, motor_r);
 
-		if (leddar.measure.mDistance < 10) {
+		if (leddar.nMeasures > 0 && leddar.measure.mDistance < 4 && leddar.measure.mDistance > 0 && c >= 100) {
 			cout << "Cone proximo\n";
-			lebb = 1;
-			sleep_ms(50);
-			lebb = 0;
+			ledb = 1;
+			sleep_ms(150);
+			ledb = 0;
 			if (find_cone()) {
-				unsigned int re_time = 1500;
 				motor(VMAX, VMAX);
-				sleep_ms(re_time);
+				sleep_ms(1500);
 				motor(-VMAX, -VMAX);
-				sleep_ms(re_time);
+				sleep_ms(1500);
 				return;
 			}
 			ledr = 0; ledg = 0; ledb = 0;
@@ -165,7 +200,6 @@ void Evento::executa() {
 }
 
 bool Evento::find_cone() {
-	unsigned int block_wait_time = 100;
 	unsigned int led_wait_time = 500;
 	int corretor;
 
@@ -187,6 +221,11 @@ bool Evento::find_cone() {
 
 		ant = leddar.measure.mDistance;
 
+		if (leddar.measure.mDistance > 5) {
+			cout << "Alarme falso! Retornando\n";
+			return false;
+		}
+
 		cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
 			<< leddar.measure.mDistance << endl << endl;
 
@@ -194,8 +233,9 @@ bool Evento::find_cone() {
 			ledr = 1; ledg = 1; ledb = 1;
 			cout << "Found Cone!" << endl;
 			motor(0, 0);
-			sleep_ms(1500);
+			sleep_ms(2000);
 			ledr = 0; ledg = 0; ledb = 0;
+			ev_atual++;
 			return true;
 		}
 

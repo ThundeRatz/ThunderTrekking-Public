@@ -30,16 +30,19 @@
 
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
+#include "LeddarEK.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
 #include "sleep.hh"
 #include "Leds.hh"
+#include "GPS.hh"
 
 #include "compass.h"
 
 #define len(array)     ((&array)[1] - array)
 
-#define VMAX           245
+#define VMAX           255
+#define ERRO_MAX       M_PI/20
 
 using namespace std;
 using namespace Trekking;
@@ -47,16 +50,16 @@ using namespace Trekking;
 struct Evento {
 	GPS pos;
 	bool tem_cone;
-	double angulo;
+	double angle;
 	void executa();
 	bool find_cone();
 };
 
 static Evento eventos[] = {
-	{.pos = GPS(-0.3705665059, -0.7852447993), .tem_cone = false},
-	{.pos = GPS(-0.3705604371, -0.7852483900), .tem_cone = true},
-	{.pos = GPS(-0.3705616068, -0.7852457911), .tem_cone = true},
-	{.pos = GPS(-0.3705660952, -0.7852481772), .tem_cone = true},
+	{.pos = GPS(-0.3705665059, -0.7852447993), .tem_cone = false, .angle = 0}, // 0 0
+	{.pos = GPS(-0.3705604371, -0.7852483900), .tem_cone = true, .angle = 0},  // -0.0213236069 0.0386643109
+	{.pos = GPS(-0.3705616068, -0.7852457911), .tem_cone = true, .angle = 0},  // -0.0058898665 0.0312121650
+	{.pos = GPS(-0.3705660952, -0.7852481772), .tem_cone = true, .angle = 0},  // -0.0200598360 0.0026165574
 };
 
 static Leds ledr("LedRed");
@@ -64,7 +67,8 @@ static Leds ledg("LedGreen");
 static Leds ledb("LedBlue");
 
 static Bumper bumper;
-static BNO055 bno055;
+static BNO055 bno;
+static LeddarEK leddar;
 static Eigen::Rotation2D<double> heading;
 
 static int cont = 0;
@@ -76,12 +80,20 @@ int main() {
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
 
-	for (int i = 1; i < len(eventos); i++) {
-		eventos[i].angle =
-	}
+	for (int i = 1; i < len(eventos); i++)
+		eventos[i].angle = eventos[i - 1].pos.azimuth_to(eventos[i].pos);
 
 	for (int i = 1; i < len(eventos); i++)
 		eventos[i].executa();
+
+	for (int i = 0; i < 20; i++) {
+		ledr = i % 2;
+		sleep_ms(50);
+		ledb = i % 2;
+		sleep_ms(50);
+		ledg = i % 2;
+		sleep_ms(50);
+	}
 
 
 	cout << "Terminado" << endl;
@@ -99,8 +111,9 @@ void Evento::executa() {
 	cout << "Executando evento\n";
 
 	for (;;) {
-		leddar.update()
-		bno055.heading(heading);
+		leddar.update();
+		bno.heading(heading);
+		bumper.pressed();
 
 		if (ant == leddar.measure.mDistance) cont++;
 		else cont = 0;
@@ -114,19 +127,18 @@ void Evento::executa() {
 		ant = leddar.measure.mDistance;
 
 		correcao = compass_diff(this->angle, heading.angle());
-		cout << pos_atual.point << " -> " << this->pos.point << endl
-			<< "Azimuth: " << this->angle << endl
+		cout << "Azimuth: " << this->angle << endl
 			<< "Direcao Atual: " << heading.angle() << endl
 			<< "Diff: " << correcao << endl;
 
 		if (correcao > ERRO_MAX) {
                 cout << "Girando para a direita\n";
-                motor_l = VMAX - 10;
-                motor_r = 0;//-VMAX;
+                motor_l = VMAX ;
+                motor_r = -(VMAX - (correcao * 100));//-VMAX;
 		} else if (correcao < -ERRO_MAX) {
                 cout << "Girando para a esquerda\n";
-                motor_l = 0;//-VMAX;
-                motor_r = VMAX - 10;
+                motor_l = -(VMAX - (correcao * 100));//-VMAX;
+                motor_r = VMAX;
         } else {
                 cout << "Seguindo reto\n";
                 motor_l = VMAX;
@@ -136,8 +148,13 @@ void Evento::executa() {
 
 		if (leddar.measure.mDistance < 10) {
 			cout << "Cone proximo\n";
+			lebb = 1;
+			sleep_ms(50);
+			lebb = 0;
 			if (find_cone()) {
-				unsigned int re_time = 1000;
+				unsigned int re_time = 1500;
+				motor(VMAX, VMAX);
+				sleep_ms(re_time);
 				motor(-VMAX, -VMAX);
 				sleep_ms(re_time);
 				return;
@@ -158,7 +175,6 @@ bool Evento::find_cone() {
 		sleep_ms(50);
 
 		leddar.update();
-		pixy.update();
 
 		if (ant == leddar.measure.mDistance) cont++;
 		else cont = 0;
@@ -171,10 +187,6 @@ bool Evento::find_cone() {
 
 		ant = leddar.measure.mDistance;
 
-		cout << "Objeto Pixy = x: " << pixy.x << " y: " << pixy.y
-			<< " w: " << pixy.block.width << " h: " << pixy.block.height
-			<< " a: " << pixy.block.angle << endl;
-
 		cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
 			<< leddar.measure.mDistance << endl << endl;
 
@@ -182,9 +194,9 @@ bool Evento::find_cone() {
 			ledr = 1; ledg = 1; ledb = 1;
 			cout << "Found Cone!" << endl;
 			motor(0, 0);
-			sleep_ms(2500);
+			sleep_ms(1500);
 			ledr = 0; ledg = 0; ledb = 0;
-			break;
+			return true;
 		}
 
 		if (leddar.measure.mSegment < 6) {

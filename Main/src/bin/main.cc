@@ -28,7 +28,10 @@
 #include <cmath>
 #include <ctime>
 
+#include "camera.hh"
 #include "errno_string.hh"
+#include "LedsI2C.hh"
+#include "GPIOButton.hh"
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
 #include "BNO055.hh"
@@ -66,23 +69,21 @@ static Evento eventos[] = {
 	{.pos = GPS(-0.4127182328, -0.8128458454), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},
 };
 
-static PixyCam cone;
 static GPSMonitor pos_atual(eventos[0].pos);
-static Leds ledr("LedRed");
-static Leds ledg("LedGreen");
-static Leds ledb("LedBlue");
-static Bumper bumper;
-static BNO055 bno055;
+static BNO055 *bno055;
 static Eigen::Rotation2D<double> heading;
+static int evento;
 
 int main() {
+	BNO055 bno055_instance;
+	bno055 = &bno055_instance;
 	thread_spawn(motors_thread);
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
 
-	for (int i = 1; i < len(eventos); i++)
-		eventos[i].executa();
+	for (evento = 1; evento < len(eventos); evento++)
+		eventos[evento].executa();
 
 	cout << "Terminado" << endl;
 
@@ -99,19 +100,18 @@ void Evento::executa() {
 	cout << "Executando evento\n";
 
 	for (;;) {
-		if (pos_atual.update()) {
-			bno055.heading(heading);
-			correcao = compass_diff(pos_atual.azimuth_to(this->pos), heading.angle());
-			cout << pos_atual.point << " -> " << this->pos.point << endl
-				<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
-				<< "Direcao Atual: " << heading.angle() << endl
-				<< "Diff: " << correcao << endl;
+		bno055->heading(heading);
+		correcao = compass_diff(pos_atual.azimuth_to(this->pos), heading.angle());
+		cout << pos_atual.point << " -> " << this->pos.point << endl
+			<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
+			<< "Direcao Atual: " << heading.angle() << endl
+			<< "Diff: " << correcao << endl;
 
-			if (correcao > ERRO_MAX) {
+		if (correcao > ERRO_MAX) {
 	                cout << "Girando para a direita\n";
 	                motor_l = VELOCIDADE_MAX;
 	                motor_r = 0;//-VELOCIDADE_MAX;
-			} else if (correcao < -ERRO_MAX) {
+		} else if (correcao < -ERRO_MAX) {
 	                cout << "Girando para a esquerda\n";
 	                motor_l = 0;//-VELOCIDADE_MAX;
 	                motor_r = VELOCIDADE_MAX;
@@ -120,67 +120,37 @@ void Evento::executa() {
 	                motor_l = VELOCIDADE_MAX + 10;
 	                motor_r = VELOCIDADE_MAX + 10;
 	        }
-			motor(motor_l, motor_r);
+		motor(motor_l, motor_r);
 
-			if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
-				cout << "Cone proximo\n";
-				if (find_cone()) {
-					unsigned int re_time = 1000;
-					motor(-50, -50);
-					sleep_ms(re_time);
-					return;
-				}
-				ledr = 0; ledg = 0; ledb = 0;
+		if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {
+			cout << "Cone proximo\n";
+			if (find_cone()) {
+				motor(-50, -50);
+				sleep_ms(300);
+				return;
 			}
-		} else {
-			unsigned int sleep_time = 1000;
-			cerr << "blocking_update error" << endl;
-			sleep_ms(sleep_time);
 		}
 	}
 }
 
 bool Evento::find_cone() {
-	unsigned int block_wait_time = 100;
-	unsigned int led_wait_time = 500;
-	int corretor;
-
-	sleep_ms(led_wait_time);
+	Trekking::GPIOButton bumper_1(165), bumper_2(166);
+	Camera camera;
+	LedsI2C led;
 
 	for (;;) {
-		if (pos_atual.update()) {
-			if (pos_atual.distance_to(this->pos) > this->margemObjetivo + 1./1000.)
-				return false;
-			sleep_ms(block_wait_time);
+		if (pos_atual.update() && (pos_atual.distance_to(this->pos) > this->margemObjetivo + 1./1000.))
+			return false;
 
-			cone.update();
-			cout << "Objeto = x: " << cone.block.x << " y: " << cone.block.y
-				<< " w: " << cone.block.width << " h: " << cone.block.height
-				<< " a: " << cone.block.angle << endl;
-
-			if (bumper.pressed()) {
-				unsigned int chegou = 1000;
-				ledr = 1; ledg = 1; ledb = 1;
-				motor(0, 0);
-				sleep_ms(chegou);
-				return true;
-			}
-
-			if (cone.block.x < 0) {
-				corretor = VELOCIDADE_MAX + cone.block.x/2;
-				motor(corretor, VELOCIDADE_MAX);
-			} else if (cone.block.x > 0) {
-				corretor = VELOCIDADE_MAX - cone.block.x/2;
-				motor(VELOCIDADE_MAX, corretor);
-			}
-
-			if (cone.block.height == 0 && cone.block.width == 0)
-				motor(50, 50);
-		} else {
-			unsigned int sleep_time = 1000;
-			cerr << "blocking_update error" << endl;
-			sleep_ms(sleep_time);
+		if (bumper_1 || bumper_2) {
+			led.red((evento == 1) * 255);
+			led.green((evento == 2) * 255);
+			led.blue((evento == 3) * 255);
+			led.setMode(MANUAL);
+			return true;
 		}
+
+		camera.showBiggest();
+		camera.followContour(camera.getBiggest());
 	}
-	return false;
 }

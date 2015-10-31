@@ -4,8 +4,6 @@
 #define MAXXCOOR 320
 #define MAXYCOOR 240
 
-RNG rng(12345);
-
 void Camera::saveiLowH(int iLowH){
 	FILE *f;
 	f = fopen("iLowH.txt", "w");
@@ -90,9 +88,7 @@ void Camera::followContour(int j) {
 		else if(vel2 < -VELOCIDADE_MAX) vel2 = -VELOCIDADE_MAX;
 		motor(vel1, vel2);
 	}
-#ifdef DEBUG
 	else motor(50,50);
-#endif
 }
 
 Camera::Camera(){
@@ -175,6 +171,7 @@ void Camera::showBiggest() {
 
 
 		Mat drawing = Mat::zeros(imgSave.size(), CV_8UC3);
+		RNG rng(12345);
 		for(int i = 0; i < contours.size(); i++)
 		{
 			Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));

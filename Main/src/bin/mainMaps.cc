@@ -163,7 +163,7 @@ void Evento::executa() {
 		// ant = leddar.measure.mDistance;
 
 		correcao = compass_diff(gps.azimuth_to(pos), heading.angle());
-		cout << gps.point << " -> " << pos.point << endl;
+		cout << gps.point << " -> " << pos.point << endl
 			<< "Azimuth: " << this->angle << endl
 			<< "Direcao Atual: " << heading.angle() << endl
 			<< "Diff: " << correcao << endl
@@ -216,7 +216,7 @@ void Evento::executa() {
 	}
 }
 
-bool Evento::find_cone() {
+int Evento::find_cone() {
 	unsigned int led_wait_time = 500;
 	int corretor;
 

@@ -20,7 +20,7 @@ namespace Trekking {
 	int Bumper::pressed() {
 		struct input_event ev;
 		if(!libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev))
-			return ev.value;
+			return ev.code;
 		return 0;
 	}
 }

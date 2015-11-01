@@ -75,33 +75,45 @@ static Eigen::Rotation2D<double> heading;
 static int evento;
 
 int main() {
-	GPIOButton reset(164);
-	BNO055 bno055_instance;
-	bno055 = &bno055_instance;
-	thread_spawn(motors_thread);
+	try {
+		GPIOButton reset(164);
+		BNO055 bno055_instance;
+		bno055 = &bno055_instance;
+		thread_spawn(motors_thread);
 
-	for (int i = 0; i < len(eventos); i++)
-		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
+		for (int i = 0; i < len(eventos); i++)
+			eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
 
-	while (!gps_monitor.update()) {
-		cout << "gps_monitor.update() inicial\n";
-		sleep_ms(2000);
-	}
+		// while (!gps_monitor.update()) {
+		// 	cout << "gps_monitor.update() inicial\n";
+		// 	sleep_ms(2000);
+		// }
 
-	for (;;) {
-		while (reset) {
-			LedsI2C led;
-			sleep_ms(200);
+		for (;;) {
+			while (reset) {
+				LedsI2C led;
+				try {
+					led.setMode(MANUAL);
+					led.red(0);
+					led.green(0);
+					led.blue(0);
+				} catch (runtime_error& e) {
+					cerr << e.what() << endl;
+				}
+				sleep_ms(200);
+			}
+			for (evento = 1; evento < len(eventos); evento++)
+				eventos[evento].executa();
+
+			cout << "Terminado" << endl;
+
+			motor(0, 0);
+			sleep_ms(5000);
 		}
-		for (evento = 1; evento < len(eventos); evento++)
-			eventos[evento].executa();
-
-		cout << "Terminado" << endl;
-
-		motor(0, 0);
-		sleep_ms(5000);
+	} catch (runtime_error& e) {
+		cerr << e.what() << '\n';
+		abort();
 	}
-
 	return 0;
 }
 
@@ -121,7 +133,9 @@ void Evento::executa() {
 			pos_atual.longitude = gps_monitor.longitude;
 			pos_atual.to_2d(pos_atual.point, eventos[0].pos);
 		}
+
 		bno055->heading(heading);
+
 		correcao = compass_diff(0.40594833 - 0.014 + pos_atual.azimuth_to(this->pos), heading.angle());
 		cout << pos_atual.point << " -> " << this->pos.point << endl
 			<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
@@ -137,11 +151,11 @@ void Evento::executa() {
 	                cout << "Girando para a esquerda\n";
 	                motor_l = 0;//-VELOCIDADE_MAX;
 	                motor_r = VELOCIDADE_MAX;
-        } else {
-                cout << "Seguindo reto\n";
-                motor_l = VELOCIDADE_MAX + 10 + 8 * correcao;
-                motor_r = VELOCIDADE_MAX + 10 - 8 * correcao;
-	    }
+	        } else {
+	                cout << "Seguindo reto\n";
+	                motor_l = VELOCIDADE_MAX + 10 + 8 * correcao;
+	                motor_r = VELOCIDADE_MAX + 10 - 8 * correcao;
+		}
 		motor(motor_l, motor_r);
 
 		if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {

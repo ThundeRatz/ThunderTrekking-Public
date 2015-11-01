@@ -44,9 +44,9 @@
 #define VMAX           255
 #define ERRO_MAX       M_PI/20
 
-#define BUMPERL  //codigo
-#define BUMPERR  //codigo
-#define RESET    //codigo
+#define BUMPERL  50 //codigo
+#define BUMPERR  49 //codigo
+#define RESET    51 //codigo
 
 using namespace std;
 using namespace Trekking;

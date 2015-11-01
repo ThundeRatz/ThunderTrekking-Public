@@ -114,7 +114,7 @@ LeddarTest_SOURCES = src/bin/utils/LeddarTest.cc src/lib/sleep.cc src/lib/errno_
 LeddarTest_LDADD = $(LEDDAR) -lpthread
 
 GPSTest_SOURCES = src/bin/utils/GPSTest.cc src/lib/GPS.cc src/lib/sleep.cc src/lib/errno_string.cc \
-	src/lib/Stats.cc src/lib/bno055.cc src/lib/compass.cc src/lib/I2C.cc #src/lib/BNO055.cc
+	src/lib/Stats.cc src/lib/bno055.cc src/lib/compass.cc src/lib/I2C.cc src/lib/BNO055.cc
 GPSTest_LDADD = -lgps
 
 pino164_SOURCES = src/bin/utils/pino164.cc src/lib/GPIOButton.cc src/lib/GPIO.cc \

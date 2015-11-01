@@ -107,7 +107,7 @@ namespace Trekking {
 		measure.mDistance = 0.;
 		measure.mSegment = 0.;
 
-		sleep_ms(200);
+		sleep_ms(100);
 
 		if (LeddarStartDataTransfer(gHandle, LDDL_DETECTIONS) != LD_SUCCESS)
 			throw std::runtime_error("Leddar start data transfer failed");

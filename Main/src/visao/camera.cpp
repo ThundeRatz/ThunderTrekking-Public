@@ -48,6 +48,12 @@ void Camera::saveiHighV(int iHighV){
 	fclose(f);
 	}
 
+void Camera::saveErodeDilate(int ErodeDilate){
+	FILE *f;
+	f = fopen("Erode.txt", "w");
+	fprintf(f, "%d", ErodeDilate);
+	fclose(f);
+	}
 
 int Camera::getBiggest() {
 		int j = 0;
@@ -129,6 +135,11 @@ Camera::Camera(){
 		fscanf(f, "%d", &iHighV);
 		fclose(f);
 	} else iHighV = 255;
+	if((f = fopen("ErodeDilate.txt", "r"))) {
+		fscanf(f, "%d", &ErodeDilate);
+		fclose(f);
+	} else ErodeDilate = 1;
+
 #ifdef DEBUG
 	namedWindow("Drawing", CV_WINDOW_AUTOSIZE);
 	namedWindow("Control", CV_WINDOW_AUTOSIZE);
@@ -143,6 +154,8 @@ Camera::Camera(){
 
 	cvCreateTrackbar("LowV", "Control", &iLowV, 255, saveiLowV); //Value (0 - 255)
 	cvCreateTrackbar("HighV", "Control", &iHighV, 255, saveiHighV);
+
+	cvCreateTrackbar("Erode & Dilate", "Control", &ErodeDilate, 5, saveErodeDilate);
 #endif
 }
 
@@ -158,10 +171,12 @@ void Camera::showBiggest() {
 #endif
 		frame_hsv_gpu.upload(imgSave);
 		// Mat cannyOutput;
-		cuda::createMorphologyFilter(MORPH_ERODE, CV_8UC4, imgSave);
-		cuda::createMorphologyFilter(MORPH_DILATE, CV_8UC4, imgSave);
-		cuda::createMorphologyFilter(MORPH_DILATE, CV_8UC4, imgSave);
-		cuda::createMorphologyFilter(MORPH_ERODE, CV_8UC4, imgSave);
+		for(int i = 0; i < ErodeDilate; i++) {
+			cuda::createMorphologyFilter(MORPH_ERODE, CV_8UC4, imgSave);
+			cuda::createMorphologyFilter(MORPH_DILATE, CV_8UC4, imgSave);
+			cuda::createMorphologyFilter(MORPH_DILATE, CV_8UC4, imgSave);
+			cuda::createMorphologyFilter(MORPH_ERODE, CV_8UC4, imgSave);
+		}
 		/*
 		erode(imgSave, imgSave, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)) );
 		dilate( imgSave, imgSave, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)) );

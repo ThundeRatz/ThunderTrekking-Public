@@ -11,7 +11,7 @@
 
 using namespace cv;
 using namespace std;
-			
+
 class Camera{
 	public:
 		Camera();
@@ -28,6 +28,7 @@ class Camera{
 		static void saveiHighS(int iHighS);
 		static void saveiLowV(int iLowV);
 		static void saveiHighV(int iHighV);
+		static void saveErodeDilate(int ErodeDilate)
 		VideoCapture cap;
 		Mat frame;
 		vector<KeyPoint> keypoints_scene;
@@ -42,4 +43,5 @@ class Camera{
 		int iHighS;
 		int iLowV;
 		int iHighV;
+		int ErodeDilate;
 };

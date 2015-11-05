@@ -12,18 +12,16 @@ int main() {
 	Bumper bumper;
 	Leds led("BNOBlue");
 	bool ledOn = false;
+	int code;
 
 	cout << "Bumper\n";
 
 	while(!(bumper.pressed()));
 
 	for (;;) {
-		if(bumper.pressed()) {
-			cout << "Estado: 1\n";
-			if (ledOn)
-				led = 0;
-			else
-				led = 1;
+		if((code = bumper.pressed())) {
+			cout << "Codigo: " << code << "  Estado: 1\n";
+			led = ledOn ? 0 : 1;
 			ledOn = !ledOn;
 		}
 		else {

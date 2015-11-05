@@ -28,6 +28,12 @@
 					linux,input-type = <1 22>;
 					gpios = <&gpio 25 0>;
 				};
+				button@18 {
+					label = "Reset button";
+					linux,code = <51>;
+					linux,input-type = <1 22>;
+					gpios = <&gpio 18 0>;
+				};
 			};
 		};
 	};

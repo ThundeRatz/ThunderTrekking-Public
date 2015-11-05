@@ -30,16 +30,23 @@
 
 #include "ThreadMotors.hh"
 #include "ThreadSpawn.hh"
+#include "LeddarEK.hh"
 #include "BNO055.hh"
 #include "Bumper.hh"
 #include "sleep.hh"
 #include "Leds.hh"
+#include "GPS.hh"
 
 #include "compass.h"
 
 #define len(array)     ((&array)[1] - array)
 
-#define VMAX           245
+#define VMAX           255
+#define ERRO_MAX       M_PI/20
+
+#define BUMPERR  49 //codigo
+#define BUMPERL  50 //codigo
+#define RESET    51 //codigo
 
 using namespace std;
 using namespace Trekking;
@@ -47,16 +54,15 @@ using namespace Trekking;
 struct Evento {
 	GPS pos;
 	bool tem_cone;
-	double angulo;
 	void executa();
-	bool find_cone();
+	int find_cone();
 };
 
 static Evento eventos[] = {
-	{.pos = GPS(-0.3705665059, -0.7852447993), .tem_cone = false},
-	{.pos = GPS(-0.3705604371, -0.7852483900), .tem_cone = true},
-	{.pos = GPS(-0.3705616068, -0.7852457911), .tem_cone = true},
-	{.pos = GPS(-0.3705660952, -0.7852481772), .tem_cone = true},
+	{.pos = GPS(-0.3705664791, -0.7852462611), .tem_cone = false}, // 0 0
+	{.pos = GPS(-0.3705599906, -0.7852493748), .tem_cone = true},  // -0.0213236069 0.0386643109
+	{.pos = GPS(-0.3705620335, -0.7852462032), .tem_cone = true},  // -0.0058898665 0.0312121650
+	{.pos = GPS(-0.3705658885, -0.7852487568), .tem_cone = true},  // -0.0200598360 0.0026165574
 };
 
 static Leds ledr("LedRed");
@@ -64,26 +70,52 @@ static Leds ledg("LedGreen");
 static Leds ledb("LedBlue");
 
 static Bumper bumper;
-static BNO055 bno055;
+static BNO055* bno;
+static LeddarEK leddar;
 static Eigen::Rotation2D<double> heading;
+static GPSMonitor gps(eventos[0].pos);
 
 static int cont = 0;
 static double ant = 0.;
+static int ev_atual = 1;
+static int bumper_code = 0;
+static int reinicio = 0;
 
 int main() {
+	BNO055 bno055_instance;
+	bno = &bno055_instance;
 	thread_spawn(motors_thread);
 
-	for (int i = 0; i < len(eventos); i++)
-		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
+	for(;;) {
+		while(!bumper.pressed());
+		ev_atual = 1;
 
-	for (int i = 1; i < len(eventos); i++) {
-		eventos[i].angle =
+		ledr = 1;
+		sleep_ms(50);
+		ledb = 1;
+		sleep_ms(50);
+		ledg = 1;
+		sleep_ms(50);
+
+		ledr = 0; ledb = 0; ledg = 0;
+
+		for (int i = 0; i < len(eventos); i++)
+			eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
+
+		for (; ev_atual < len(eventos); )
+			eventos[ev_atual].executa();
+
+		motor(0, 0);
+
+		for (int i = 0; i < 101; i++) {
+			ledr = i % 2;
+			sleep_ms(50);
+			ledb = i % 2;
+			sleep_ms(50);
+			ledg = i % 2;
+			sleep_ms(50);
+		}
 	}
-
-	for (int i = 1; i < len(eventos); i++)
-		eventos[i].executa();
-
-
 	cout << "Terminado" << endl;
 
 	motor(0, 0);
@@ -92,41 +124,64 @@ int main() {
 }
 
 void Evento::executa() {
-	int motor_l = 0, motor_r = 0;
+	int motor_l = 0, motor_r = 0, c = 0;
 	double correcao;
 
 	cout << fixed << setprecision(8);
 	cout << "Executando evento\n";
 
+	sleep_ms(1000);
+
 	for (;;) {
-		leddar.update()
-		bno055.heading(heading);
+		sleep_ms(50);
+		c++;
 
-		if (ant == leddar.measure.mDistance) cont++;
-		else cont = 0;
+		// leddar.update();
+		bno->heading(heading);
+		gps.blocking_update();
 
-		if (cont >= 20) {
-			leddar.restart();
-			cont = 0;
-			ant = 0.;
+		// if ((bumper_code = bumper.pressed()) == RESET) {
+		if (bumper.pressed())
+			reinicio++;
+
+		if (reinicio >= 20) {
+			cout << "Reiniciando...\n";
+			sleep_ms(10);
+			ledr = 1;
+			sleep_ms(1000);
+			ledr = 0;
+			reinicio = 0;
+			ev_atual = 1;
+			return;
 		}
 
-		ant = leddar.measure.mDistance;
+		// if (ant == leddar.measure.mDistance) cont++;
+		// else cont = 0;
+		//
+		// if (cont >= 50) {
+		// 	leddar.restart();
+		// 	cont = 0;
+		// 	ant = 0.;
+		// }
+		//
+		// ant = leddar.measure.mDistance;
 
-		correcao = compass_diff(this->angle, heading.angle());
-		cout << pos_atual.point << " -> " << this->pos.point << endl
-			<< "Azimuth: " << this->angle << endl
+		correcao = compass_diff(gps.azimuth_to(pos), heading.angle());
+		cout << gps.point << " -> " << pos.point << endl
+			<< "Azimuth: " << gps.azimuth_to(pos) << endl
 			<< "Direcao Atual: " << heading.angle() << endl
-			<< "Diff: " << correcao << endl;
+			<< "Diff: " << correcao << endl
+			<< "Menor Distancia EK: " << leddar.measure.mSegment << "|"
+			<< leddar.measure.mDistance << endl << endl;
 
 		if (correcao > ERRO_MAX) {
                 cout << "Girando para a direita\n";
-                motor_l = VMAX - 10;
-                motor_r = 0;//-VMAX;
+                motor_l = VMAX;
+                motor_r = -(VMAX - abs((correcao * 75)));//-VMAX;
 		} else if (correcao < -ERRO_MAX) {
                 cout << "Girando para a esquerda\n";
-                motor_l = 0;//-VMAX;
-                motor_r = VMAX - 10;
+                motor_l = -(VMAX - abs((correcao * 75)));//-VMAX;
+                motor_r = VMAX;
         } else {
                 cout << "Seguindo reto\n";
                 motor_l = VMAX;
@@ -134,68 +189,105 @@ void Evento::executa() {
         }
 		motor(motor_l, motor_r);
 
-		if (leddar.measure.mDistance < 10) {
+		if (this->tem_cone && gps.distance_to(this->pos) < 4./1000.) {
 			cout << "Cone proximo\n";
-			if (find_cone()) {
-				unsigned int re_time = 1000;
+			int f = find_cone();
+
+			//if (f == -1) return;
+			if (f == 1) {
+				motor(VMAX, VMAX);
+				sleep_ms(1500);
 				motor(-VMAX, -VMAX);
-				sleep_ms(re_time);
+				sleep_ms(500);
 				return;
 			}
-			ledr = 0; ledg = 0; ledb = 0;
 		}
+
+		// if (leddar.nMeasures > 0 && leddar.measure.mDistance < 4 && leddar.measure.mDistance > 0 && c >= 100) {
+		// 	cout << "Cone proximo\n";
+		// 	ledb = 1;
+		// 	sleep_ms(150);
+		// 	ledb = 0;
+		// 	if (find_cone()) {
+		// 		motor(VMAX, VMAX);
+		// 		sleep_ms(1500);
+		// 		motor(-VMAX, -VMAX);
+		// 		sleep_ms(1500);
+		// 		return;
+		// 	}
+		// 	ledr = 0; ledg = 0; ledb = 0;
+		// }
 	}
 }
 
-bool Evento::find_cone() {
-	unsigned int block_wait_time = 100;
+int Evento::find_cone() {
 	unsigned int led_wait_time = 500;
 	int corretor;
 
+	ledb = 1;
 	sleep_ms(led_wait_time);
+	ledb = 0;
 
 	for (;;) {
 		sleep_ms(50);
 
 		leddar.update();
-		pixy.update();
+		// bumper.pressed();
 
 		if (ant == leddar.measure.mDistance) cont++;
 		else cont = 0;
 
-		if (cont >= 20) {
+		if (cont >= 50) {
+			ledg = 1;
 			leddar.restart();
+			ledg = 0;
 			cont = 0;
 			ant = 0.;
 		}
 
 		ant = leddar.measure.mDistance;
 
-		cout << "Objeto Pixy = x: " << pixy.x << " y: " << pixy.y
-			<< " w: " << pixy.block.width << " h: " << pixy.block.height
-			<< " a: " << pixy.block.angle << endl;
+		if  (leddar.nMeasures == 0 || leddar.measure.mDistance > 8) {
+			ledr = 1; ledb = 1;
+			cout << "Procurando cone...\n";
+			motor(230, -230);
+			sleep_ms(50);
+			ledr = 0; ledb = 0;
+		}
 
 		cout << "Menor Distancia EK: " << leddar.measure.mSegment << "|"
 			<< leddar.measure.mDistance << endl << endl;
 
+		// if (bumper_code == BUMPERL || bumper_code == BUMPERR) {
 		if (bumper.pressed()) {
 			ledr = 1; ledg = 1; ledb = 1;
 			cout << "Found Cone!" << endl;
 			motor(0, 0);
-			sleep_ms(2500);
+			sleep_ms(2000);
 			ledr = 0; ledg = 0; ledb = 0;
-			break;
+			reinicio = 0;
+			ev_atual++;
+			return 1;
 		}
+		// } else if (bumper_code == RESET){
+		// 	cout << "Reiniciando...\n";
+		// 	sleep_ms(10);
+		// 	ledr = 1;
+		// 	sleep_ms(1000);
+		// 	ledr = 0;
+		// 	ev_atual = 1;
+		// 	return -1;
+		// }
 
-		if (leddar.measure.mSegment < 6) {
-			corretor = VMAX - 50;
+		if (leddar.measure.mDistance <= 8 && leddar.measure.mSegment < 6) {
+			corretor = VMAX - 100;
 			motor(corretor, VMAX);
-		} else if (leddar.measure.mSegment > 8) {
-			corretor = VMAX - 50;
+		} else if (leddar.measure.mDistance <= 8 && leddar.measure.mSegment > 8) {
+			corretor = VMAX - 100;
 			motor(VMAX, corretor);
-		} else {
+		} else if (leddar.measure.mDistance <= 8 && (leddar.measure.mSegment >= 6 && leddar.measure.mSegment <= 8)) {
 			motor(VMAX, VMAX);
 		}
 	}
-	return false;
+	return 0;
 }

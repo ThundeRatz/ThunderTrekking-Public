@@ -37,7 +37,7 @@
 #include "Bumper.hh"
 #include "sleep.hh"
 #include "Leds.hh"
-#include "Pixy.hh"
+//#include "Pixy.hh"
 #include "GPS.hh"
 
 #define VELOCIDADE_MAX 240
@@ -46,7 +46,7 @@ using namespace Trekking;
 
 static WINDOW* gps_s;
 static WINDOW* bno_s;
-static WINDOW* pixy_s;
+//static WINDOW* pixy_s;
 static WINDOW* leds_s;
 static WINDOW* bumper_s;
 static WINDOW* leddar_s;
@@ -69,23 +69,23 @@ void GPSScreen(GPSMonitor& gps) {
 	wrefresh(gps_s);
 }
 
-void PixyScreen(PixyCam& block) {
-	block.update();
-
-	wclear(pixy_s);
-	box(pixy_s, 0 , 0);
-	mvwprintw(pixy_s, 0, (COLS/3 - 8)/2 - 5, " Pixy Cam ");
-
-	mvwprintw(pixy_s, 3, 1, "Object Type: %hu", block.block.type);
-	mvwprintw(pixy_s, 4, 1, "Object Signature: %hu", block.block.signature);
-	mvwprintw(pixy_s, 5, 1, "Object X: %hd", block.x);
-	mvwprintw(pixy_s, 6, 1, "Object Y: %hd", block.y);
-	mvwprintw(pixy_s, 7, 1, "Object Width: %hu", block.block.width);
-	mvwprintw(pixy_s, 8, 1, "Object Height: %hu", block.block.height);
-	mvwprintw(pixy_s, 9, 1, "Object Angle: %hu", block.block.angle);
-
-	wrefresh(pixy_s);
-}
+// void PixyScreen(PixyCam& block) {
+// 	block.update();
+//
+// 	wclear(pixy_s);
+// 	box(pixy_s, 0 , 0);
+// 	mvwprintw(pixy_s, 0, (COLS/3 - 8)/2 - 5, " Pixy Cam ");
+//
+// 	mvwprintw(pixy_s, 3, 1, "Object Type: %hu", block.block.type);
+// 	mvwprintw(pixy_s, 4, 1, "Object Signature: %hu", block.block.signature);
+// 	mvwprintw(pixy_s, 5, 1, "Object X: %hd", block.x);
+// 	mvwprintw(pixy_s, 6, 1, "Object Y: %hd", block.y);
+// 	mvwprintw(pixy_s, 7, 1, "Object Width: %hu", block.block.width);
+// 	mvwprintw(pixy_s, 8, 1, "Object Height: %hu", block.block.height);
+// 	mvwprintw(pixy_s, 9, 1, "Object Angle: %hu", block.block.angle);
+//
+// 	wrefresh(pixy_s);
+// }
 
 void BNOScreen(BNO055& bno055) {
 	Eigen::Vector2d acceleration;
@@ -151,7 +151,7 @@ int main() {
 
 	GPSMonitor gps(GPS(-0.411087, -0.815589));
 	LeddarEK leddar;
-	PixyCam block;
+	//PixyCam block;
 	BNO055 bno055;
 	Bumper bumper;
 	int c;
@@ -172,8 +172,8 @@ int main() {
 	gps_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2);
 	box(gps_s, 0 , 0);
 
-	pixy_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2 + COLS/3 + 2);
-	box(pixy_s, 0 , 0);
+	// pixy_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2 + COLS/3 + 2);
+	// box(pixy_s, 0 , 0);
 
 	bno_s = newwin(LINES/2 - 6, COLS/3 - 8, 2, 2 + 2 * (COLS/3 + 2));
 	box(bno_s, 0 , 0);
@@ -192,7 +192,7 @@ int main() {
 	refresh();
 	wrefresh(gps_s);
 	wrefresh(bno_s);
-	wrefresh(pixy_s);
+	// wrefresh(pixy_s);
 	wrefresh(leds_s);
 	wrefresh(bumper_s);
 	wrefresh(leddar_s);
@@ -229,7 +229,7 @@ int main() {
 			default: break;
 		}
 		GPSScreen(gps);
-		PixyScreen(block);
+		// PixyScreen(block);
 		BNOScreen(bno055);
 		BumperScreen(bumper);
 		LeddarScreen(leddar);

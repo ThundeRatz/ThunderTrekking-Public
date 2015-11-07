@@ -43,31 +43,36 @@ namespace Trekking {
 	I2CRegister::I2CRegister(I2C &i2c_bus, int index) : i2c(i2c_bus), i2c_register(index) {}
 
 	int I2CRegister::operator=(int value) {
-		int32_t status = i2c_smbus_write_byte_data(i2c.fd, i2c_register, value);
-		if (status < 0) {
-			throw runtime_error("I2CRegister write failed - " + to_string(status));
+		int32_t status;
+		for (;;) {
+			status = i2c_smbus_write_byte_data(i2c.fd, i2c_register, value);
+			if (status >= 0)
+				return value;
+			perror("i2c_smbus_write_byte_data");
 		}
 		return value;
 	}
 
 	I2CRegister::operator int () const {
-		int status = i2c_smbus_read_byte_data(i2c.fd, i2c_register);
-		if (status < 0) {
-			perror("i2c_smbus_read_byte_data");
-			throw runtime_error("I2CRegister read failed");
-		}
-		return status;
+		int status;
+		status = i2c_smbus_read_byte_data(i2c.fd, i2c_register);
+		if (status >= 0)
+			return status;
+		perror("i2c_smbus_read_byte_data");
+		throw runtime_error("i2c_smbus_read_byte_data");
 	}
 
 	I2C::I2C(int dev_n, const std::string& name) {
-		fstream sysfs_name_file;
-		string sysfs_name;
-		sysfs_name_file.open("/sys/class/i2c-dev/i2c-" + to_string(dev_n) + "/name", fstream::in);
-		std::getline(sysfs_name_file, sysfs_name);
-		if (sysfs_name != name) {
-			cerr << "i2c_open: Falha na checagem do nome do adaptador\nEsperado "
-				<< name << ", encontrou " << sysfs_name << endl;
-			throw runtime_error("I2C sysfs check");
+		if (name != "") {
+			fstream sysfs_name_file;
+			string sysfs_name;
+			sysfs_name_file.open("/sys/class/i2c-dev/i2c-" + to_string(dev_n) + "/name", fstream::in);
+			std::getline(sysfs_name_file, sysfs_name);
+			if (sysfs_name != name) {
+				cerr << "i2c_open: Falha na checagem do nome do adaptador\nEsperado "
+					<< name << ", encontrou " << sysfs_name << endl;
+				throw runtime_error("I2C sysfs check");
+			}
 		}
 		fd = open(("/dev/i2c-" + to_string(dev_n)).c_str(), O_RDWR);
 		if (fd < 0) {

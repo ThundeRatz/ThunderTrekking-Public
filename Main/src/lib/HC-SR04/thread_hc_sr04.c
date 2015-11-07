@@ -14,24 +14,24 @@ void __attribute__((noreturn)) *hc_sr04_thread(__attribute__((unused)) void *ign
 	static struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 100 * 1000000};
 	int sonar0, sonar1, udp_socket;
 	hc_sr04_udp_packet_t packet;
-	
+
 	sonar0 = open("/dev/hc-sr04-0", O_RDONLY);
 	if (sonar0 == -1) {
 		perror("hc-sr04 - open");
 		exit(-1);
 	}
-	
+
 	sonar1 = open("/dev/hc-sr04-1", O_RDONLY);
 	if (sonar1 == -1) {
 		perror("hc-sr04 - open");
 		exit(-1);
 	}
-	
+
 	if ((udp_socket = udp_sender_init(UDP_HC_SR04)) == -1) {
 		perror("udp_sender_init");
 		exit(-1);
 	}
-	
+
 	for (;;) {
 		if (read(sonar0, &packet.distance, sizeof(packet.distance)) < 0)
 			perror("HR-SR04 - read");
@@ -48,7 +48,7 @@ void __attribute__((noreturn)) *hc_sr04_thread(__attribute__((unused)) void *ign
 				perror("udp_sender_send");
 		}
 		nanosleep(&sleep_time, NULL);
-		
+
 		if (read(sonar1, &packet.distance, sizeof(packet.distance)) < 0)
 			perror("HR-SR04 - read");
 		else {

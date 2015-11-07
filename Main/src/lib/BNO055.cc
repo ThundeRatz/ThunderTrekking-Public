@@ -49,14 +49,12 @@ namespace Trekking {
 			throw runtime_error("BNO055 operation mode failed");
 		if (bno055_set_accel_slow_no_motion_durn(0x3f))
 			throw runtime_error("BNO055 accel no motion sleep failed");
-
 		if (bno055_set_remap_x_sign(REMAP_AXIS_POSITIVE))
 			throw runtime_error("Error on set_remap_x_sign");
 		if (bno055_set_remap_y_sign(REMAP_AXIS_POSITIVE))
 			throw runtime_error("Error on set_remap_y_sign");
 		if (bno055_set_remap_z_sign(REMAP_AXIS_POSITIVE))
 			throw runtime_error("Error on set_remap_z_sign");
-
 		load_file();
 	}
 

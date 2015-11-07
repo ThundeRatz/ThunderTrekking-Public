@@ -53,7 +53,7 @@ namespace Trekking {
 
 	    if ((error = LeddarGetDetections(aHandle, lDetections, len(lDetections))) != LD_SUCCESS) {
 			LeddarGetErrorMessage(error, msg, len(msg));
-			std::cerr << "Leddar get detetections error: " << msg << std::endl;
+			std::cerr << "Leddar get detections error: " << msg << std::endl;
 		}
 
 	    for (unsigned int i = 0; (i < lCount) && (i < 16); ++i) {

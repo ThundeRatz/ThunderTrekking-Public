@@ -44,10 +44,10 @@ enum {
 #define HMC_GAIN_230		(7 << 5)
 
 // Mode Register:
-#define HMC_HIGH_SPEED_I2C	(1 << 7)
+#define HMC_HIGH_SPEED_I2C			(1 << 7)
 #define HMC_CONTINUOUS_MEASUREMENT	(0 << 0)
 #define HMC_SINGLE_MEASUREMENT		(1 << 0)
-#define HMC_IDLE			(1 << 1)
+#define HMC_IDLE					(1 << 1)
 
 // Se houver overflowou underflow na leitura ou no cálculo com bias,
 // -4096 é retornado (se houver overflow em uso normal do robô, ajustar

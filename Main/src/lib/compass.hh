@@ -27,7 +27,13 @@
 
 #include <cstdint>
 
-double compass_orientation(double x, double y);
-double compass_diff(double target, double now);
+class Compass {
+public:
+    virtual ~Compass() {}
+    virtual double heading() = 0;
+
+    double orientation(double x, double y);
+    double diff(double target, double now);
+}
 
 #endif

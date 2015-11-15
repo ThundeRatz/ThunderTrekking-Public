@@ -24,31 +24,16 @@
 
 #pragma once
 
-#include <eigen3/Eigen/Dense>
-#include <string>
+#include <cstdint>
 
-#include "bno055.h"
-#include "I2C.hh"
-#include "Sensor9DOF.hh"
+#include "Compass.hh"
 
 namespace Trekking {
-	class BNO055 {
-	public:
-		BNO055();
-		void linear_acceleration(Eigen::Vector2d& acceleration_return);
-		void heading(Eigen::Rotation2D<double>& new_heading);
-		void get_calibration();
-		void save_file();
-		void load_file();
-
-	private:
-		struct bno055_accel_offset_t accel_offset;
-		struct bno055_gyro_offset_t gyro_offset;
-		struct bno055_mag_offset_t mag_offset;
-
-		static Trekking::I2C bno055_i2c;
-		static s8 read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
-		static s8 write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
-		static void delay_ms(u32 ms);
-	};
+    class Sensor9DOF : public Compass {
+    public:
+        virtual ~Sensor9DOF() {}
+        virtual double read_accelerometer() = 0;
+		virtual double read_gyroscope() = 0;
+		/// @todo Mudar para read_orientation ou outros métodos mais interesantes?
+    };
 }

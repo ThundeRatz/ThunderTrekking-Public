@@ -33,7 +33,7 @@ protected:
 
 	class CompassStub : public Trekking::Compass {
 	public:
-		virtual double read() {
+		virtual double read_compass() {
 			return 1.;
 		}
 	};

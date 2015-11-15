@@ -22,8 +22,7 @@
  * SOFTWARE.
 */
 
-#ifndef __COMPASS_H__
-#define __COMPASS_H__
+#pragma once
 
 #include <cstdint>
 
@@ -31,7 +30,7 @@ namespace Trekking {
     class Compass {
     public:
         virtual ~Compass() {}
-        virtual double read() = 0;
+        virtual double read_compass() = 0;
 
         double angle(double x, double y);
         double heading(double x, double y);
@@ -39,5 +38,3 @@ namespace Trekking {
         double diff(double target, double now);
     };
 }
-
-#endif

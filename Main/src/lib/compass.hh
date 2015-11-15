@@ -32,7 +32,7 @@ public:
     virtual ~Compass() {}
     virtual double heading() = 0;
 
-    double orientation(double x, double y);
+    double heading(double x, double y);
     double diff(double target, double now);
 }
 

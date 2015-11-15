@@ -25,11 +25,11 @@
 #include <math.h>
 #include <stdint.h>
 
-double compass_orientation(double x, double y) {
+double Compass::heading(double x, double y) {
 	return fmod(atan2((double) y, (double) x), 2 * M_PI);
 }
 
-double compass_diff(double target, double now) {
+double Compass::diff(double target, double now) {
 	double r;
 	r = fmod((target - now), 2 * M_PI);
 	if (r < -M_PI) {

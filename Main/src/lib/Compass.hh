@@ -27,13 +27,17 @@
 
 #include <cstdint>
 
-class Compass {
-public:
-    virtual ~Compass() {}
-    virtual double heading() = 0;
+namespace Trekking {
+    class Compass {
+    public:
+        virtual ~Compass() {}
+        virtual double read() = 0;
 
-    double heading(double x, double y);
-    double diff(double target, double now);
+        double angle(double x, double y);
+        double heading(double x, double y);
+        double diff(double target);
+        double diff(double target, double now);
+    };
 }
 
 #endif

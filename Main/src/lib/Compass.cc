@@ -22,22 +22,33 @@
  * SOFTWARE.
 */
 
-#include <math.h>
-#include <stdint.h>
+#include "Compass.hh"
 
-double Compass::heading(double x, double y) {
-	return fmod(atan2((double) y, (double) x), 2 * M_PI);
-}
+#include <cmath>
+#include <cstdint>
 
-double Compass::diff(double target, double now) {
-	double r;
-	r = fmod((target - now), 2 * M_PI);
-	if (r < -M_PI) {
-		r += 2 * M_PI;
+namespace Trekking {
+	double Compass::angle(double x, double y) {
+		return fmod(atan2(y, x), 2 * M_PI);
+	}
+
+	double Compass::heading(double x, double y) {
+		return fmod(atan2(x, y), 2 * M_PI);
+	}
+
+	double Compass::diff(double target) {
+		return diff(read(), target);
+	}
+
+	double Compass::diff(double target, double now) {
+		double r;
+		r = fmod((target - now), 2 * M_PI);
+		if (r < -M_PI) {
+			r += 2 * M_PI;
+			return r;
+		}
+		if (r > M_PI)
+			r -= 2 * M_PI;
 		return r;
 	}
-	if (r > M_PI)
-		r -= 2 * M_PI;
-	return r;
-	//return (r <= M_PI ? r : r - 2 * M_PI);
 }

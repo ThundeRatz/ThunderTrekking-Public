@@ -6,7 +6,7 @@ bin_PROGRAMS = udp_recv_bigodes udp_recv_hmc5883l \
 	udp_recv_contato azimuth gps_error gpsd_client_new PID \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
 	BumperTest TesteGeral LeddarTest FindCone GPIOButtonTest \
-	GPSTest BNOCalib mainMaps cameraTest pino164 main
+	GPSTest BNOCalib mainMaps cameraTest pino164 main CompassTest
 
 ## @TODO: Limpar aqui
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
@@ -129,6 +129,9 @@ mainMaps_SOURCES = src/bin/mainMaps.cc src/lib/LeddarEK.cc src/lib/sleep.cc src/
 	src/lib/Bumper.cc src/lib/Leds.cc src/lib/ThreadMotors.cc src/lib/ThreadSpawn.cc src/lib/serial.cc \
 	src/lib/BNO055.cc src/lib/bno055.cc src/lib/GPS.cc src/lib/Stats.cc src/lib/I2C.cc src/lib/compass.cc
 mainMaps_LDADD = $(LEDDAR) -levdev -lpthread -lgps
+
+CompassTest_SOURCES = src/tests/CompassTest.cc src/lib/Compass.cc
+CompassTest_LDADD = -lgtest -lgtest_main -lpthread
 
 # -DRAPIDJSON_SSE42 for x86
 AM_CXXFLAGS = -I. -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -DRAPIDJSON_HAS_STDSTRING \

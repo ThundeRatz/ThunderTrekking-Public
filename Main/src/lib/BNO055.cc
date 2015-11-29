@@ -67,11 +67,11 @@ namespace Trekking {
 		acceleration_return << acceleration.x, acceleration.y;
 	}
 
-	void BNO055::heading(Rotation2D<double>& new_heading) {
+	double read_compass() {
 		double alpha;
 		if (bno055_convert_double_euler_h_rad(&alpha))
 			cerr << "bno055_convert_double_euler_h_rad failed\n";
-		new_heading.angle() = alpha;
+		return alpha;
 	}
 
 	s8 BNO055::read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt) {

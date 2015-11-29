@@ -69,7 +69,7 @@ static Evento eventos[] = {
 	{.pos = GPS(-0.3705656184, -0.7852493467), .margemGPS = 12./1000., .margemObjetivo = 12./1000., .tem_cone = true, .desvio = 0},
 };
 
-static GPSMonitor *gps_monitor;
+static DifferentialGPSMonitor gps_monitor;
 static BNO055 *bno055;
 static Eigen::Rotation2D<double> heading;
 static int evento;
@@ -83,15 +83,6 @@ int main() {
 
 		for (int i = 0; i < len(eventos); i++)
 			eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
-
-		GPSMonitor gps_monitor_initial_position(eventos[0].pos);
-		while (!gps_monitor_initial_position.update()) {
-			motor(50, 50);
-			cout << "gps_monitor.update() inicial\n";
-			sleep_ms(2000);
-		}
-		GPSMonitor gps_monitor_instance(gps_monitor_initial_position);
-		gps_monitor = &gps_monitor_instance;
 
 		for (;;) {
 			while (reset) {

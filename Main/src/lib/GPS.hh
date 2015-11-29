@@ -33,7 +33,6 @@ namespace Trekking {
 	class GPS {
 	public:
 		double latitude, longitude;
-		Eigen::Vector2d point;
 		GPS();
 		GPS(double latitude, double longitude);
 		double distance_to(const GPS& to);
@@ -43,17 +42,33 @@ namespace Trekking {
 
 	private:
 		double haversine(double a);
+		std::pair<int, int> convert_plane(const GPS &to);
 	};
 
-	class GPSMonitor: public GPS {
+	class GPSMonitor : public GPS {
 	public:
 		gps_data_t *gpsd_data;
-		GPSMonitor(GPS origin);
+		GPSMonitor();
 		bool blocking_update();
 		bool update();
 
 	private:
 		gpsmm gpsd_client;
+	};
+
+	class DifferentialGPSMonitor : public GPSMonitor {
+	public:
+		gps_data_t *gpsd_data;
+		DifferentialGPSMonitor(const GPSMonitor *gps_origin = NULL);
+		bool blocking_update();
+		bool update();
+
+		Eigen::Vector2d position;
+
+	private:
+		GPS origin;
+
+		void set_position();
 	};
 
 	class GPSStats {

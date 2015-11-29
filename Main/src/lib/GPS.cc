@@ -27,9 +27,10 @@
 // menores distâncias e outros em coordenadas esféricas
 
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 
-#include "compass.h"
+#include "Compass.hh"
 #include "GPS.hh"
 
 #define EARTH_R			6371
@@ -68,28 +69,36 @@ namespace Trekking {
 	 * @param[in] to other coordinate
 	 */
 	double GPS::azimuth_to(const GPS &to) {
-		double	y = sin(to.longitude - longitude) * cos(to.latitude),
-	  			x = cos(latitude) * sin(to.latitude) -
-				sin(latitude) * cos(to.latitude) *
-				cos(to.longitude - longitude);
-		return atan2(y, x);
+		pair<int, int> position = convert_plane(to);
+		return atan2(position.second, position.first);
 	}
 
    double GPS::angle_to(const GPS &to) {
 	   /// @todo Unit test
-	   double	y = sin(to.longitude - longitude) * cos(to.latitude),
-			   x = cos(latitude) * sin(to.latitude) -
-			   sin(latitude) * cos(to.latitude) *
-			   cos(to.longitude - longitude);
-	   return atan2(x, y);
+   		pair<int, int> position = convert_plane(to);
+   		return atan2(position.first, position.second);
    }
 
 	Eigen::Vector2d GPS::vector_to(const GPS& to) {
 		/// @todo Unit test
 		double distance, angle;
-		angle = origin.angle_to(*this);
-		distance = origin.distance_to(*this);
-		return (Eigen::Vector2d() << distance * sin(angle), distance * cos(angle));
+		angle = angle_to(to);
+		distance = distance_to(to);
+		return (Eigen::Vector2d() << distance * sin(angle), distance * cos(angle)).finished();
+	}
+
+	/**
+	 * GPS to plane conversion.
+	 * Conversion to plane coordinates for calculation of heading/angle. This
+	 * isn't for distances!
+	 */
+	pair<int, int> GPS::convert_plane(const GPS &to) {
+		pair<int, int> position;
+		position.second = sin(to.longitude - longitude) * cos(to.latitude);
+		position.first = cos(latitude) * sin(to.latitude) -
+			sin(latitude) * cos(to.latitude) *
+			cos(to.longitude - longitude);
+		return position;
 	}
 
 	/**
@@ -101,7 +110,7 @@ namespace Trekking {
 		return sin_a2 * sin_a2;
 	}
 
-	GPSMonitor::GPSMonitor(GPS origin) : gpsd_client("localhost", DEFAULT_GPSD_PORT), origin(origin) {
+	GPSMonitor::GPSMonitor() : gpsd_client("localhost", DEFAULT_GPSD_PORT) {
 		if (!gpsd_client.is_open())
 			throw runtime_error("gpsmm() initialization failed");
 		gpsd_client.clear_fix();
@@ -115,7 +124,6 @@ namespace Trekking {
 		if (gpsd_data->set & LATLON_SET) {
 			latitude = TO_RAD(gpsd_data->fix.latitude);
 			longitude = TO_RAD(gpsd_data->fix.longitude);
-			update2d();
 			return true;
 		}
 		return false;
@@ -127,11 +135,37 @@ namespace Trekking {
 		return false;
 	}
 
-	void GPSMonitor::update2d() {
-		double distance, azimuth;
-		azimuth = origin.azimuth_to(*this);
-		distance = origin.distance_to(*this);
-		point << distance * sin(azimuth), distance * cos(azimuth);
+	DifferentialGPSMonitor::DifferentialGPSMonitor(const GPSMonitor *gps_origin) {
+		position << 0, 0;
+		if (gps_origin != NULL) {
+			if (!(gps_origin->gpsd_data->set & LATLON_SET))
+				throw runtime_error("DifferentialGPSMonitor initialized with gps_origin without LATLON_SET");
+			origin = *gps_origin;
+		} else {
+			while (!blocking_update())
+				cout << "DifferentialGPSMonitor: waiting origin\n";
+			origin = *this;
+		}
+	}
+
+	bool DifferentialGPSMonitor::blocking_update() {
+		if (!GPSMonitor::blocking_update())
+			return false;
+		set_position();
+		return true;
+	}
+
+	bool DifferentialGPSMonitor::update() {
+		if (!GPSMonitor::update())
+			return false;
+		set_position();
+		return true;
+	}
+
+	void DifferentialGPSMonitor::set_position() {
+		double distance = origin.distance_to(*this);
+		double angle = origin.angle_to(*this);
+		position << distance * sin(angle), distance * cos(angle);
 	}
 
 	GPSStats::GPSStats() : _latitude_stats(), _longitude_stats() {}

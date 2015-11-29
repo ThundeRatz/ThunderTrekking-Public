@@ -30,8 +30,6 @@
 #include "GPS.hh"
 #include "sleep.hh"
 
-#include "compass.h"
-
 #define MS	1000000
 #define len(array)	((&array)[1] - array)
 
@@ -53,7 +51,7 @@ int main() {
 
 	// Media das medidas do GPS na posicao atual
 	Trekking::GPSStats stats;
-	Trekking::GPSMonitor position(Trekking::GPS(0., 0.));
+	Trekking::GPSMonitor position;
 	for (int n = 1; n <= 15; n++) {
 		while (!position.blocking_update()) ;
 		cout << "Posicao atual: " << position.latitude << " " << position.longitude << "\n";

@@ -29,15 +29,15 @@
 
 namespace Trekking {
 	double Compass::angle(double x, double y) {
-		return fmod(atan2(y, x), 2 * M_PI);
+		return atan2(y, x);
 	}
 
 	double Compass::heading(double x, double y) {
-		return fmod(atan2(x, y), 2 * M_PI);
+		return atan2(x, y);
 	}
 
 	double Compass::diff(double target) {
-		return diff(read(), target);
+		return diff(read_compass(), target);
 	}
 
 	double Compass::diff(double target, double now) {

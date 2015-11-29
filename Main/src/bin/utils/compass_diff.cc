@@ -24,12 +24,12 @@
 
 #include <stdio.h>
 
-#include "compass.h"
+#include "Compass.hh"
 
 int main() {
 	double target, current;
 
 	while (scanf("%lf%lf", &target, &current) == 2)
-		printf("Diff: %lf\n", compass_diff(target, current));
+		printf("Diff: %lf\n", Trekking::Compass::diff(target, current));
 	return 0;
 }

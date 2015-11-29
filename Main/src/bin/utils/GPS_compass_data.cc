@@ -36,7 +36,7 @@
 #include "errno_string.hh"
 
 #include "ports.h"
-#include "compass.h"
+#include "Compass.hh"
 
 using namespace std;
 using namespace Trekking;

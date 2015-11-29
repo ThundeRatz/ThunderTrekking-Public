@@ -32,9 +32,9 @@ namespace Trekking {
         virtual ~Compass() {}
         virtual double read_compass() = 0;
 
-        double angle(double x, double y);
-        double heading(double x, double y);
+        static double angle(double x, double y);
+        static double heading(double x, double y);
         double diff(double target);
-        double diff(double target, double now);
+        static double diff(double target, double now);
     };
 }

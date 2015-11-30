@@ -42,7 +42,7 @@ namespace Trekking {
 
 	private:
 		double haversine(double a);
-		std::pair<int, int> convert_plane(const GPS &to);
+		std::pair<double, double> convert_plane(const GPS &to);
 	};
 
 	class GPSMonitor : public GPS {

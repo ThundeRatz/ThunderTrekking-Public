@@ -36,7 +36,7 @@ namespace Trekking {
 	public:
 		BNO055();
 		void linear_acceleration(Eigen::Vector2d& acceleration_return);
-		virtual double read_compass();
+		double read_compass();
 		void get_calibration();
 		void save_file();
 		void load_file();

@@ -29,10 +29,10 @@
 #include "Compass.hh"
 
 namespace Trekking {
-    class Sensor9DOF : public Compass {
-    public:
-        virtual ~Sensor9DOF() {}
-        virtual double read_accelerometer() = 0;
+	class Sensor9DOF : public Compass {
+	public:
+		virtual ~Sensor9DOF() {}
+		virtual double read_accelerometer() = 0;
 		virtual double read_gyroscope() = 0;
 		/// @todo Mudar para read_orientation ou outros métodos mais interesantes?
     };

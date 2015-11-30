@@ -29,6 +29,7 @@
 #include <ctime>
 
 #include "camera.hh"
+#include "Compass.hh"
 #include "errno_string.hh"
 #include "GPIOButton.hh"
 #include "ThreadMotors.hh"
@@ -41,8 +42,6 @@
 #include "GPS.hh"
 #include "PID.hh"
 #include "GPIO.hh"
-
-#include "compass.h"
 
 #define len(array)     ((&array)[1] - array)
 
@@ -81,8 +80,8 @@ int main() {
 		bno055 = &bno055_instance;
 		thread_spawn(motors_thread);
 
-		for (int i = 0; i < len(eventos); i++)
-			eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
+		// for (int i = 0; i < len(eventos); i++)
+		//	eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
 
 		for (;;) {
 			while (reset) {
@@ -110,21 +109,21 @@ void Evento::executa() {
 	double correcao;
 	GPIOButton reset(164);
 	GPS pos_atual = eventos[evento - 1].pos;
-	pos_atual.to_2d(pos_atual.point, eventos[0].pos);
+	// pos_atual.to_2d(pos_atual.point, eventos[0].pos);
 
 	cout << fixed << setprecision(8);
 	cout << "Executando evento\n";
 
 	while (!reset) {
-		if (gps_monitor->update()) {
-			pos_atual.latitude = gps_monitor->latitude;
-			pos_atual.longitude = gps_monitor->longitude;
+		if (gps_monitor.update()) {
+			pos_atual.latitude = gps_monitor.latitude;
+			pos_atual.longitude = gps_monitor.longitude;
 			pos_atual.to_2d(pos_atual.point, eventos[0].pos);
 		}
 
-		bno055->heading(heading);
+		double heading = bno055->heading();
 
-		correcao = compass_diff(pos_atual.azimuth_to(this->pos) + 1.74975108 - 0.36247002, heading.angle() + 1.23920821);
+		correcao = Compass::diff(pos_atual.azimuth_to(this->pos) + 1.74975108 - 0.36247002, heading + 1.23920821);
 		cout << pos_atual.point << " -> " << this->pos.point << endl
 			<< "Azimuth: " << pos_atual.azimuth_to(this->pos) << endl
 			<< "Direcao Atual: " << heading.angle() << endl

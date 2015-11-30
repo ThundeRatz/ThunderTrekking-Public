@@ -67,7 +67,7 @@ namespace Trekking {
 		acceleration_return << acceleration.x, acceleration.y;
 	}
 
-	double read_compass() {
+	double BNO055::read_compass() {
 		double alpha;
 		if (bno055_convert_double_euler_h_rad(&alpha))
 			cerr << "bno055_convert_double_euler_h_rad failed\n";

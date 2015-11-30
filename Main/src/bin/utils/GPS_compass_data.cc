@@ -78,7 +78,7 @@ rapidjson::PrettyWriter<JSON_stream_to_cout_interface> json(cout_interface);
 mutex json_output;
 
 void gps_thread() {
-    GPSMonitor gps(GPS(0., 0.));
+    GPSMonitor gps;
 
 #if GPSD_API_MAJOR_VERSION != 6
 #warning GPSd API 6 required
@@ -151,7 +151,7 @@ int main() {
     			case sizeof(data): {
                     lock_guard<mutex> lock(json_output);
                     json.Key("bussola");
-                    json.Double(compass_orientation(data[0], data[2]));
+                    json.Double(Compass::heading(data[0], data[2]));
                 }
     			break;
 

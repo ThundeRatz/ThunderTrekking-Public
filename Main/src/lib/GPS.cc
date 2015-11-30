@@ -69,15 +69,15 @@ namespace Trekking {
 	 * @param[in] to other coordinate
 	 */
 	double GPS::azimuth_to(const GPS &to) {
-		pair<int, int> position = convert_plane(to);
+		pair<double, double> position = convert_plane(to);
 		return atan2(position.second, position.first);
 	}
 
-   double GPS::angle_to(const GPS &to) {
-	   /// @todo Unit test
-   		pair<int, int> position = convert_plane(to);
-   		return atan2(position.first, position.second);
-   }
+	double GPS::angle_to(const GPS &to) {
+		/// @todo Unit test
+		pair<double, double> position = convert_plane(to);
+		return atan2(position.first, position.second);
+	}
 
 	Eigen::Vector2d GPS::vector_to(const GPS& to) {
 		/// @todo Unit test
@@ -92,8 +92,8 @@ namespace Trekking {
 	 * Conversion to plane coordinates for calculation of heading/angle. This
 	 * isn't for distances!
 	 */
-	pair<int, int> GPS::convert_plane(const GPS &to) {
-		pair<int, int> position;
+	pair<double, double> GPS::convert_plane(const GPS &to) {
+		pair<double, double> position;
 		position.second = sin(to.longitude - longitude) * cos(to.latitude);
 		position.first = cos(latitude) * sin(to.latitude) -
 			sin(latitude) * cos(to.latitude) *

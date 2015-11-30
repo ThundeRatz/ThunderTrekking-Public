@@ -6,7 +6,7 @@
 #include "sleep.hh"
 #include "BNO055.hh"
 
-#include "compass.h"
+#include "Compass.hh"
 
 #define len(array)     ((&array)[1] - array)
 
@@ -19,12 +19,13 @@ int main() {
 				  GPS(-0.3705599906, -0.7852493748),
 				  GPS(-0.3705620335, -0.7852462032),
 				  GPS(-0.3705658885, -0.7852487568), };
-	GPSMonitor gps(pos[0]);
+	Eigen::Vector2d positions[4];
+	GPSDifferentialMonitor gps;
 	BNO055 bno;
 	static Eigen::Rotation2D<double> heading;
 
 	for (int i = 0; i < len(pos); i++)
-		pos[i].to_2d(pos[i].point, pos[0]);
+		positions[i] = gps.vector_to(pos[i]);
 
 	for (;;) {
 		if(!gps.blocking_update()) {

@@ -62,6 +62,8 @@ namespace Trekking {
 		DifferentialGPSMonitor(const GPSMonitor *gps_origin = NULL);
 		bool blocking_update();
 		bool update();
+		double distance_to(const Eigen::Vector2d& to);
+		double angle_to(const Eigen::Vector2d& to);
 
 		Eigen::Vector2d position;
 

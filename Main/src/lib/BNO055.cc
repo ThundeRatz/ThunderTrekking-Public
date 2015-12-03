@@ -49,12 +49,20 @@ namespace Trekking {
 			throw runtime_error("BNO055 operation mode failed");
 		if (bno055_set_accel_slow_no_motion_durn(0x3f))
 			throw runtime_error("BNO055 accel no motion sleep failed");
-		if (bno055_set_remap_x_sign(REMAP_AXIS_POSITIVE))
-			throw runtime_error("Error on set_remap_x_sign");
-		if (bno055_set_remap_y_sign(REMAP_AXIS_POSITIVE))
-			throw runtime_error("Error on set_remap_y_sign");
-		if (bno055_set_remap_z_sign(REMAP_AXIS_POSITIVE))
-			throw runtime_error("Error on set_remap_z_sign");
+		u8 selftest_accel, selftest_mag, selftest_gyro, selftest_mcu;
+		for (;;) {
+			// bno055_get_selftest ativa selftest e retorna 1 se estiver completo.
+			u8 selftest;
+			if (bno055_get_selftest(&selftest))
+				throw runtime_error("BNO055 get self test failed");
+			if (selftest)
+				break;
+		}
+		if (bno055_get_selftest_accel(&selftest_accel) || bno055_get_selftest_mag(&selftest_mag) ||
+			bno055_get_selftest_gyro(&selftest_gyro) || bno055_get_selftest_mcu(&selftest_mcu))
+			throw runtime_error("BNO055 get self test failed");
+		if (selftest_accel || selftest_mag || selftest_gyro || selftest_mcu)
+			throw runtime_error("BNO055 self test failed");
 		load_file();
 	}
 
@@ -133,7 +141,10 @@ namespace Trekking {
 
 	void BNO055::load_file() {
 		ifstream file("Calibration.txt");
-		if(bno055_set_operation_mode(OPERATION_MODE_CONFIG))
+		u8 old_mode;
+		if (bno055_get_operation_mode(&old_mode))
+			throw runtime_error("bno055_get_operation_mode failed");
+		if (bno055_set_operation_mode(OPERATION_MODE_CONFIG))
 			throw runtime_error("BNO055 operation mode failed: CONFIG on load_file");
 		file >> accel_offset.x >> accel_offset.y
 			>> accel_offset.z >> accel_offset.r
@@ -145,7 +156,21 @@ namespace Trekking {
 		bno055_write_accel_offset(&accel_offset);
 		bno055_write_gyro_offset(&gyro_offset);
 		bno055_write_mag_offset(&mag_offset);
+		if (bno055_set_operation_mode(old_mode))
+			throw runtime_error("BNO055 operation mode failed: restore on load_file");
+	}
+
+	void BNO055::remap(u8 x_remap, u8 y_remap, u8 z_remap) {
+		if (bno055_set_remap_x_sign(x_remap))
+			throw runtime_error("Error on set_remap_x_sign");
+		if (bno055_set_remap_y_sign(y_remap))
+			throw runtime_error("Error on set_remap_y_sign");
+		if (bno055_set_remap_z_sign(z_remap))
+			throw runtime_error("Error on set_remap_z_sign");
+	}
+
+	BNO055Raw::BNO055Raw() : BNO055() {
 		if (bno055_set_operation_mode(OPERATION_MODE_NDOF))
-			throw runtime_error("BNO055 operation mode failed: NDOF on load_file");
+			throw runtime_error("BNO055 operation mode failed");
 	}
 }

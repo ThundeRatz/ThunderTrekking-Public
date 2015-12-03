@@ -168,6 +168,15 @@ namespace Trekking {
 		position << distance * sin(angle), distance * cos(angle);
 	}
 
+	double DifferentialGPSMonitor::distance_to(const Eigen::Vector2d& to) {
+		return (to - position).norm();
+	}
+
+	double DifferentialGPSMonitor::angle_to(const Eigen::Vector2d& to) {
+		Eigen::Vector2d resultant = to - position;
+		return atan2(resultant[1], resultant[0]);
+	}
+
 	GPSStats::GPSStats() : _latitude_stats(), _longitude_stats() {}
 
 	const Stats& GPSStats::latitude_stats() {

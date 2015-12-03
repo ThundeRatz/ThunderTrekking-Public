@@ -47,7 +47,7 @@ int main() {
 				<< "---Esferico:                       Plano:\n"
 				<< "-----Latitude:  " << pos[i].latitude  << "    X: " << positions[i][0] << endl
 				<< "-----Longitude: " << pos[i].longitude << "    Y: " << positions[i][1] << endl
-				<< "---Distancia: " << gps.distance_to(pos[i]) << " km" << endl;
+				<< "---Distancia: " << gps.distance_to(positions[i]) << " km" << endl;
 			cout << "---Angulos:\n"
 				<< "-----Azimuth: " << gps.azimuth_to(pos[i]) << endl
 				<< "-----Heading: " << heading.angle() << endl

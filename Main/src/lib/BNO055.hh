@@ -40,6 +40,7 @@ namespace Trekking {
 		void get_calibration();
 		void save_file();
 		void load_file();
+		void remap(u8 x, u8 y, u8 z);
 
 	private:
 		struct bno055_accel_offset_t accel_offset;
@@ -50,5 +51,10 @@ namespace Trekking {
 		static s8 read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
 		static s8 write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
 		static void delay_ms(u32 ms);
+	};
+
+	class BNO055Raw : public BNO055 {
+	public:
+		BNO055Raw();
 	};
 }

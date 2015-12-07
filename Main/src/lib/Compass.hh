@@ -27,14 +27,15 @@
 #include <cstdint>
 
 namespace Trekking {
-    class Compass {
-    public:
-        virtual ~Compass() {}
-        virtual double read_compass() = 0;
+	class Compass {
+	public:
+		virtual ~Compass() {}
+		virtual double read_compass() = 0;
 
-        static double angle(double x, double y);
-        static double heading(double x, double y);
-        double diff(double target);
-        static double diff(double target, double now);
-    };
+		static double angle(double x, double y);
+		static double heading(double x, double y);
+		double read_angle();
+		double diff(double target);
+		static double diff(double target, double now);
+	};
 }

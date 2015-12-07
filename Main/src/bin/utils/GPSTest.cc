@@ -23,7 +23,7 @@ int main() {
 	Eigen::Vector2d positions[4];
 	DifferentialGPSMonitor gps;
 	BNO055 bno;
-	static Eigen::Rotation2D<double> heading;
+	static Eigen::Rotation2D<double> angle;
 
 	for (int i = 0; i < len(pos); i++)
 		positions[i] = pos[0].vector_to(pos[i]);
@@ -35,7 +35,7 @@ int main() {
 			continue;
 		}
 		system("clear");
-		heading = bno.read_compass();
+		angle = bno.read_angle();
 		cout << "Atual:\n"
 			<< "---Esferico:                       Plano:\n"
 			<< "-----Latitude:  " << gps.latitude  << "    X: " << gps.position[0] << endl
@@ -50,8 +50,8 @@ int main() {
 				<< "---Distancia: " << gps.distance_to(positions[i]) << " km" << endl;
 			cout << "---Angulos:\n"
 				<< "-----Azimuth: " << gps.azimuth_to(pos[i]) << endl
-				<< "-----Heading: " << heading.angle() << endl
-				<< "-----Diff:    " << Compass::diff(heading.angle(), gps.azimuth_to(pos[i])) << endl;
+				<< "-----Compass angle: " << angle.angle() << endl
+				<< "-----Diff:    " << Compass::diff(angle.angle(), gps.azimuth_to(pos[i])) << endl;
 			cout << "---------------------------------------------------------------" << endl;
 		}
 		sleep_ms(50);

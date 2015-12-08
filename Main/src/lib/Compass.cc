@@ -40,6 +40,10 @@ namespace Trekking {
 		return diff(read_compass(), target);
 	}
 
+	double Compass::read_angle() {
+		return -read_compass();
+	}
+
 	double Compass::diff(double target, double now) {
 		double r;
 		r = fmod((target - now), 2 * M_PI);

@@ -45,31 +45,27 @@ namespace Trekking {
 			throw runtime_error("BNO055 initialization failed");
 		if (bno055_set_power_mode(POWER_MODE_NORMAL))
 			throw runtime_error("BNO055 power mode failed");
-		if (bno055_set_operation_mode(OPERATION_MODE_NDOF))
+		if (bno055_set_operation_mode(OPERATION_MODE_CONFIG))
 			throw runtime_error("BNO055 operation mode failed");
 		if (bno055_set_accel_slow_no_motion_durn(0x3f))
 			throw runtime_error("BNO055 accel no motion sleep failed");
 		u8 selftest_accel, selftest_mag, selftest_gyro, selftest_mcu;
-		for (;;) {
-			// bno055_get_selftest ativa selftest e retorna 1 se estiver completo.
-			u8 selftest;
-			if (bno055_get_selftest(&selftest))
-				throw runtime_error("BNO055 get self test failed");
-			if (selftest)
-				break;
-		}
+		if (bno055_set_selftest(1))
+			throw runtime_error("BNO055 set self test failed");
 		if (bno055_get_selftest_accel(&selftest_accel) || bno055_get_selftest_mag(&selftest_mag) ||
 			bno055_get_selftest_gyro(&selftest_gyro) || bno055_get_selftest_mcu(&selftest_mcu))
 			throw runtime_error("BNO055 get self test failed");
 		if (selftest_accel || selftest_mag || selftest_gyro || selftest_mcu)
 			throw runtime_error("BNO055 self test failed");
 		load_file();
+		if (bno055_set_operation_mode(OPERATION_MODE_NDOF))
+			throw runtime_error("BNO055 operation mode failed");
 	}
 
 	void BNO055::linear_acceleration(Vector2d& acceleration_return) {
-		bno055_linear_accel_t acceleration;
-		if (bno055_read_linear_accel_xyz(&acceleration)) {
-			cerr << "bno055_read_linear_accel_xyz failed\n";
+		struct bno055_linear_accel_double_t acceleration;
+		if (bno055_convert_double_linear_accel_xyz_msq(&acceleration)) {
+			throw runtime_error("bno055_read_linear_accel_xyz failed");
 			acceleration_return << 0, 0;
 		}
 		acceleration_return << acceleration.x, acceleration.y;
@@ -167,10 +163,5 @@ namespace Trekking {
 			throw runtime_error("Error on set_remap_y_sign");
 		if (bno055_set_remap_z_sign(z_remap))
 			throw runtime_error("Error on set_remap_z_sign");
-	}
-
-	BNO055Raw::BNO055Raw() : BNO055() {
-		if (bno055_set_operation_mode(OPERATION_MODE_NDOF))
-			throw runtime_error("BNO055 operation mode failed");
 	}
 }

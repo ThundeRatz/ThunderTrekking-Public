@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
+ */
 
 #include <iostream>
 #include <ctime>
@@ -30,6 +30,7 @@
 #include <signal.h>
 #include <rapidjson/prettywriter.h>
 
+#include "BNO055.hh"
 #include "GPS.hh"
 #include "UDP.hh"
 #include "sleep.hh"
@@ -145,24 +146,27 @@ int main() {
 	int16_t data[3];
 
 	try {
-        UDPReceiver bussola(UDP_HMC5883L, sizeof data);
+        Trekking::BNO055 bno055;
         while (running) {
-            switch (bussola.receive(data, sizeof(data))) {
-    			case sizeof(data): {
-                    lock_guard<mutex> lock(json_output);
-                    json.Key("bussola");
-                    json.Double(Compass::heading(data[0], data[2]));
-                }
-    			break;
+            double angle = bno055.read_angle();
+            {
+                lock_guard<mutex> lock(json_output);
+                json.Key("bussola");
+                json.Double(angle);
+            }
 
-                case -1:
-				cerr << "recvfrom: " << errno_string() << endl;
-				return -1;
-
-    			default:
-    			cerr << "Unexpected message size" << endl;
-    			break;
-    		}
+            Eigen::Vector2d acceleration;
+            bno055.linear_acceleration(acceleration);
+            {
+                lock_guard<mutex> lock(json_output);
+                json.Key("aceleracao");
+                json.StartObject();
+                json.Key("x");
+                json.Double(acceleration[0]);
+                json.Key("y");
+                json.Double(acceleration[1]);
+                json.EndObject();
+            }
         }
     } catch (runtime_error& e) {
         cerr << e.what() << endl;

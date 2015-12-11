@@ -53,8 +53,8 @@ gpsd_client_new_SOURCES = src/bin/utils/GPSdClient.cc src/lib/GPS.cc src/lib/sle
 gpsd_client_new_LDADD = -lgps -lm
 
 GPS_compass_data_SOURCES = src/bin/utils/GPS_compass_data.cc \
-	src/lib/UDP.cc src/lib/GPS.cc src/lib/Compass.cc src/lib/errno_string.cc \
-	src/lib/sleep.cc src/lib/Stats.cc
+	src/lib/BNO055.cc src/lib/bno055.cc src/lib/GPS.cc src/lib/Compass.cc \
+	src/lib/errno_string.cc src/lib/sleep.cc src/lib/Stats.cc src/lib/I2C.cc
 GPS_compass_data_LDADD = -lgps -lpthread
 
 bumpers_SOURCES = src/bin/utils/bumpers.cc src/lib/GPIO.cc src/lib/GPIOButton.cc

@@ -135,11 +135,9 @@ namespace Trekking {
 		return false;
 	}
 
-	DifferentialGPSMonitor::DifferentialGPSMonitor(const GPSMonitor *gps_origin) {
+	DifferentialGPSMonitor::DifferentialGPSMonitor(const GPS *gps_origin) {
 		position << 0, 0;
 		if (gps_origin != NULL) {
-			if (!(gps_origin->gpsd_data->set & LATLON_SET))
-				throw runtime_error("DifferentialGPSMonitor initialized with gps_origin without LATLON_SET");
 			origin = *gps_origin;
 		} else {
 			while (!blocking_update())

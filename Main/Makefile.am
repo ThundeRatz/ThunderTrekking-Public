@@ -5,7 +5,8 @@ bin_PROGRAMS = udp_send pixy_test distance compass_diff controle \
 	azimuth gps_error gpsd_client_new \
 	GPS_compass_data log_read_GPS bumpers LedsTest_I2C BNO055_test \
 	BumperTest TesteGeral LeddarTest FindCone GPIOButtonTest \
-	GPSTest BNOCalib mainMaps cameraTest pino164 main CompassTest
+	GPSTest BNOCalib mainMaps cameraTest pino164 main CompassTest \
+	log_read_kalman
 
 ## @TODO: Limpar aqui
 main_SOURCES = src/bin/main.cc src/lib/ThreadSpawn.cc src/lib/ThreadMotors.cc \
@@ -79,10 +80,9 @@ cameraTest_SOURCES = src/lib/ThreadMotors.cc src/visao/camera.cpp src/visao/came
 	src/lib/serial.cc src/lib/ThreadSpawn.cc src/lib/sleep.cc src/lib/errno_string.cc
 cameraTest_LDADD = $(opencv_LIBS)
 
-# KalmanTeste_SOURCES = src/bin/utils/KalmanTeste.cc src/lib/TrekkingKF.cc \
-# 	src/lib/ThreadSpawn.cc src/lib/UDP.cc \s
-# 	src/lib/GPS.cc
-# KalmanTeste_LDADD = -lpthread -lgps -lkalman -lm
+log_read_kalman_SOURCES = src/bin/utils/log_read_kalman.cc src/lib/TrekkingKF.cc \
+	src/lib/GPS.cc
+log_read_kalman_LDADD = -lpthread -lgps -lkalman -lm
 
 log_read_GPS_SOURCES = src/bin/utils/log_read_GPS.cc src/lib/GPS.cc src/lib/Stats.cc
 log_read_GPS_LDADD = -lgps

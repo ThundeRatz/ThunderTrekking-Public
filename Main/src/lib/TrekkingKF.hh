@@ -30,11 +30,15 @@ namespace Trekking {
 	class TrekkingKF : public Kalman::KFilter<double, 0, false, false, true> {
 		public:
 			TrekkingKF();
+			void update_accelerometer(double acceleration, double delta);
+			void update_position(double position);
+			void update_speed(double speed);
 
 		protected:
 			void makeBaseA();
-			void makeBaseB();
-			void makeBaseH();
+			void makeA();
+			void makeB();
+			void makeH();
 			void makeBaseQ();
 			void makeBaseR();
 			void makeBaseW();
@@ -45,10 +49,12 @@ namespace Trekking {
 			// double sigma_a; //!< Desvio padrão da aceleração (w)
 			// double sigma_z; //!< Desvio padrão do ruido das medidas (v)
 
-			//! \name Tamanhos dos vetores
-			int n;          //!< Estado, Ruído do Processo
-			int l;          //!< Entrada
-			int m;          //!< Medida, Ruído da Medida
+			// //! \name Tamanhos dos vetores
+			// int n;          //!< Estado, Ruído do Processo
+			// int l;          //!< Entrada
+			// int m;          //!< Medida, Ruído da Medida
+
+			bool position_update;
 	};
 
 	typedef TrekkingKF::Vector Vetor;

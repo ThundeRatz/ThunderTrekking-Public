@@ -22,17 +22,17 @@
  * SOFTWARE.
 */
 
-#include <iostream>
+#include <cmath>
 #include <iomanip>
-#include <cstdio>
+#include <iostream>
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/document.h>
-#include <exception>
-#include <stdexcept>
 
+#include "TrekkingKF.hh"
 #include "GPS.hh"
 
 using namespace std;
+using namespace Trekking;
 
 static void parseJson(rapidjson::Document& document, char filename[]) {
 	FILE* file = fopen(filename, "r");
@@ -58,31 +58,42 @@ int main(int argc, char **argv) {
 	rapidjson::Document document;
 	parseJson(document, argv[1]);
 
-	//double latitude, longitude, std_latitude, std_longitude;
-	Trekking::GPS origin, current;
-	cout << fixed << setprecision(9);
+	cout << fixed << setprecision(8);
+
+	TrekkingKF filter;
+	GPS origin;
+
 	rapidjson::Value::ConstMemberIterator it = document.MemberBegin();
+	double last_time;
+	double angle;
 	for (; it != document.MemberEnd(); ++it) {
 		if (it->name == "latlon") {
 			origin.latitude = it->value["latitude"].GetDouble();
 			origin.longitude = it->value["longitude"].GetDouble();
+			last_time = it->value["time"].GetDouble();
 			break;
 		}
+		if (it->name == "bussola") {
+			angle = it->value.GetDouble();
+		}
 	}
+
+	DifferentialGPSMonitor differential_monitor(&origin);
 	for (; it != document.MemberEnd(); ++it) {
 		if (it->name == "latlon") {
-			Trekking::GPS current, std_deviation;
-			Eigen::Vector2d coordinate;
-			current.latitude = it->value["latitude"].GetDouble();
-			current.longitude = it->value["longitude"].GetDouble();
-			current.to_2d(coordinate, origin);
-			cout << 1000 * coordinate[0] << " " << 1000 * coordinate[1] << " ";
-
-			// std_deviation.latitude = it->value["latitude std"].GetDouble();
-			// std_deviation.longitude = it->value["longitude std"].GetDouble();
-			// std_deviation.to_2d(coordinate, origin);
-			// cout << 1000 * coordinate.x << " " << 1000 * coordinate.y << endl;
-			cout << it->value["latitude std"].GetDouble() << endl;
+			last_time = it->value["time"].GetDouble();
+			differential_monitor.latitude = it->value["latitude"].GetDouble();
+			differential_monitor.longitude = it->value["longitude"].GetDouble();
+			differential_monitor.set_position();
+			filter.update_position(differential_monitor.position[0] * 1000);
+		}
+		if (it->name == "bussola") {
+			angle = it->value.GetDouble();
+		}
+		if (it->name == "aceleracao") {
+			double current_time = it->value["time"].GetDouble();
+			filter.update_accelerometer(it->value["x"].GetDouble() * cos(angle), current_time - last_time);
+			last_time = current_time;
 		}
 	}
 }

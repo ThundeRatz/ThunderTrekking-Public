@@ -32,112 +32,119 @@
 
 namespace Trekking {
 	TrekkingKF::TrekkingKF() {
-		n = 3; // 4
-		l = 1; // 0
-		m = 4; // 4
-		setDim(n, l, n, m, m);
-		dt = 0.1;
+		// n = 2;
+		// l = 1; // 0
+		// m = 4; // 4
+
+		// dt = 0.1;
 		// sigma_a = 1.0; // Ver aqui
 		// sigma_z = 1.0; // E aqui
+
+		// estado: posição, velocidade (x).
+		// entrada: acelerômetro (u).
+		// ruído do processo (w).
+		// medida: velocidade ou posição (z).
+		// ruído da medida (v).
+		setDim(2, 1, 1, 1, 1);
+
+		Vector x(2);
+		Matrix P(2, 2);
+		x(0) = 0;
+		x(1) = 0;
+		P(0, 0) = 0;
+		P(0, 1) = 0;
+		P(1, 0) = 0;
+		P(1, 1) = 0;
+		init(x, P);
 	}
 
+	void TrekkingKF::update_accelerometer(double acceleration, double delta) {
+		TrekkingKF::Vector u(1);
+		u(0) = acceleration;
+		timeUpdateStep(u);
+		dt = delta;
+	}
+
+	void TrekkingKF::update_position(double position) {
+		position_update = true;
+		TrekkingKF::Vector z(1);
+		z = position;
+		measureUpdateStep(z);
+	}
+
+	void TrekkingKF::update_speed(double speed) {
+		position_update = false;
+		TrekkingKF::Vector z(1);
+		z = speed;
+		measureUpdateStep(z);
+	}
+
+	/// del(f) / del(x).
 	void TrekkingKF::makeBaseA() {
-		A(0,0) = 1.0;
+		A(0, 0) = 1;
 		A(0,1) = dt;
-		A(0,2) = dt*dt/2;
 
-		A(1,0) = 0.0;
-		A(1,1) = 1.0;
-		A(1,2) = dt;
-
-		A(2,0) = 0.0;
-		A(2,1) = 0.0;
-		A(2,2) = 1.0;
+		A(1, 0) = 0.0;
+		A(1, 1) = 1.0;
 	}
 
-	void TrekkingKF::makeBaseB() {
-		B(0,0) = 0.0;
+	/// del(f) / del(x).
+	void TrekkingKF::makeA() {
+		A(0, 1) = dt;
 	}
 
-	void TrekkingKF::makeBaseH() {
-		H(0,0) = 1.0;
-		H(0,1) = 0.0;
-		H(0,2) = 0.0;
+	/// f = A*x + B*u + W*w
+	/// B = M(2, 1)
+	void TrekkingKF::makeB() {
+		// [1 ; 0] para GPS, [0 ; 1] para encoder
+		if (position_update) {
+			B(0, 0) = 1.;
+			B(0, 1) = 0.;
+		} else {
+			B(0, 0) = 0.;
+			B(0, 1) = 1.;
 
-		H(1,0) = 0.0;
-		H(1,1) = 1.0;
-		H(1,2) = 0.0;
-
-		H(2,0) = 0.0;
-		H(2,1) = 1.0;
-		H(2,2) = 0.0;
-
-		H(3,0) = 0.0;
-		H(3,1) = 0.0;
-		H(3,2) = 1.0;
+		}
 	}
 
+	void TrekkingKF::makeH() {
+		// [1 ; 0] para GPS, [0 ; 1] para encoder
+		if (position_update) {
+			H(0, 0) = 1.;
+			H(0, 1) = 0.;
+		} else {
+			H(0, 0) = 0.;
+			H(0, 1) = 1.;
+		}
+	}
+
+	/// Cov. ruído do processo.
 	void TrekkingKF::makeBaseQ() {
-		Q(0,0) = 1.0;
-		Q(0,1) = 0.0;
+		Q(0, 0) = 1.;
+		Q(0, 1) = 0.;
 
-		Q(1,0) = 0.0;
-		Q(1,1) = 1.0;
+		Q(1, 0) = 0.;
+		Q(1, 1) = 1.;
 	}
 
+	/// Cov. ruído da medida.
 	void TrekkingKF::makeBaseR() {
 		// TODO Fazer aqui
-		R(0,0) = 1.0;
-		R(0,1) = 0.0;
-		R(0,2) = 0.0;
-		R(0,3) = 0.0;
+		R(0, 0) = 1.;
+		R(0, 1) = 0.;
 
-		R(1,0) = 0.0;
-		R(1,1) = 1.0;
-		R(1,2) = 0.0;
-		R(1,3) = 0.0;
-
-		R(2,0) = 0.0;
-		R(2,1) = 0.0;
-		R(2,2) = 1.0;
-		R(2,3) = 0.0;
-
-		R(3,0) = 0.0;
-		R(3,1) = 0.0;
-		R(3,2) = 0.0;
-		R(3,3) = 1.0;
+		R(1, 0) = 0.;
+		R(1, 1) = 1.;
 	}
 
+	// del(h) / del(v)
 	void TrekkingKF::makeBaseV() {
-		V(0,0) = 1.0;
-		V(0,1) = 0.0;
-		V(0,2) = 0.0;
-		V(0,3) = 0.0;
-
-		V(1,0) = 0.0;
-		V(1,1) = 1.0;
-		V(1,2) = 0.0;
-		V(1,3) = 0.0;
-
-		V(2,0) = 0.0;
-		V(2,1) = 0.0;
-		V(2,2) = 1.0;
-		V(2,3) = 0.0;
-
-		V(3,0) = 0.0;
-		V(3,1) = 0.0;
-		V(3,2) = 0.0;
-		V(3,3) = 1.0;
+		V(0, 0) = 1.;
 	}
 
+	/// del(f) / del(w)
 	void TrekkingKF::makeBaseW() {
-		W(0,0) = 0.0;
-		W(0,1) = 0.0;
-
-		W(1,0) = 0.0;
-		W(1,1) = 1.0;
-
-		W(2,0) = 1.0;
-		W(2,1) = 0.0;
+		W(0, 0) = 0.;
+		W(0, 1) = 1.;
 	}
 }

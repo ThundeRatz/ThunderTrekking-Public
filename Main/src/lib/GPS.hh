@@ -59,18 +59,18 @@ namespace Trekking {
 	class DifferentialGPSMonitor : public GPSMonitor {
 	public:
 		gps_data_t *gpsd_data;
-		DifferentialGPSMonitor(const GPSMonitor *gps_origin = NULL);
+		DifferentialGPSMonitor(const GPS *gps_origin = NULL);
 		bool blocking_update();
 		bool update();
 		double distance_to(const Eigen::Vector2d& to);
 		double angle_to(const Eigen::Vector2d& to);
+		void set_position();
 
 		Eigen::Vector2d position;
 
 	private:
 		GPS origin;
 
-		void set_position();
 	};
 
 	class GPSStats {

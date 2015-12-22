@@ -1,0 +1,3 @@
+ACTION=="remove", GOTO="power_switch_end"
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_PATH}=="platform-soc:keypad", TAG+="power-switch"
+LABEL="power_switch_end"

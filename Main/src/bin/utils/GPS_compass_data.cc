@@ -100,6 +100,10 @@ void gps_thread() {
                     json.Double(gps.gpsd_data->fix.longitude);
                     json.Key("longitude std");
                     json.Double(gps.gpsd_data->fix.epx);
+                    json.Key("time");
+                    struct timespec event_time;
+                    clock_gettime(event_time);
+                    json.Uint64(event_time.tv_sec * 1000 + event_time.tv_nsec / 1000000);
                     json.EndObject();
                 }
 
@@ -111,6 +115,10 @@ void gps_thread() {
                     json.Double(gps.gpsd_data->fix.speed);
                     json.Key("std");
                     json.Double(gps.gpsd_data->fix.eps);
+                    json.Key("time");
+                    struct timespec event_time;
+                    clock_gettime(event_time);
+                    json.Uint64(event_time.tv_sec * 1000 + event_time.tv_nsec / 1000000);
                     json.EndObject();
                 } else if (gps.gpsd_data->set & (SPEED_SET | SPEEDERR_SET)) {
                     // Para testes iniciais do Kalman, vamos manter incertezas e
@@ -123,7 +131,7 @@ void gps_thread() {
                 gps.gpsd_data->set = 0;
             }
         } else {
-            unsigned int sleep_time = 1000;
+            unsigned int sleep_time = 100;
             cerr << "blocking_update error" << endl;
             sleep_ms(sleep_time);
         }
@@ -152,7 +160,14 @@ int main() {
             {
                 lock_guard<mutex> lock(json_output);
                 json.Key("bussola");
+                json.StartObject();
+                json.Key("angle");
                 json.Double(angle);
+                json.Key("time");
+                struct timespec event_time;
+                clock_gettime(event_time);
+                json.Uint64(event_time.tv_sec * 1000 + event_time.tv_nsec / 1000000);
+                json.EndObject();
             }
 
             Eigen::Vector2d acceleration;
@@ -165,6 +180,10 @@ int main() {
                 json.Double(acceleration[0]);
                 json.Key("y");
                 json.Double(acceleration[1]);
+                json.Key("time");
+                struct timespec event_time;
+                clock_gettime(event_time);
+                json.Uint64(event_time.tv_sec * 1000 + event_time.tv_nsec / 1000000);
                 json.EndObject();
             }
         }

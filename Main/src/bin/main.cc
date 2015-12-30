@@ -66,12 +66,8 @@ static Evento eventos[] = {
 	{.pos = GPS(-0.4127182328, -0.8128458454), .margemGPS = 8./1000., .margemObjetivo = 8./1000., .tem_cone = true, .desvio = 0},
 };
 
-static PixyCam cone;
-static GPSMonitor pos_atual(eventos[0].pos);
-static Leds ledr("LedRed");
-static Leds ledg("LedGreen");
-static Leds ledb("LedBlue");
-static Bumper bumper;
+static GPS pos_atual(eventos[0].pos);
+static GPSMonitor gps_monitor;
 static BNO055 bno055;
 static Eigen::Rotation2D<double> heading;
 
@@ -80,6 +76,7 @@ int main() {
 
 	for (int i = 0; i < len(eventos); i++)
 		eventos[i].pos.to_2d(eventos[i].pos.point, eventos[0].pos);
+	pos_atual = eventos[0].pos;
 
 	for (int i = 1; i < len(eventos); i++)
 		eventos[i].executa();
@@ -99,7 +96,9 @@ void Evento::executa() {
 	cout << "Executando evento\n";
 
 	for (;;) {
-		if (pos_atual.update()) {
+		if (gps_monitor.update()) {
+			pos_atual.latitude = gps_monitor.latitude;
+			pos_atual.longitude = gps_monitor.longitude;
 			bno055.heading(heading);
 			correcao = compass_diff(pos_atual.azimuth_to(this->pos), heading.angle());
 			cout << pos_atual.point << " -> " << this->pos.point << endl
@@ -108,18 +107,18 @@ void Evento::executa() {
 				<< "Diff: " << correcao << endl;
 
 			if (correcao > ERRO_MAX) {
-	                cout << "Girando para a direita\n";
-	                motor_l = VELOCIDADE_MAX;
-	                motor_r = 0;//-VELOCIDADE_MAX;
+		                cout << "Girando para a direita\n";
+		                motor_l = VELOCIDADE_MAX;
+		                motor_r = 0;//-VELOCIDADE_MAX;
 			} else if (correcao < -ERRO_MAX) {
-	                cout << "Girando para a esquerda\n";
-	                motor_l = 0;//-VELOCIDADE_MAX;
-	                motor_r = VELOCIDADE_MAX;
-	        } else {
-	                cout << "Seguindo reto\n";
-	                motor_l = VELOCIDADE_MAX + 10;
-	                motor_r = VELOCIDADE_MAX + 10;
-	        }
+		                cout << "Girando para a esquerda\n";
+		                motor_l = 0;//-VELOCIDADE_MAX;
+		                motor_r = VELOCIDADE_MAX;
+		        } else {
+		                cout << "Seguindo reto\n";
+		                motor_l = VELOCIDADE_MAX + 10;
+		                motor_r = VELOCIDADE_MAX + 10;
+		        }
 			motor(motor_l, motor_r);
 
 			if (this->tem_cone && pos_atual.distance_to(this->pos) < this->margemObjetivo) {

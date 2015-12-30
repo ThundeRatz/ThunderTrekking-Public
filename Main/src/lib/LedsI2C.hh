@@ -13,7 +13,7 @@ namespace Trekking {
 
 	class LedsI2C {
 		private:
-			I2C i2c{1, "i915 gmbus vga"};
+			I2C i2c{BNO055_I2C_BUS, BNO055_I2C_BUS_NAME};
 		public:
 			LedsI2C();
 			void red(unsigned value);

@@ -47,7 +47,7 @@ void Camera::saveiHighV(int iHighV){
 	fprintf(f, "%d", iHighV);
 	fclose(f);
 	}
-	
+
 
 int Camera::getBiggest() {
 		int j = 0;
@@ -70,7 +70,7 @@ int Camera::getBiggest() {
 int Camera::getXContour(int j) {
 	if(contours.size() == 0 || (contours[j]).size() == 0)
 		return -1;
-	int i, sum;
+	int i, sum = 0;
 	for(i = 0;i < (contours[j]).size();i++) {
 		sum += (contours[j][i]).x;
 	}
@@ -102,28 +102,35 @@ Camera::Camera(){
 	}
 	FILE *f;
 	//Se der segfault, copiar os seguintes arquivos para a pasta de execução:
-	f = fopen("iLowH.txt", "r");
-	fscanf(f, "%d", &iLowH);
-	fclose(f);
-	f = fopen("iHighH.txt", "r");
-	fscanf(f, "%d", &iHighH);
-	fclose(f);
-	f = fopen("iLowS.txt", "r");
-	fscanf(f, "%d", &iLowS);
-	fclose(f);
-	f = fopen("iHighS.txt", "r");
-	fscanf(f, "%d", &iHighS);
-	fclose(f);
-	f = fopen("iLowV.txt", "r");
-	fscanf(f, "%d", &iLowV);
-	fclose(f);
-	f = fopen("iHighV.txt", "r");
-	fscanf(f, "%d", &iHighV);
-	fclose(f);
+	if((f = fopen("iLowH.txt", "r"))) {
+		fscanf(f, "%d", &iLowH);
+		fclose(f);
+	} else iLowH = 0;
 
-	//namedWindow("Drawing", CV_WINDOW_AUTOSIZE);
+	if((f = fopen("iHighH.txt", "r"))) {
+		fscanf(f, "%d", &iHighH);
+		fclose(f);
+	} else iHighH = 0;
+	if((f = fopen("iLowS.txt", "r"))) {
+		fscanf(f, "%d", &iLowS);
+		fclose(f);
+	} else iLowS = 0;
+	if((f = fopen("iHighS.txt", "r"))) {
+		fscanf(f, "%d", &iHighS);
+		fclose(f);
+	} else iHighS = 0;
+	if((f = fopen("iLowV.txt", "r"))) {
+		fscanf(f, "%d", &iLowV);
+		fclose(f);
+	} else iLowV = 0;
+	if((f = fopen("iHighV.txt", "r"))) {
+		fscanf(f, "%d", &iHighV);
+		fclose(f);
+	} else iHighV = 0;
+#ifdef DEBUG
+	namedWindow("Drawing", CV_WINDOW_AUTOSIZE);
 	namedWindow("Control", CV_WINDOW_AUTOSIZE);
-	//namedWindow("Tresh", CV_WINDOW_AUTOSIZE);
+	namedWindow("Tresh", CV_WINDOW_AUTOSIZE);
 	namedWindow("Biggest",CV_WINDOW_AUTOSIZE);
 
 	cvCreateTrackbar("LowH", "Control", &iLowH, 179, saveiLowH); //Hue (0 - 179)
@@ -134,6 +141,7 @@ Camera::Camera(){
 
 	cvCreateTrackbar("LowV", "Control", &iLowV, 255, saveiLowV); //Value (0 - 255)
 	cvCreateTrackbar("HighV", "Control", &iHighV, 255, saveiHighV);
+#endif
 }
 
 void Camera::showBiggest() {
@@ -143,7 +151,9 @@ void Camera::showBiggest() {
 		cuda::cvtColor(frame_gpu, frame_hsv_gpu, CV_BGR2HSV, 4);
 		frame_hsv_gpu.download(frame_hsv);
 		inRange(frame_hsv, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgSave);
-		//imshow("Tresh", imgSave);
+#ifdef DEBUG
+		imshow("Tresh", imgSave);
+#endif
 		frame_hsv_gpu.upload(imgSave);
 		// Mat cannyOutput;
 		cuda::createMorphologyFilter(MORPH_ERODE, CV_8UC4, imgSave);
@@ -161,21 +171,24 @@ void Camera::showBiggest() {
 		findContours(imgSave, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0,0));
 
 
-		/*
+
 		Mat drawing = Mat::zeros(imgSave.size(), CV_8UC3);
 		for(int i = 0; i < contours.size(); i++)
 		{
 			Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 			drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
-		}*/
-		//imshow("Drawing", drawing);
+		}
+#ifdef DEBUG
+		imshow("Drawing", drawing);
 		imshow("Control", frame_hsv);
+#endif
 		// if (good_matches.size() >= 4) {
 		color = Scalar( rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 		Mat biggest = Mat::zeros(imgSave.size(), CV_8UC3);
 		drawContours(biggest, contours, getBiggest(), color, 2, 8, hierarchy, 0, Point());
+#ifdef DEBUG
 		imshow("Biggest", biggest);
+#endif
 
 		waitKey(1);
 }
-
